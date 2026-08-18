@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Lubaga IT Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            background: linear-gradient(135deg, #e8edf5 0%, #d5dce6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .login-container {
+            max-width: 420px;
+            width: 100%;
+            margin: 20px;
+        }
+        .login-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            transition: 0.3s;
+        }
+        .login-card:hover {
+            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
+        }
+        .login-header {
+            background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
+            padding: 35px 30px 30px;
+            text-align: center;
+            color: #fff;
+        }
+        .login-header .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            background: #fff;
+        }
+        .login-header .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 8px;
+        }
+        .login-header h3 { margin: 0; font-weight: 700; }
+        .login-header p { margin: 5px 0 0; opacity: 0.85; font-size: 14px; }
+        .login-header .badge-login {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+        .login-body { padding: 30px; }
+        .login-body .form-control {
+            border-radius: 10px;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            transition: 0.3s;
+        }
+        .login-body .form-control:focus {
+            border-color: #0a58ca;
+            box-shadow: 0 0 0 0.2rem rgba(10, 88, 202, 0.15);
+        }
+        .login-body .btn-primary {
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            background: #0a58ca;
+            border: none;
+        }
+        .login-body .btn-primary:hover {
+            background: #084298;
+        }
+        .login-footer {
+            text-align: center;
+            padding: 0 30px 30px;
+            color: #6c757d;
+        }
+        .login-footer a {
+            color: #0a58ca;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .login-footer a:hover { text-decoration: underline; }
+        .alert-danger { border-radius: 10px; }
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="logo">
+                <img src="lubaga badge.webp" alt="Lubaga Hospital Logo">
+            </div>
+            <h3>Lubaga Hospital</h3>
+            <p>IT Department – Projector Tracker</p>
+            <span class="badge-login"><i class="bi bi-box-arrow-in-right"></i> Sign In</span>
+        </div>
+        <div class="login-body">
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div id="loginError" class="alert alert-danger" style="display:none;"></div>
+                
+                <!-- ===== EMAIL + PASSWORD ===== -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><i class="bi bi-envelope"></i> Email Address</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="Enter your email" required autofocus>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><i class="bi bi-lock"></i> Password</label>
+                    <input type="password" id="loginPass" class="form-control" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-box-arrow-in-right"></i> Sign In
+                </button>
+            </form>
+        </div>
+        <div class="login-footer">
+            Don't have an account? <a href="register.html">Register here</a>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container">
+    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMessage"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const USERS_KEY = 'lubaga_users';
+    const SESSION_KEY = 'lubaga_session';
+
+    function getUsers() {
+        try {
+            const raw = localStorage.getItem(USERS_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch { return {}; }
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('liveToast');
+        const body = document.getElementById('toastMessage');
+        body.textContent = message;
+        toast.className = 'toast align-items-center text-white border-0';
+        if (type === 'success') toast.classList.add('bg-success');
+        else if (type === 'danger') toast.classList.add('bg-danger');
+        else if (type === 'warning') toast.classList.add('bg-warning');
+        else toast.classList.add('bg-primary');
+        new bootstrap.Toast(toast, { delay: 4000 }).show();
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        
+        const errorEl = document.getElementById('loginError');
+        errorEl.style.display = 'none';
+        errorEl.textContent = '';
+
+        const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+        const password = document.getElementById('loginPass').value;
+
+        if (!email || !password) {
+            errorEl.textContent = ' Please enter email and password.';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        const users = getUsers();
+        
+        // Check if email exists
+        let foundUser = null;
+        let foundUsername = null;
+        
+        for (const [username, userData] of Object.entries(users)) {
+            if (userData.email && userData.email.toLowerCase() === email) {
+                foundUser = userData;
+                foundUsername = username;
+                break;
+            }
+        }
+        
+        if (!foundUser) {
+            errorEl.textContent = ' Email not found. Please register first.';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        if (foundUser.password !== password) {
+            errorEl.textContent = ' Invalid password.';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        localStorage.setItem(SESSION_KEY, foundUsername);
+        showToast(' Welcome back, ' + foundUsername + '!', 'success');
+        
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 500);
+    }
+
+    (function checkSession() {
+        const session = localStorage.getItem(SESSION_KEY);
+        const users = getUsers();
+        if (session && users[session]) {
+            window.location.href = 'dashboard.html';
+        }
+    })();
+</script>
+</body>
+</html>

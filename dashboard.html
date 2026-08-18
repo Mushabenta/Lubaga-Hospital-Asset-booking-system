@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard - Lubaga IT Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            background: #f0f2f5; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 40px;
+        }
+        
+        .navbar-custom {
+            background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+            padding: 10px 0;
+        }
+        .navbar-custom .navbar-brand {
+            color: #fff !important;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+        .navbar-custom .navbar-brand i { font-size: 1.5rem; margin-right: 8px; }
+        .navbar-custom .btn-outline-light {
+            color: #fff !important;
+            border-color: rgba(255,255,255,0.3);
+        }
+        .navbar-custom .btn-outline-light:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .stat-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 18px 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: 0.3s;
+            border-left: 4px solid #0a58ca;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+        .stat-card .number { font-size: 32px; font-weight: 700; color: #0a58ca; line-height: 1.2; }
+        .stat-card .label { font-size: 13px; color: #6c757d; margin-top: 4px; font-weight: 500; }
+        .stat-card.danger { border-left-color: #dc3545; }
+        .stat-card.danger .number { color: #dc3545; }
+        .stat-card.success { border-left-color: #198754; }
+        .stat-card.success .number { color: #198754; }
+        .stat-card.warning { border-left-color: #ffc107; }
+        .stat-card.warning .number { color: #fd7e14; }
+        
+        .status-badge {
+            padding: 4px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-block;
+            text-align: center;
+            min-width: 85px;
+            white-space: nowrap;
+        }
+        .status-badge.returned {
+            background: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+        .status-badge.out {
+            background: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
+        
+        .tick-yes {
+            color: #198754;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .tick-no {
+            color: #dc3545;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .table-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .table-container .table-header {
+            padding: 16px 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #212529;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .table {
+            margin-bottom: 0;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 900px;
+        }
+        
+        .table thead th {
+            background: #f8f9fa;
+            padding: 12px 10px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #495057;
+            border: 1px solid #dee2e6;
+            white-space: nowrap;
+        }
+        
+        .table tbody td {
+            padding: 10px 10px;
+            vertical-align: middle;
+            border: 1px solid #dee2e6;
+            word-break: break-word;
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .table tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+        .table tbody tr:hover {
+            background-color: #e9ecef !important;
+            cursor: pointer;
+        }
+        .table tbody tr.returned-row td:first-child {
+            border-left: 4px solid #198754;
+        }
+        .table tbody tr.out-row td:first-child {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .mobile-cards {
+            display: none;
+            padding: 16px;
+        }
+        
+        .mobile-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+            transition: 0.2s;
+        }
+        .mobile-card:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+        
+        .mobile-card .card-header {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-card .card-header .row-number {
+            font-weight: 700;
+            color: #0a58ca;
+            font-size: 14px;
+        }
+        .mobile-card .card-body {
+            padding: 0;
+        }
+        .mobile-card .card-body .field-row {
+            display: flex;
+            padding: 10px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        .mobile-card .card-body .field-row:last-child {
+            border-bottom: none;
+        }
+        .mobile-card .card-body .field-row .field-label {
+            font-weight: 700;
+            color: #6c757d;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            width: 100px;
+            flex-shrink: 0;
+        }
+        .mobile-card .card-body .field-row .field-value {
+            flex: 1;
+            word-break: break-word;
+            padding-left: 8px;
+        }
+        .mobile-card .card-body .field-row .field-value code {
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .mobile-card .card-footer {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mobile-card .card-footer .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .mobile-card .card-footer .checkbox-wrapper input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .mobile-card .card-footer .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .mobile-card.out-row {
+            border-left: 4px solid #dc3545;
+        }
+        .mobile-card.returned-row {
+            border-left: 4px solid #198754;
+        }
+        
+        @media screen and (max-width: 767px) {
+            .table-wrapper {
+                display: none;
+            }
+            .mobile-cards {
+                display: block;
+            }
+            .status-badge {
+                font-size: 12px;
+                padding: 3px 12px;
+                min-width: 75px;
+            }
+        }
+        
+        .chart-container { height: 220px; position: relative; }
+        .chart-card {
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: none;
+            transition: 0.3s;
+        }
+        .chart-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .chart-card .card-header {
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            padding: 14px 20px;
+        }
+        .chart-card .card-body { padding: 20px; }
+        
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+        .signature-field { font-family: 'Courier New', monospace; letter-spacing: 1px; text-transform: uppercase; }
+        
+        .nav-tabs .nav-link {
+            color: #495057;
+            font-weight: 600;
+            padding: 12px 20px;
+            border: none;
+            border-bottom: 3px solid transparent;
+            transition: 0.3s;
+        }
+        .nav-tabs .nav-link:hover { border-bottom-color: #adb5bd; }
+        .nav-tabs .nav-link.active {
+            color: #0a58ca;
+            border-bottom-color: #0a58ca;
+            background: transparent;
+        }
+        .nav-tabs .nav-link i { margin-right: 6px; }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e9ecef;
+            border-top-color: #0a58ca;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .field-required { color: #dc3545; font-weight: bold; margin-left: 2px; }
+        .text-muted-small { font-size: 12px; color: #6c757d; }
+        
+        .mobile-card.returned-row .card-footer {
+            justify-content: flex-end;
+        }
+        .mobile-card.returned-row .checkbox-wrapper {
+            display: none !important;
+        }
+        .table tbody tr.returned-row td:first-child input[type="checkbox"] {
+            display: none !important;
+        }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .table-container { box-shadow: none; border: 1px solid #ddd; }
+            .stat-card { box-shadow: none; border: 1px solid #ddd; }
+            .mobile-cards { display: none !important; }
+            .table-wrapper { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- NAVBAR -->
+<!-- ============================================================ -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+        <span class="navbar-brand"><i class="bi bi-projector"></i> Lubaga Hospital Projector Tracker</span>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <span id="statusBadge" class="text-white-50" style="font-size:13px;">
+                <i class="bi bi-circle-fill text-success"></i> Online
+            </span>
+            <span id="userDisplay" class="text-white" style="font-size:13px; opacity:0.8;">
+                <i class="bi bi-person-circle"></i> <span id="usernameDisplay"></span>
+            </span>
+            <button class="btn btn-outline-light btn-sm" onclick="handleLogout()">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ============================================================ -->
+<!-- MAIN CONTENT -->
+<!-- ============================================================ -->
+<div class="container mt-3">
+
+    <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboardPanel" type="button" role="tab">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logsPanel" type="button" role="tab">
+                <i class="bi bi-list-ul"></i> Transaction Log
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+
+        <!-- ===== DASHBOARD TAB ===== -->
+        <div class="tab-pane fade show active" id="dashboardPanel" role="tabpanel">
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="stat-card"><div class="number" id="dTotal">0</div><div class="label"><i class="bi bi-database"></i> Total Transactions</div></div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card danger"><div class="number" id="dOut">0</div><div class="label"><i class="bi bi-box-arrow-right"></i> Currently Out</div></div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card success"><div class="number" id="dReturned">0</div><div class="label"><i class="bi bi-check2-circle"></i> Returned</div></div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card warning"><div class="number" id="dOverdue">0</div><div class="label"><i class="bi bi-clock-history"></i> Overdue (>3 days)</div></div>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card chart-card">
+                        <div class="card-header"><i class="bi bi-pie-chart-fill text-primary"></i> Status Breakdown</div>
+                        <div class="card-body"><div class="chart-container"><canvas id="pieChart"></canvas></div></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card chart-card">
+                        <div class="card-header"><i class="bi bi-bar-chart-fill text-primary"></i> Monthly Issued</div>
+                        <div class="card-body"><div class="chart-container"><canvas id="barChart"></canvas></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== LOGS TAB ===== -->
+        <div class="tab-pane fade" id="logsPanel" role="tabpanel">
+            
+            <div class="row mb-3 g-2">
+                <div class="col-md-9 d-flex flex-wrap gap-2">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+                        <i class="bi bi-plus-circle"></i> Check Out
+                    </button>
+                    <button class="btn btn-success" id="returnBtn" disabled>
+                        <i class="bi bi-arrow-return-left"></i> Return Selected
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="refreshData()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                    <button class="btn btn-outline-info" onclick="exportCSV()">
+                        <i class="bi bi-download"></i> CSV
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search..." oninput="loadData()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-list-ul"></i> Transaction Log</span>
+                    <span class="text-muted-small" id="recordCount">0 records</span>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table class="table" id="trackerTable">
+                        <thead>
+                            <tr>
+                                <th style="width:36px;">Select</th>
+                                <th style="width:40px;">NO</th>
+                                <th>Date</th>
+                                <th>Requestor</th>
+                                <th>Contact</th>
+                                <th>Big/Small</th>
+                                <th>Issued By</th>
+                                <th>Power Code</th>
+                                <th>Power Ext</th>
+                                <th>VGA/HDMI</th>
+                                <th>HDMI Adapter</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="12" class="text-center py-4 text-muted">
+                                    <div class="loading-spinner"></div> Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mobile-cards" id="mobileCards"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CHECKOUT MODAL -->
+<!-- ============================================================ -->
+<div class="modal fade" id="checkoutModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-box-arrow-right"></i> Check Out Projector</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="checkoutForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Date <span class="field-required">*</span></label>
+                            <input type="date" class="form-control" id="req_date" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Requestor <span class="field-required">*</span></label>
+                            <input type="text" class="form-control" id="req_requestor" placeholder="Full name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Contact</label>
+                            <input type="text" class="form-control" id="req_contact" placeholder="Phone or Email">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Big / Small <span class="field-required">*</span></label>
+                            <select class="form-select" id="req_size" required>
+                                <option value="">Select...</option>
+                                <option value="Big">Big</option>
+                                <option value="Small">Small</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Issued By <span class="field-required">*</span></label>
+                            <input type="text" class="form-control" id="req_issuedby" placeholder="IT staff name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Power Code <span class="field-required">*</span></label>
+                            <select class="form-select" id="req_powercode" required>
+                                <option value="">Select...</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Power Extension <span class="field-required">*</span></label>
+                            <select class="form-select" id="req_powerext" required>
+                                <option value="">Select...</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">VGA / HDMI <span class="field-required">*</span></label>
+                            <select class="form-select" id="req_cable" required>
+                                <option value="">Select...</option>
+                                <option value="VGA">VGA</option>
+                                <option value="HDMI">HDMI</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">HDMI Adapter <span class="field-required">*</span></label>
+                            <select class="form-select" id="req_adapter" required>
+                                <option value="">Select...</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="doCheckout()"><i class="bi bi-check2"></i> Issue Projector</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- RETURN MODAL -->
+<!-- ============================================================ -->
+<div class="modal fade" id="returnModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-arrow-return-left"></i> Return Projector</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info"><strong>Requestor:</strong> <span id="ret_requestor"></span></div>
+                <form id="returnForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Returned By <span class="field-required">*</span></label>
+                        <input type="text" class="form-control" id="ret_returnedby" placeholder="Person returning" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Received By <span class="field-required">*</span></label>
+                        <input type="text" class="form-control" id="ret_receivedby" placeholder="IT staff receiving" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Signature (Returner) <span class="field-required">*</span></label>
+                        <input type="text" class="form-control signature-field" id="ret_sig_return" placeholder="Initials or full name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Signature (Receiver) <span class="field-required">*</span></label>
+                        <input type="text" class="form-control signature-field" id="ret_sig_receiver" placeholder="Initials or full name" required>
+                    </div>
+                    <input type="hidden" id="ret_id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" onclick="doReturn()"><i class="bi bi-check2"></i> Complete Return</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CONFIRMATION MODAL -->
+<!-- ============================================================ -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="confirmMessage">Are you sure?</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-danger" id="confirmActionBtn" onclick="executeConfirmedAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TOAST -->
+<!-- ============================================================ -->
+<div class="toast-container">
+    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMessage"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- JAVASCRIPT - SIMPLIFIED FIX -->
+<!-- ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ============================================================
+    // CONFIG
+    // ============================================================
+    const USERS_KEY = 'lubaga_users';
+    const SESSION_KEY = 'lubaga_session';
+
+    function getUsers() {
+        try { const raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
+    }
+
+    // ============================================================
+    // GET TRANSACTIONS - DIRECT READ
+    // ============================================================
+    function getTransactions() {
+        try {
+            // Try to read from all possible keys
+            const keys = [
+                'lubaga_transactions',
+                'lubaga_projector_data',
+                'lubaga_projector_data_v2',
+                'lubaga_projector_data_v3',
+                'lubaga_projector_data_v4'
+            ];
+            
+            for (const key of keys) {
+                try {
+                    const raw = localStorage.getItem(key);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        if (data && Array.isArray(data) && data.length > 0) {
+                            console.log(' Found data in:', key, data.length, 'records');
+                            // If found in old key, copy to main key
+                            if (key !== 'lubaga_transactions') {
+                                localStorage.setItem('lubaga_transactions', raw);
+                                console.log('Migrated to lubaga_transactions');
+                            }
+                            return data;
+                        }
+                    }
+                } catch (e) {}
+            }
+            
+            console.log('No data found');
+            return [];
+        } catch (e) {
+            console.error('Error:', e);
+            return [];
+        }
+    }
+
+    function saveTransactions(data) {
+        try {
+            localStorage.setItem('lubaga_transactions', JSON.stringify(data));
+            console.log(' Saved', data.length, 'transactions');
+        } catch (e) {
+            console.error('Error saving:', e);
+        }
+    }
+
+    // ============================================================
+    // STATE
+    // ============================================================
+    let transactions = [];
+    let pieChartInstance = null;
+    let barChartInstance = null;
+    let pendingAction = null;
+
+    // ============================================================
+    // SESSION CHECK
+    // ============================================================
+    (function checkSession() {
+        const session = localStorage.getItem(SESSION_KEY);
+        const users = getUsers();
+        if (!session || !users[session]) {
+            window.location.href = 'index.html';
+        }
+        document.getElementById('usernameDisplay').textContent = session;
+        console.log('👤 Logged in as:', session);
+    })();
+
+    // ============================================================
+    // LOGOUT
+    // ============================================================
+    function handleLogout() {
+        localStorage.removeItem(SESSION_KEY);
+        window.location.href = 'index.html';
+    }
+
+    // ============================================================
+    // TOAST
+    // ============================================================
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('liveToast');
+        const body = document.getElementById('toastMessage');
+        body.textContent = message;
+        toast.className = 'toast align-items-center text-white border-0';
+        if (type === 'success') toast.classList.add('bg-success');
+        else if (type === 'danger') toast.classList.add('bg-danger');
+        else if (type === 'warning') toast.classList.add('bg-warning');
+        else toast.classList.add('bg-primary');
+        new bootstrap.Toast(toast, { delay: 4000 }).show();
+    }
+
+    // ============================================================
+    // CONFIRMATION
+    // ============================================================
+    function showConfirm(message, action) {
+        pendingAction = action;
+        document.getElementById('confirmMessage').textContent = message;
+        new bootstrap.Modal(document.getElementById('confirmModal')).show();
+    }
+
+    function executeConfirmedAction() {
+        if (pendingAction) {
+            pendingAction();
+            pendingAction = null;
+        }
+        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+    }
+
+    // ============================================================
+    // REFRESH
+    // ============================================================
+    function refreshData() {
+        showToast('Refreshing data...', 'info');
+        loadData();
+        loadDashboard();
+        setTimeout(() => showToast(' Data refreshed', 'success'), 500);
+    }
+
+    // ============================================================
+    // HELPER - TICK DISPLAY
+    // ============================================================
+    function renderTick(value) {
+        if (value === 'Yes' || value === 'yes' || value === true) {
+            return '<span class="tick-yes">✓</span>';
+        } else if (value === 'No' || value === 'no' || value === false || value === '') {
+            return '<span class="tick-no">✗</span>';
+        }
+        return value || '—';
+    }
+
+    // ============================================================
+    // DATA OPERATIONS
+    // ============================================================
+    function loadData() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        let all = getTransactions();
+        console.log('Loaded', all.length, 'records');
+        
+        if (search && all.length > 0) {
+            all = all.filter(t => 
+                (t.requestor || '').toLowerCase().includes(search) ||
+                (t.contact || '').toLowerCase().includes(search)
+            );
+        }
+        transactions = all;
+        renderTable();
+        renderMobileCards();
+        document.getElementById('statusBadge').innerHTML = '<i class="bi bi-circle-fill text-success"></i> Online';
+        document.getElementById('recordCount').textContent = transactions.length + ' records';
+    }
+
+    // ===== DESKTOP TABLE =====
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        if (transactions.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="12" class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                        No transactions found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        let html = '';
+        transactions.forEach((t, i) => {
+            const returned = !!(t.returned_by && t.returned_by !== '');
+            const rowClass = returned ? 'returned-row' : 'out-row';
+            
+            const statusHtml = returned 
+                ? '<span class="status-badge returned">Returned</span>'
+                : '<span class="status-badge out">Out</span>';
+            
+            const showActions = !returned;
+            
+            const powerCodeDisplay = renderTick(t.power_code);
+            const powerExtDisplay = renderTick(t.power_extension);
+            const hdmiAdapterDisplay = renderTick(t.hdmi_adapter);
+            
+            html += `<tr class="${rowClass}">
+                <td>
+                    ${showActions ? `<input type="checkbox" class="row-cb" value="${t.id}">` : '<span class="text-muted">—</span>'}
+                </td>
+                <td>${i + 1}</td>
+                <td>${t.date || ''}</td>
+                <td><strong>${t.requestor || ''}</strong></td>
+                <td>${t.contact || '—'}</td>
+                <td>${t.big_small || ''}</td>
+                <td>${t.issued_by || ''}</td>
+                <td>${powerCodeDisplay}</td>
+                <td>${powerExtDisplay}</td>
+                <td>${t.vga_hdmi || ''}</td>
+                <td>${hdmiAdapterDisplay}</td>
+                <td>${statusHtml}</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+        const selectAll = document.getElementById('selectAll');
+        if (selectAll) selectAll.checked = false;
+        updateReturnButton();
+    }
+
+    // ===== MOBILE CARDS =====
+    function renderMobileCards() {
+        const container = document.getElementById('mobileCards');
+        if (transactions.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                    No transactions found.
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        transactions.forEach((t, i) => {
+            const returned = !!(t.returned_by && t.returned_by !== '');
+            const rowClass = returned ? 'returned-row' : 'out-row';
+            
+            const statusHtml = returned 
+                ? '<span class="status-badge returned">Returned</span>'
+                : '<span class="status-badge out">Out</span>';
+            
+            const showActions = !returned;
+            
+            const powerCodeDisplay = renderTick(t.power_code);
+            const powerExtDisplay = renderTick(t.power_extension);
+            const hdmiAdapterDisplay = renderTick(t.hdmi_adapter);
+            
+            html += `
+                <div class="mobile-card ${rowClass}">
+                    <div class="card-header">
+                        <span class="row-number">NO: ${i + 1}</span>
+                        <span>${statusHtml}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="field-row">
+                            <span class="field-label">Date</span>
+                            <span class="field-value">${t.date || ''}</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Requestor</span>
+                            <span class="field-value"><strong>${t.requestor || ''}</strong></span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Contact</span>
+                            <span class="field-value">${t.contact || '—'}</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Big/Small</span>
+                            <span class="field-value">${t.big_small || ''}</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Issued By</span>
+                            <span class="field-value">${t.issued_by || ''}</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Power Code</span>
+                            <span class="field-value">${powerCodeDisplay}</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">Power Ext</span>
+                            <span class="field-value">${powerExtDisplay}</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">VGA/HDMI</span>
+                            <span class="field-value">${t.vga_hdmi || ''}</span>
+                        </div>
+                        <div class="field-row">
+                            <span class="field-label">HDMI Adapter</span>
+                            <span class="field-value">${hdmiAdapterDisplay}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        ${showActions ? `
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" class="row-cb-mobile" value="${t.id}" id="cb_${t.id}">
+                                <label for="cb_${t.id}" style="font-size:13px; color:#6c757d; margin:0;">Select</label>
+                            </div>
+                            <div class="action-btn">
+                                <button class="btn btn-sm btn-success" onclick="openReturn('${t.id}')" title="Return this projector">
+                                    <i class="bi bi-arrow-return-left"></i> Return
+                                </button>
+                            </div>
+                        ` : `
+                            <div style="width:100%; text-align:right;">
+                                <span class="text-muted small">Returned</span>
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        
+        document.querySelectorAll('.row-cb-mobile').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const desktopCb = document.querySelector(`.row-cb[value="${this.value}"]`);
+                if (desktopCb) desktopCb.checked = this.checked;
+                updateReturnButton();
+            });
+        });
+    }
+
+    function updateReturnButton() {
+        const checked = document.querySelectorAll('.row-cb:checked').length;
+        document.getElementById('returnBtn').disabled = checked === 0;
+        if (checked > 0) {
+            document.getElementById('returnBtn').innerHTML = `<i class="bi bi-arrow-return-left"></i> Return ${checked} Selected`;
+        } else {
+            document.getElementById('returnBtn').innerHTML = `<i class="bi bi-arrow-return-left"></i> Return Selected`;
+        }
+    }
+
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('row-cb')) {
+            const mobileCb = document.querySelector(`.row-cb-mobile[value="${e.target.value}"]`);
+            if (mobileCb) mobileCb.checked = e.target.checked;
+            updateReturnButton();
+        }
+    });
+
+    // ============================================================
+    // DASHBOARD
+    // ============================================================
+    function loadDashboard() {
+        // Always read the latest saved records
+        const all = getTransactions();
+        transactions = all;
+
+        const total = all.length;
+        const out = all.filter(t => !t.returned_by).length;
+        const returned = all.filter(t => t.returned_by).length;
+        const overdue = all.filter(t => {
+            if (t.returned_by || !t.date) return false;
+            const days = (Date.now() - new Date(t.date).getTime()) / 86400000;
+            return days > 3;
+        }).length;
+
+        document.getElementById('dTotal').textContent = total;
+        document.getElementById('dOut').textContent = out;
+        document.getElementById('dReturned').textContent = returned;
+        document.getElementById('dOverdue').textContent = overdue;
+
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js is not loaded.');
+            return;
+        }
+
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        if (pieChartInstance) pieChartInstance.destroy();
+        pieChartInstance = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['Out', 'Returned'],
+                datasets: [{
+                    data: [out, returned],
+                    backgroundColor: ['#dc3545', '#198754'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            boxWidth: 12, 
+                            padding: 12,
+                            font: { size: 13 }
+                        } 
+                    } 
+                }
+            }
+        });
+
+        const monthly = {};
+        all.forEach(t => {
+            if (!t.date) return;
+            const month = t.date.substring(0, 7);
+            monthly[month] = (monthly[month] || 0) + 1;
+        });
+        const months = Object.keys(monthly).sort().slice(-6);
+        const counts = months.map(m => monthly[m]);
+
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        if (barChartInstance) barChartInstance.destroy();
+        barChartInstance = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: months.length ? months : ['No Data'],
+                datasets: [{
+                    label: 'Issued',
+                    data: counts.length ? counts : [0],
+                    backgroundColor: ['#0a58ca', '#0d6efd', '#3d8bfd', '#6ba8fe', '#9ac5fe', '#c8e2fe'],
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1 },
+                        grid: { color: '#e9ecef' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // ============================================================
+    // CHECKOUT
+    // ============================================================
+    function doCheckout() {
+        const date = document.getElementById('req_date').value;
+        const requestor = document.getElementById('req_requestor').value.trim();
+        const issuedBy = document.getElementById('req_issuedby').value.trim();
+        const size = document.getElementById('req_size').value;
+        const powerCode = document.getElementById('req_powercode').value;
+        const powerExt = document.getElementById('req_powerext').value;
+        const cable = document.getElementById('req_cable').value;
+        const adapter = document.getElementById('req_adapter').value;
+
+        if (!date || !requestor || !issuedBy || !size || !powerCode || !powerExt || !cable || !adapter) {
+            showToast('Please fill in all required fields (marked with *).', 'danger');
+            return;
+        }
+
+        const record = {
+            id: 'P' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            date: date,
+            requestor: requestor,
+            contact: document.getElementById('req_contact').value.trim(),
+            big_small: size,
+            issued_by: issuedBy,
+            power_code: powerCode,
+            power_extension: powerExt,
+            vga_hdmi: cable,
+            hdmi_adapter: adapter,
+            returned_by: '',
+            received_by: '',
+            signature_return: '',
+            signature_receiver: ''
+        };
+
+        const all = getTransactions();
+        all.unshift(record);
+        saveTransactions(all);
+        document.getElementById('checkoutForm').reset();
+        bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
+        loadData();
+        loadDashboard();
+        showToast('Checked out to ' + requestor, 'success');
+    }
+
+    // ============================================================
+    // RETURN
+    // ============================================================
+    function openReturn(id) {
+        const row = transactions.find(t => t.id === id);
+        if (!row) return;
+        document.getElementById('ret_requestor').textContent = row.requestor;
+        document.getElementById('ret_id').value = id;
+        document.getElementById('ret_returnedby').value = '';
+        document.getElementById('ret_receivedby').value = '';
+        document.getElementById('ret_sig_return').value = '';
+        document.getElementById('ret_sig_receiver').value = '';
+        new bootstrap.Modal(document.getElementById('returnModal')).show();
+    }
+
+    function doReturn() {
+        const id = document.getElementById('ret_id').value;
+        const returnedBy = document.getElementById('ret_returnedby').value.trim();
+        const receivedBy = document.getElementById('ret_receivedby').value.trim();
+        const sigRet = document.getElementById('ret_sig_return').value.trim();
+        const sigRec = document.getElementById('ret_sig_receiver').value.trim();
+
+        if (!returnedBy || !receivedBy || !sigRet || !sigRec) {
+            showToast('All return fields are required.', 'danger');
+            return;
+        }
+
+        let all = getTransactions();
+        const idx = all.findIndex(t => t.id === id);
+        if (idx === -1) { showToast('Record not found.', 'danger'); return; }
+
+        all[idx].returned_by = returnedBy;
+        all[idx].received_by = receivedBy;
+        all[idx].signature_return = sigRet;
+        all[idx].signature_receiver = sigRec;
+        saveTransactions(all);
+        bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
+        loadData();
+        loadDashboard();
+        showToast('Return completed for ' + all[idx].requestor, 'success');
+    }
+
+    // ============================================================
+    // BULK SELECT / RETURN
+    // ============================================================
+    function toggleAllCheckboxes() {
+        const checked = document.getElementById('selectAll').checked;
+        document.querySelectorAll('.row-cb').forEach(cb => cb.checked = checked);
+        document.querySelectorAll('.row-cb-mobile').forEach(cb => cb.checked = checked);
+        updateReturnButton();
+    }
+
+    document.getElementById('returnBtn').addEventListener('click', function() {
+        const checked = document.querySelectorAll('.row-cb:checked');
+        if (checked.length === 0) return;
+        
+        if (checked.length === 1) {
+            openReturn(checked[0].value);
+        } else {
+            showConfirm(
+                `Return ${checked.length} selected projectors? (Bulk signature will be "BULK")`,
+                function() {
+                    let all = getTransactions();
+                    let count = 0;
+                    checked.forEach(cb => {
+                        const idx = all.findIndex(t => t.id === cb.value);
+                        if (idx !== -1 && !all[idx].returned_by) {
+                            all[idx].returned_by = 'BULK';
+                            all[idx].received_by = 'BULK';
+                            all[idx].signature_return = 'BULK';
+                            all[idx].signature_receiver = 'BULK';
+                            count++;
+                        }
+                    });
+                    saveTransactions(all);
+                    loadData();
+                    loadDashboard();
+                    showToast(' ' + count + ' projectors returned (BULK)', 'success');
+                }
+            );
+        }
+    });
+
+    // ============================================================
+    // EXPORT CSV
+    // ============================================================
+    function exportCSV() {
+        const all = getTransactions();
+        if (all.length === 0) { showToast('No data to export.', 'warning'); return; }
+        const headers = ['Date','Requestor','Contact','Big/Small','Issued By','Power Code','Power Extension','VGA/HDMI','HDMI Adapter','Returned By','Received By','Signature Return','Signature Receiver'];
+        let csv = '\uFEFF' + headers.join(',') + '\n';
+        all.forEach(t => {
+            const row = [
+                t.date, t.requestor, t.contact, t.big_small, t.issued_by,
+                t.power_code, t.power_extension, t.vga_hdmi, t.hdmi_adapter,
+                t.returned_by, t.received_by, t.signature_return, t.signature_receiver
+            ];
+            csv += row.map(f => `"${(f || '').replace(/"/g, '""')}"`).join(',') + '\n';
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `Lubaga_Projector_Log_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+        showToast(' CSV exported successfully', 'success');
+    }
+
+    // ============================================================
+    // SEED SAMPLE DATA
+    // ============================================================
+    function seedSampleData() {
+        const existing = getTransactions();
+        if (existing.length > 0) return;
+        
+        const today = new Date();
+        const formatDate = (d) => d.toISOString().split('T')[0];
+        
+        const sample = [
+            {
+                id: 'P001',
+                date: formatDate(new Date(today - 86400000 * 2)),
+                requestor: 'Dr. Sarah Nakato',
+                contact: '0772-123456',
+                big_small: 'Big',
+                issued_by: 'John IT',
+                power_code: 'Yes',
+                power_extension: 'Yes',
+                vga_hdmi: 'HDMI',
+                hdmi_adapter: 'Yes',
+                returned_by: '',
+                received_by: '',
+                signature_return: '',
+                signature_receiver: ''
+            },
+            {
+                id: 'P002',
+                date: formatDate(new Date(today - 86400000 * 5)),
+                requestor: 'Dr. Peter Okello',
+                contact: '0773-789012',
+                big_small: 'Small',
+                issued_by: 'Mary IT',
+                power_code: 'No',
+                power_extension: 'No',
+                vga_hdmi: 'VGA',
+                hdmi_adapter: 'No',
+                returned_by: 'Dr. Okello',
+                received_by: 'John IT',
+                signature_return: 'PO',
+                signature_receiver: 'JM'
+            },
+            {
+                id: 'P003',
+                date: formatDate(new Date(today - 86400000 * 1)),
+                requestor: 'Nurse Grace Auma',
+                contact: '0774-345678',
+                big_small: 'Big',
+                issued_by: 'John IT',
+                power_code: 'Yes',
+                power_extension: 'No',
+                vga_hdmi: 'HDMI',
+                hdmi_adapter: 'Yes',
+                returned_by: '',
+                received_by: '',
+                signature_return: '',
+                signature_receiver: ''
+            }
+        ];
+        saveTransactions(sample);
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('shown.bs.tab', function(e) {
+        if (e.target.id === 'dashboard-tab') {
+            loadDashboard();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('req_date').value = today;
+        
+        console.log('Dashboard loading...');
+        
+        // Force reload data
+        const data = getTransactions();
+        console.log('Total records found:', data.length);
+        
+        if (data.length === 0) {
+            console.log('No data found, seeding sample...');
+            seedSampleData();
+        }
+        
+        loadData();
+        loadDashboard();
+        console.log('Dashboard ready');
+    });
+</script>
+</body>
+</html>
