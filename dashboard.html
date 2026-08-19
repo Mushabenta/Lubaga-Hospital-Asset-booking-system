@@ -1,1302 +1,1732 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard - Lubaga IT Tracker</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <style>
-        * { box-sizing: border-box; }
-        body { 
-            background: #f0f2f5; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-bottom: 40px;
-        }
-        
-        .navbar-custom {
-            background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-            padding: 10px 0;
-        }
-        .navbar-custom .navbar-brand {
-            color: #fff !important;
-            font-weight: 700;
-            font-size: 1.3rem;
-        }
-        .navbar-custom .navbar-brand i { font-size: 1.5rem; margin-right: 8px; }
-        .navbar-custom .btn-outline-light {
-            color: #fff !important;
-            border-color: rgba(255,255,255,0.3);
-        }
-        .navbar-custom .btn-outline-light:hover {
-            background: rgba(255,255,255,0.15);
-        }
-        
-        .stat-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 18px 16px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            transition: 0.3s;
-            border-left: 4px solid #0a58ca;
-        }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
-        .stat-card .number { font-size: 32px; font-weight: 700; color: #0a58ca; line-height: 1.2; }
-        .stat-card .label { font-size: 13px; color: #6c757d; margin-top: 4px; font-weight: 500; }
-        .stat-card.danger { border-left-color: #dc3545; }
-        .stat-card.danger .number { color: #dc3545; }
-        .stat-card.success { border-left-color: #198754; }
-        .stat-card.success .number { color: #198754; }
-        .stat-card.warning { border-left-color: #ffc107; }
-        .stat-card.warning .number { color: #fd7e14; }
-        
-        .status-badge {
-            padding: 4px 16px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 13px;
-            display: inline-block;
-            text-align: center;
-            min-width: 85px;
-            white-space: nowrap;
-        }
-        .status-badge.returned {
-            background: #d1e7dd;
-            color: #0f5132;
-            border: 1px solid #badbcc;
-        }
-        .status-badge.out {
-            background: #f8d7da;
-            color: #842029;
-            border: 1px solid #f5c2c7;
-        }
-        
-        .tick-yes {
-            color: #198754;
-            font-weight: 700;
-            font-size: 16px;
-        }
-        .tick-no {
-            color: #dc3545;
-            font-weight: 700;
-            font-size: 16px;
-        }
-        
-        .table-container {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            overflow: hidden;
-        }
-        .table-container .table-header {
-            padding: 16px 20px;
-            background: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-            font-weight: 600;
-            color: #212529;
-        }
-        
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .table {
-            margin-bottom: 0;
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-            min-width: 900px;
-        }
-        
-        .table thead th {
-            background: #f8f9fa;
-            padding: 12px 10px;
-            font-weight: 700;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            color: #495057;
-            border: 1px solid #dee2e6;
-            white-space: nowrap;
-        }
-        
-        .table tbody td {
-            padding: 10px 10px;
-            vertical-align: middle;
-            border: 1px solid #dee2e6;
-            word-break: break-word;
-        }
-        
-        .table tbody tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        .table tbody tr:nth-child(odd) {
-            background-color: #ffffff;
-        }
-        .table tbody tr:hover {
-            background-color: #e9ecef !important;
-            cursor: pointer;
-        }
-        .table tbody tr.returned-row td:first-child {
-            border-left: 4px solid #198754;
-        }
-        .table tbody tr.out-row td:first-child {
-            border-left: 4px solid #dc3545;
-        }
-        
-        .mobile-cards {
-            display: none;
-            padding: 16px;
-        }
-        
-        .mobile-card {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 16px;
-            border: 1px solid #e9ecef;
-            overflow: hidden;
-            transition: 0.2s;
-        }
-        .mobile-card:hover {
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-        }
-        
-        .mobile-card .card-header {
-            padding: 12px 16px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .mobile-card .card-header .row-number {
-            font-weight: 700;
-            color: #0a58ca;
-            font-size: 14px;
-        }
-        .mobile-card .card-body {
-            padding: 0;
-        }
-        .mobile-card .card-body .field-row {
-            display: flex;
-            padding: 10px 16px;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 14px;
-        }
-        .mobile-card .card-body .field-row:last-child {
-            border-bottom: none;
-        }
-        .mobile-card .card-body .field-row .field-label {
-            font-weight: 700;
-            color: #6c757d;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            width: 100px;
-            flex-shrink: 0;
-        }
-        .mobile-card .card-body .field-row .field-value {
-            flex: 1;
-            word-break: break-word;
-            padding-left: 8px;
-        }
-        .mobile-card .card-body .field-row .field-value code {
-            background: #e9ecef;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-        .mobile-card .card-footer {
-            padding: 12px 16px;
-            background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .mobile-card .card-footer .checkbox-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .mobile-card .card-footer .checkbox-wrapper input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        .mobile-card .card-footer .action-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .mobile-card.out-row {
-            border-left: 4px solid #dc3545;
-        }
-        .mobile-card.returned-row {
-            border-left: 4px solid #198754;
-        }
-        
-        @media screen and (max-width: 767px) {
-            .table-wrapper {
-                display: none;
-            }
-            .mobile-cards {
-                display: block;
-            }
-            .status-badge {
-                font-size: 12px;
-                padding: 3px 12px;
-                min-width: 75px;
-            }
-        }
-        
-        .chart-container { height: 220px; position: relative; }
-        .chart-card {
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: none;
-            transition: 0.3s;
-        }
-        .chart-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
-        .chart-card .card-header {
-            background: #fff;
-            border-bottom: 1px solid #e9ecef;
-            font-weight: 600;
-            padding: 14px 20px;
-        }
-        .chart-card .card-body { padding: 20px; }
-        
-        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
-        .signature-field { font-family: 'Courier New', monospace; letter-spacing: 1px; text-transform: uppercase; }
-        
-        .nav-tabs .nav-link {
-            color: #495057;
-            font-weight: 600;
-            padding: 12px 20px;
-            border: none;
-            border-bottom: 3px solid transparent;
-            transition: 0.3s;
-        }
-        .nav-tabs .nav-link:hover { border-bottom-color: #adb5bd; }
-        .nav-tabs .nav-link.active {
-            color: #0a58ca;
-            border-bottom-color: #0a58ca;
-            background: transparent;
-        }
-        .nav-tabs .nav-link i { margin-right: 6px; }
-        
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #e9ecef;
-            border-top-color: #0a58ca;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .field-required { color: #dc3545; font-weight: bold; margin-left: 2px; }
-        .text-muted-small { font-size: 12px; color: #6c757d; }
-        
-        .mobile-card.returned-row .card-footer {
-            justify-content: flex-end;
-        }
-        .mobile-card.returned-row .checkbox-wrapper {
-            display: none !important;
-        }
-        .table tbody tr.returned-row td:first-child input[type="checkbox"] {
-            display: none !important;
-        }
-        
-        @media print {
-            .no-print { display: none !important; }
-            .table-container { box-shadow: none; border: 1px solid #ddd; }
-            .stat-card { box-shadow: none; border: 1px solid #ddd; }
-            .mobile-cards { display: none !important; }
-            .table-wrapper { display: block !important; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - Lubaga IT Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: #f0f2f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding-bottom: 40px;
+    }
+
+    /* ===== HEADER – responsive ===== */
+    .navbar-custom {
+      background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      padding: 8px 0;
+    }
+    .navbar-custom .navbar-brand {
+      color: #fff !important;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1.2;
+      white-space: normal;
+      word-break: break-word;
+      max-width: 160px;
+    }
+    .navbar-custom .navbar-brand i { display: none; }
+    .navbar-custom .navbar-text {
+      color: rgba(255,255,255,0.85) !important;
+      font-size: 0.85rem;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .navbar-custom .btn-outline-light {
+      color: #fff !important;
+      border-color: rgba(255,255,255,0.3);
+      font-size: 0.8rem;
+      padding: 4px 12px;
+      white-space: nowrap;
+    }
+    .navbar-custom .btn-outline-light:hover { background: rgba(255,255,255,0.15); }
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #28a745;
+      margin-right: 4px;
+      flex-shrink: 0;
+    }
+    .btn-admin {
+      color: #ffc107 !important;
+      border-color: rgba(255,193,7,0.3);
+      font-size: 0.8rem;
+      padding: 4px 12px;
+      white-space: nowrap;
+      background: transparent;
+      border: 1px solid rgba(255,193,7,0.3);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-admin:hover { background: rgba(255,193,7,0.15); }
+
+    .navbar-custom .navbar-text .user-name {
+      display: inline-block !important;
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 576px) {
+      .navbar-custom .navbar-brand {
+        font-size: 0.8rem;
+        max-width: 100px;
+        gap: 4px;
+        white-space: normal;
+        word-break: break-word;
+      }
+      .navbar-custom .navbar-text {
+        font-size: 0.7rem;
+        gap: 2px;
+        white-space: nowrap;
+      }
+      .navbar-custom .navbar-text .user-name {
+        max-width: 50px;
+        font-size: 0.7rem;
+        display: inline-block !important;
+      }
+      .navbar-custom .navbar-text .status-label { display: none; }
+      .navbar-custom .btn-outline-light { font-size: 0.7rem; padding: 2px 8px; }
+      .navbar-custom .navbar-text .status-dot { width: 6px; height: 6px; }
+      .btn-admin { font-size: 0.65rem; padding: 2px 8px; }
+      .container-fluid { padding-left: 8px !important; padding-right: 8px !important; }
+    }
+    @media (max-width: 400px) {
+      .navbar-custom .navbar-brand { font-size: 0.7rem; max-width: 80px; }
+      .navbar-custom .navbar-text { font-size: 0.6rem; }
+      .navbar-custom .navbar-text .user-name { max-width: 35px; font-size: 0.6rem; }
+      .navbar-custom .btn-outline-light { font-size: 0.6rem; padding: 2px 6px; }
+      .btn-admin { font-size: 0.55rem; padding: 2px 6px; }
+    }
+
+    /* ===== STAT CARDS ===== */
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 16px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: 0.3s;
+      border-left: 4px solid #0a58ca;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    .stat-card .number { font-size: 32px; font-weight: 700; color: #0a58ca; line-height: 1.2; }
+    .stat-card .label { font-size: 13px; color: #6c757d; margin-top: 4px; font-weight: 500; }
+    .stat-card.danger { border-left-color: #dc3545; }
+    .stat-card.danger .number { color: #dc3545; }
+    .stat-card.success { border-left-color: #198754; }
+    .stat-card.success .number { color: #198754; }
+    .stat-card.warning { border-left-color: #ffc107; }
+    .stat-card.warning .number { color: #fd7e14; }
+
+    .status-badge {
+      padding: 4px 16px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 13px;
+      display: inline-block;
+      text-align: center;
+      min-width: 85px;
+      white-space: nowrap;
+    }
+    .status-badge.returned { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+    .status-badge.out { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+
+    .tick-yes { color: #198754; font-weight: 700; font-size: 16px; }
+    .tick-no { color: #dc3545; font-weight: 700; font-size: 16px; }
+
+    .table-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .table-container .table-header {
+      padding: 16px 20px;
+      background: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
+      font-weight: 600;
+      color: #212529;
+    }
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table { margin-bottom: 0; width: 100%; border-collapse: collapse; font-size: 14px; min-width: 900px; }
+    .table thead th {
+      background: #f8f9fa;
+      padding: 12px 10px;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: #495057;
+      border: 1px solid #dee2e6;
+      white-space: nowrap;
+    }
+    .table tbody td {
+      padding: 10px 10px;
+      vertical-align: middle;
+      border: 1px solid #dee2e6;
+      word-break: break-word;
+    }
+    .table tbody tr:nth-child(even) { background-color: #f8f9fa; }
+    .table tbody tr:nth-child(odd) { background-color: #ffffff; }
+    .table tbody tr:hover { background-color: #e9ecef !important; cursor: pointer; }
+    .table tbody tr.returned-row td:first-child { border-left: 4px solid #198754; }
+    .table tbody tr.out-row td:first-child { border-left: 4px solid #dc3545; }
+
+    .mobile-cards { display: none; padding: 16px; }
+    .mobile-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+      border: 1px solid #e9ecef;
+      overflow: hidden;
+      transition: 0.2s;
+    }
+    .mobile-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+    .mobile-card .card-header {
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .mobile-card .card-header .row-number { font-weight: 700; color: #0a58ca; font-size: 14px; }
+    .mobile-card .card-body { padding: 0; }
+    .mobile-card .card-body .field-row {
+      display: flex;
+      padding: 10px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+    }
+    .mobile-card .card-body .field-row:last-child { border-bottom: none; }
+    .mobile-card .card-body .field-row .field-label {
+      font-weight: 700;
+      color: #6c757d;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      width: 100px;
+      flex-shrink: 0;
+    }
+    .mobile-card .card-body .field-row .field-value { flex: 1; word-break: break-word; padding-left: 8px; }
+    .mobile-card .card-body .field-row .field-value code {
+      background: #e9ecef;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .mobile-card .card-footer {
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .mobile-card .card-footer .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mobile-card .card-footer .checkbox-wrapper input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+    .mobile-card .card-footer .action-btn { display: flex; align-items: center; gap: 8px; }
+    .mobile-card.out-row { border-left: 4px solid #dc3545; }
+    .mobile-card.returned-row { border-left: 4px solid #198754; }
+    .mobile-card.returned-row .checkbox-wrapper { display: none !important; }
+    .mobile-card.returned-row .card-footer { justify-content: flex-end; }
+
+    @media screen and (max-width: 767px) {
+      .table-wrapper { display: none; }
+      .mobile-cards { display: block; }
+      .status-badge { font-size: 12px; padding: 3px 12px; min-width: 75px; }
+      .stat-card .number { font-size: 24px; }
+      .stat-card .label { font-size: 11px; }
+      .nav-tabs .nav-link { font-size: 13px; padding: 8px 12px; }
+      .btn-sm { font-size: 12px; padding: 4px 10px; }
+      .table-header { font-size: 13px; padding: 12px 16px; }
+    }
+
+    .chart-container { height: 220px; position: relative; }
+    .chart-card {
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: none;
+      transition: 0.3s;
+    }
+    .chart-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .chart-card .card-header {
+      background: #fff;
+      border-bottom: 1px solid #e9ecef;
+      font-weight: 600;
+      padding: 14px 20px;
+    }
+    .chart-card .card-body { padding: 20px; }
+
+    .signature-field { font-family: 'Courier New', monospace; letter-spacing: 1px; text-transform: uppercase; }
+    .nav-tabs .nav-link {
+      color: #495057;
+      font-weight: 600;
+      padding: 12px 20px;
+      border: none;
+      border-bottom: 3px solid transparent;
+      transition: 0.3s;
+    }
+    .nav-tabs .nav-link:hover { border-bottom-color: #adb5bd; }
+    .nav-tabs .nav-link.active {
+      color: #0a58ca;
+      border-bottom-color: #0a58ca;
+      background: transparent;
+    }
+    .nav-tabs .nav-link i { margin-right: 6px; }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #e9ecef;
+      border-top-color: #0a58ca;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .field-required { color: #dc3545; font-weight: bold; margin-left: 2px; }
+    .text-muted-small { font-size: 12px; color: #6c757d; }
+
+    .table tbody tr.returned-row td:first-child input[type="checkbox"] { display: none !important; }
+
+    /* ===== TOAST - FULLY RESPONSIVE ===== */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+      max-width: 90%;
+      pointer-events: none;
+    }
+    .toast {
+      min-width: 200px;
+      max-width: 420px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      pointer-events: auto;
+      opacity: 1 !important;
+      border: none;
+    }
+    .toast .toast-body {
+      font-size: 14px;
+      padding: 14px 18px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast .btn-close {
+      padding: 10px;
+      filter: brightness(0) invert(1);
+      opacity: 0.8;
+    }
+    .toast .btn-close:hover { opacity: 1; }
+    .toast.bg-success .toast-body { color: #fff; }
+    .toast.bg-danger .toast-body { color: #fff; }
+    .toast.bg-warning .toast-body { color: #333; }
+    .toast.bg-warning .btn-close { filter: brightness(0); }
+    .toast.bg-primary .toast-body { color: #fff; }
+    .toast.bg-info .toast-body { color: #fff; }
+
+    @media (max-width: 576px) {
+      .toast-container {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: 100%;
+        padding: 0;
+      }
+      .toast {
+        max-width: 100%;
+        width: 100%;
+        border-radius: 10px;
+        margin-bottom: 8px;
+      }
+      .toast .toast-body {
+        font-size: 13px;
+        padding: 12px 16px;
+        line-height: 1.4;
+      }
+      .toast .btn-close {
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .toast .toast-body {
+        font-size: 12px;
+        padding: 10px 14px;
+      }
+      .toast .btn-close {
+        padding: 6px 8px;
+        font-size: 12px;
+      }
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+      .table-container { box-shadow: none; border: 1px solid #ddd; }
+      .stat-card { box-shadow: none; border: 1px solid #ddd; }
+      .mobile-cards { display: none !important; }
+      .table-wrapper { display: block !important; }
+    }
+
+    /* ===== ADMIN PANEL STYLES ===== */
+    .admin-stat-box {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .admin-stat-box .number { font-size: 28px; font-weight: 700; }
+    .admin-table td, .admin-table th { vertical-align: middle; }
+    .btn-action-sm { padding: 2px 6px; font-size: 12px; }
+    
+    .admin-table {
+      min-width: auto;
+    }
+    .admin-table thead th {
+      white-space: nowrap;
+      font-size: 12px;
+      padding: 8px 6px;
+    }
+    .admin-table tbody td {
+      padding: 8px 6px;
+      font-size: 13px;
+    }
+    .admin-table .btn-action-sm {
+      padding: 2px 5px;
+      font-size: 11px;
+    }
+
+    /* ===== RESPONSIVE MODALS ===== */
+    .modal-content {
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      border-radius: 16px 16px 0 0;
+    }
+    .modal-footer {
+      border-radius: 0 0 16px 16px;
+    }
+
+    @media (max-width: 576px) {
+      .admin-table thead th {
+        font-size: 10px;
+        padding: 6px 4px;
+      }
+      .admin-table tbody td {
+        font-size: 11px;
+        padding: 6px 4px;
+      }
+      .admin-table .btn-action-sm {
+        padding: 1px 4px;
+        font-size: 10px;
+      }
+      .admin-table .badge {
+        font-size: 10px;
+        padding: 2px 6px;
+      }
+      .admin-stat-box .number { font-size: 20px; }
+      .admin-stat-box small { font-size: 10px; }
+      
+      .modal-dialog {
+        margin: 10px;
+      }
+      .modal-body {
+        padding: 16px;
+      }
+      .modal-header {
+        padding: 12px 16px;
+      }
+      .modal-header h5 {
+        font-size: 16px;
+      }
+      .modal-footer {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .modal-footer .btn {
+        font-size: 13px;
+        padding: 6px 14px;
+        flex: 1;
+        min-width: 80px;
+      }
+      .form-control, .form-select {
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+      .modal .row .col-md-4, 
+      .modal .row .col-md-6 {
+        margin-bottom: 8px;
+      }
+      .modal .row .col-md-4:last-child,
+      .modal .row .col-md-6:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .modal-footer .btn {
+        font-size: 12px;
+        padding: 5px 10px;
+        min-width: 60px;
+      }
+      .modal-body {
+        padding: 12px;
+      }
+      .modal-header h5 {
+        font-size: 14px;
+      }
+      .form-control, .form-select {
+        font-size: 13px;
+        padding: 6px 10px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<!-- ============================================================ -->
-<!-- NAVBAR -->
-<!-- ============================================================ -->
-<nav class="navbar navbar-expand-lg navbar-custom">
-    <div class="container">
-        <span class="navbar-brand"><i class="bi bi-projector"></i> Lubaga Hospital Projector Tracker</span>
-        <div class="ms-auto d-flex align-items-center gap-2">
-            <span id="statusBadge" class="text-white-50" style="font-size:13px;">
-                <i class="bi bi-circle-fill text-success"></i> Online
-            </span>
-            <span id="userDisplay" class="text-white" style="font-size:13px; opacity:0.8;">
-                <i class="bi bi-person-circle"></i> <span id="usernameDisplay"></span>
-            </span>
-            <button class="btn btn-outline-light btn-sm" onclick="handleLogout()">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </button>
-        </div>
+<!-- ===== HEADER ===== -->
+<nav class="navbar navbar-expand navbar-custom">
+  <div class="container-fluid px-2 px-sm-3 d-flex justify-content-between align-items-center">
+    <a class="navbar-brand" href="#">
+      <span class="d-none d-sm-inline">Lubaga Hospital Projector Tracker</span>
+      <span class="d-inline d-sm-none">Lubaga IT Tracker</span>
+    </a>
+
+    <div class="d-flex align-items-center gap-1 gap-sm-3 flex-shrink-0">
+      <span class="navbar-text d-flex align-items-center">
+        <span class="status-dot"></span>
+        <span class="d-none d-sm-inline status-label">Online</span>
+      </span>
+
+      <span class="navbar-text d-flex align-items-center">
+        <i class="bi bi-person-circle me-1"></i>
+        <span class="user-name" id="usernameDisplay">admin</span>
+      </span>
+
+      <button class="btn-admin" id="adminBtn" style="display:none;" onclick="openAdminPanel()">
+        <i class="bi bi-shield-lock"></i> <span class="d-none d-sm-inline">Admin</span>
+      </button>
+
+      <button class="btn btn-outline-light btn-sm" onclick="handleLogout()">
+        <span class="d-none d-sm-inline">Logout</span>
+        <span class="d-inline d-sm-none"><i class="bi bi-box-arrow-right"></i></span>
+      </button>
     </div>
+  </div>
 </nav>
 
-<!-- ============================================================ -->
-<!-- MAIN CONTENT -->
-<!-- ============================================================ -->
+<!-- ===== MAIN CONTENT ===== -->
 <div class="container mt-3">
+  <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+    <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboardPanel" type="button" role="tab"><i class="bi bi-speedometer2"></i> <span class="d-none d-sm-inline">Dashboard</span></button></li>
+    <li class="nav-item"><button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logsPanel" type="button" role="tab"><i class="bi bi-list-ul"></i> <span class="d-none d-sm-inline">Transaction Log</span></button></li>
+  </ul>
 
-    <ul class="nav nav-tabs" id="mainTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboardPanel" type="button" role="tab">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logsPanel" type="button" role="tab">
-                <i class="bi bi-list-ul"></i> Transaction Log
-            </button>
-        </li>
-    </ul>
-
-    <div class="tab-content mt-3">
-
-        <!-- ===== DASHBOARD TAB ===== -->
-        <div class="tab-pane fade show active" id="dashboardPanel" role="tabpanel">
-            <div class="row g-3 mb-4">
-                <div class="col-md-3 col-6">
-                    <div class="stat-card"><div class="number" id="dTotal">0</div><div class="label"><i class="bi bi-database"></i> Total Transactions</div></div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-card danger"><div class="number" id="dOut">0</div><div class="label"><i class="bi bi-box-arrow-right"></i> Currently Out</div></div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-card success"><div class="number" id="dReturned">0</div><div class="label"><i class="bi bi-check2-circle"></i> Returned</div></div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="stat-card warning"><div class="number" id="dOverdue">0</div><div class="label"><i class="bi bi-clock-history"></i> Overdue (>3 days)</div></div>
-                </div>
-            </div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <div class="card chart-card">
-                        <div class="card-header"><i class="bi bi-pie-chart-fill text-primary"></i> Status Breakdown</div>
-                        <div class="card-body"><div class="chart-container"><canvas id="pieChart"></canvas></div></div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card chart-card">
-                        <div class="card-header"><i class="bi bi-bar-chart-fill text-primary"></i> Monthly Issued</div>
-                        <div class="card-body"><div class="chart-container"><canvas id="barChart"></canvas></div></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== LOGS TAB ===== -->
-        <div class="tab-pane fade" id="logsPanel" role="tabpanel">
-            
-            <div class="row mb-3 g-2">
-                <div class="col-md-9 d-flex flex-wrap gap-2">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#checkoutModal">
-                        <i class="bi bi-plus-circle"></i> Check Out
-                    </button>
-                    <button class="btn btn-success" id="returnBtn" disabled>
-                        <i class="bi bi-arrow-return-left"></i> Return Selected
-                    </button>
-                    <button class="btn btn-outline-secondary" onclick="refreshData()">
-                        <i class="bi bi-arrow-clockwise"></i> Refresh
-                    </button>
-                    <button class="btn btn-outline-info" onclick="exportCSV()">
-                        <i class="bi bi-download"></i> CSV
-                    </button>
-                </div>
-                <div class="col-md-3">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                        <input type="text" id="searchInput" class="form-control" placeholder="Search..." oninput="loadData()">
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <div class="table-header d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-list-ul"></i> Transaction Log</span>
-                    <span class="text-muted-small" id="recordCount">0 records</span>
-                </div>
-                
-                <div class="table-wrapper">
-                    <table class="table" id="trackerTable">
-                        <thead>
-                            <tr>
-                                <th style="width:36px;">Select</th>
-                                <th style="width:40px;">NO</th>
-                                <th>Date</th>
-                                <th>Requestor</th>
-                                <th>Contact</th>
-                                <th>Big/Small</th>
-                                <th>Issued By</th>
-                                <th>Power Code</th>
-                                <th>Power Ext</th>
-                                <th>VGA/HDMI</th>
-                                <th>HDMI Adapter</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            <tr>
-                                <td colspan="12" class="text-center py-4 text-muted">
-                                    <div class="loading-spinner"></div> Loading...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="mobile-cards" id="mobileCards"></div>
-            </div>
-        </div>
+  <div class="tab-content mt-3">
+    <!-- DASHBOARD -->
+    <div class="tab-pane fade show active" id="dashboardPanel" role="tabpanel">
+      <div class="row g-2 g-sm-3 mb-4">
+        <div class="col-3 col-md-3"><div class="stat-card"><div class="number" id="dTotal">0</div><div class="label">Total</div></div></div>
+        <div class="col-3 col-md-3"><div class="stat-card danger"><div class="number" id="dOut">0</div><div class="label">Out</div></div></div>
+        <div class="col-3 col-md-3"><div class="stat-card success"><div class="number" id="dReturned">0</div><div class="label">Returned</div></div></div>
+        <div class="col-3 col-md-3"><div class="stat-card warning"><div class="number" id="dOverdue">0</div><div class="label">Overdue</div></div></div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6"><div class="card chart-card"><div class="card-header"><i class="bi bi-pie-chart-fill text-primary"></i> Status</div><div class="card-body"><div class="chart-container"><canvas id="pieChart"></canvas></div></div></div></div>
+        <div class="col-md-6"><div class="card chart-card"><div class="card-header"><i class="bi bi-bar-chart-fill text-primary"></i> Monthly</div><div class="card-body"><div class="chart-container"><canvas id="barChart"></canvas></div></div></div></div>
+      </div>
     </div>
+
+    <!-- LOGS -->
+    <div class="tab-pane fade" id="logsPanel" role="tabpanel">
+      <div class="row mb-3 g-2">
+        <div class="col-12 col-md-9 d-flex flex-wrap gap-1 gap-sm-2">
+          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#checkoutModal"><i class="bi bi-plus-circle"></i> <span class="d-none d-sm-inline">Check Out</span></button>
+          <button class="btn btn-success btn-sm" id="returnBtn" disabled><i class="bi bi-arrow-return-left"></i> <span class="d-none d-sm-inline">Return Selected</span></button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="refreshData()"><i class="bi bi-arrow-clockwise"></i></button>
+          <button class="btn btn-outline-info btn-sm" onclick="exportCSV()"><i class="bi bi-download"></i> <span class="d-none d-sm-inline">CSV</span></button>
+          <button class="btn btn-outline-warning btn-sm" onclick="openRetentionModal()">
+            <i class="bi bi-clock-history"></i> <span class="d-none d-sm-inline">Retention</span>
+          </button>
+        </div>
+        <div class="col-12 col-md-3">
+          <div class="input-group"><span class="input-group-text bg-white"><i class="bi bi-search"></i></span><input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search..." oninput="loadData()"></div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-list-ul"></i> Transaction Log</span>
+          <span class="text-muted-small" id="recordCount">0 records</span>
+        </div>
+        <div class="table-wrapper">
+          <table class="table" id="trackerTable">
+            <thead><tr><th style="width:36px;">Select</th><th style="width:40px;">NO</th><th>Date</th><th>Requestor</th><th>Contact</th><th>Big/Small</th><th>Issued By</th><th>Power Code</th><th>Power Ext</th><th>VGA/HDMI</th><th>HDMI Adapter</th><th>Status</th></tr></thead>
+            <tbody id="tableBody"><tr><td colspan="12" class="text-center py-4 text-muted"><div class="loading-spinner"></div> Loading...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="mobile-cards" id="mobileCards"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ============================================================ -->
 <!-- CHECKOUT MODAL -->
 <!-- ============================================================ -->
 <div class="modal fade" id="checkoutModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="bi bi-box-arrow-right"></i> Check Out Projector</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-box-arrow-right"></i> Check Out Projector</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="checkoutForm">
+          <div class="row g-2">
+            <div class="col-md-6 col-sm-12 mb-2">
+              <label class="form-label fw-semibold">Date <span class="field-required">*</span></label>
+              <input type="date" class="form-control" id="req_date" required>
             </div>
-            <div class="modal-body">
-                <form id="checkoutForm">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Date <span class="field-required">*</span></label>
-                            <input type="date" class="form-control" id="req_date" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Requestor <span class="field-required">*</span></label>
-                            <input type="text" class="form-control" id="req_requestor" placeholder="Full name" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Contact</label>
-                            <input type="text" class="form-control" id="req_contact" placeholder="Phone or Email">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Big / Small <span class="field-required">*</span></label>
-                            <select class="form-select" id="req_size" required>
-                                <option value="">Select...</option>
-                                <option value="Big">Big</option>
-                                <option value="Small">Small</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Issued By <span class="field-required">*</span></label>
-                            <input type="text" class="form-control" id="req_issuedby" placeholder="IT staff name" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Power Code <span class="field-required">*</span></label>
-                            <select class="form-select" id="req_powercode" required>
-                                <option value="">Select...</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Power Extension <span class="field-required">*</span></label>
-                            <select class="form-select" id="req_powerext" required>
-                                <option value="">Select...</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">VGA / HDMI <span class="field-required">*</span></label>
-                            <select class="form-select" id="req_cable" required>
-                                <option value="">Select...</option>
-                                <option value="VGA">VGA</option>
-                                <option value="HDMI">HDMI</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">HDMI Adapter <span class="field-required">*</span></label>
-                            <select class="form-select" id="req_adapter" required>
-                                <option value="">Select...</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </select>
-                        </div>
-                    </div>
-                </form>
+            <div class="col-md-6 col-sm-12 mb-2">
+              <label class="form-label fw-semibold">Requestor <span class="field-required">*</span></label>
+              <input type="text" class="form-control" id="req_requestor" placeholder="Full name" required>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary" onclick="doCheckout()"><i class="bi bi-check2"></i> Issue Projector</button>
+            <div class="col-md-6 col-sm-12 mb-2">
+              <label class="form-label fw-semibold">Contact</label>
+              <input type="text" class="form-control" id="req_contact" placeholder="Phone or Email">
             </div>
-        </div>
+            <div class="col-md-6 col-sm-12 mb-2">
+              <label class="form-label fw-semibold">Big / Small <span class="field-required">*</span></label>
+              <select class="form-select" id="req_size" required>
+                <option value="">Select...</option>
+                <option value="Big">Big</option>
+                <option value="Small">Small</option>
+              </select>
+            </div>
+            <div class="col-md-6 col-sm-12 mb-2">
+              <label class="form-label fw-semibold">Issued By <span class="field-required">*</span></label>
+              <input type="text" class="form-control" id="req_issuedby" placeholder="IT staff name" required>
+            </div>
+            <div class="col-md-6 col-sm-12 mb-2">
+              <label class="form-label fw-semibold">Power Code <span class="field-required">*</span></label>
+              <select class="form-select" id="req_powercode" required>
+                <option value="">Select...</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="col-md-6 col-sm-12 mb-2">
+              <label class="form-label fw-semibold">Power Extension <span class="field-required">*</span></label>
+              <select class="form-select" id="req_powerext" required>
+                <option value="">Select...</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="col-md-6 col-sm-12 mb-2">
+              <label class="form-label fw-semibold">VGA / HDMI <span class="field-required">*</span></label>
+              <select class="form-select" id="req_cable" required>
+                <option value="">Select...</option>
+                <option value="VGA">VGA</option>
+                <option value="HDMI">HDMI</option>
+              </select>
+            </div>
+            <div class="col-12 mb-2">
+              <label class="form-label fw-semibold">HDMI Adapter <span class="field-required">*</span></label>
+              <select class="form-select" id="req_adapter" required>
+                <option value="">Select...</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="doCheckout()"><i class="bi bi-check2"></i> Issue Projector</button>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- ============================================================ -->
 <!-- RETURN MODAL -->
 <!-- ============================================================ -->
 <div class="modal fade" id="returnModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="bi bi-arrow-return-left"></i> Return Projector</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-info"><strong>Requestor:</strong> <span id="ret_requestor"></span></div>
-                <form id="returnForm">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Returned By <span class="field-required">*</span></label>
-                        <input type="text" class="form-control" id="ret_returnedby" placeholder="Person returning" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Received By <span class="field-required">*</span></label>
-                        <input type="text" class="form-control" id="ret_receivedby" placeholder="IT staff receiving" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Signature (Returner) <span class="field-required">*</span></label>
-                        <input type="text" class="form-control signature-field" id="ret_sig_return" placeholder="Initials or full name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Signature (Receiver) <span class="field-required">*</span></label>
-                        <input type="text" class="form-control signature-field" id="ret_sig_receiver" placeholder="Initials or full name" required>
-                    </div>
-                    <input type="hidden" id="ret_id">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-success" onclick="doReturn()"><i class="bi bi-check2"></i> Complete Return</button>
-            </div>
-        </div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title"><i class="bi bi-arrow-return-left"></i> Return Projector</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info"><strong>Requestor:</strong> <span id="ret_requestor"></span></div>
+        <form id="returnForm">
+          <div class="mb-3"><label class="form-label fw-semibold">Returned By <span class="field-required">*</span></label><input type="text" class="form-control" id="ret_returnedby" placeholder="Person returning" required></div>
+          <div class="mb-3"><label class="form-label fw-semibold">Received By <span class="field-required">*</span></label><input type="text" class="form-control" id="ret_receivedby" placeholder="IT staff receiving" required></div>
+          <div class="mb-3"><label class="form-label fw-semibold">Signature (Returner) <span class="field-required">*</span></label><input type="text" class="form-control signature-field" id="ret_sig_return" placeholder="Initials or full name" required></div>
+          <div class="mb-3"><label class="form-label fw-semibold">Signature (Receiver) <span class="field-required">*</span></label><input type="text" class="form-control signature-field" id="ret_sig_receiver" placeholder="Initials or full name" required></div>
+          <input type="hidden" id="ret_id">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success" onclick="doReturn()"><i class="bi bi-check2"></i> Complete Return</button>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- ============================================================ -->
 <!-- CONFIRMATION MODAL -->
 <!-- ============================================================ -->
 <div class="modal fade" id="confirmModal" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirm</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="confirmMessage">Are you sure?</div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-danger" id="confirmActionBtn" onclick="executeConfirmedAction()">Confirm</button>
-            </div>
-        </div>
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirm</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="confirmMessage">Are you sure?</div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger" id="confirmActionBtn" onclick="executeConfirmedAction()">Confirm</button>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- ============================================================ -->
-<!-- TOAST -->
+<!-- ADMIN PANEL MODAL -->
+<!-- ============================================================ -->
+<div class="modal fade" id="adminModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title"><i class="bi bi-shield-lock"></i> Admin Panel – User Management</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Stats -->
+        <div class="row g-2 mb-3">
+          <div class="col-3 col-md-3">
+            <div class="admin-stat-box">
+              <div class="number text-primary" id="adminTotalUsers">0</div>
+              <small class="text-muted">Total</small>
+            </div>
+          </div>
+          <div class="col-3 col-md-3">
+            <div class="admin-stat-box">
+              <div class="number text-success" id="adminActiveUsers">0</div>
+              <small class="text-muted">Active</small>
+            </div>
+          </div>
+          <div class="col-3 col-md-3">
+            <div class="admin-stat-box">
+              <div class="number text-danger" id="adminInactiveUsers">0</div>
+              <small class="text-muted">Disabled</small>
+            </div>
+          </div>
+          <div class="col-3 col-md-3">
+            <div class="admin-stat-box">
+              <div class="number text-warning" id="adminStatusDisplay"></div>
+              <small class="text-muted">Admin</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add New User -->
+        <div class="card mb-3">
+          <div class="card-header bg-primary text-white">
+            <i class="bi bi-person-plus"></i> Add New User
+          </div>
+          <div class="card-body">
+            <div class="row g-2">
+              <div class="col-md-4">
+                <input type="text" id="adminNewUser" class="form-control form-control-sm" placeholder="Username *" required>
+              </div>
+              <div class="col-md-4">
+                <input type="email" id="adminNewEmail" class="form-control form-control-sm" placeholder="Email *" required>
+              </div>
+              <div class="col-md-4">
+                <input type="password" id="adminNewPass" class="form-control form-control-sm" placeholder="Password *" required>
+              </div>
+              <div class="col-md-4">
+                <input type="password" id="adminNewPassConfirm" class="form-control form-control-sm" placeholder="Confirm Password *" required>
+              </div>
+              <div class="col-md-6">
+                <select class="form-select form-select-sm" id="adminNewSecurityQuestion" required>
+                  <option value="">Security Question *</option>
+                  <option value="What was your first pet's name?">What was your first pet's name?</option>
+                  <option value="What was your first school?">What was your first school?</option>
+                  <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                  <option value="What city were you born in?">What city were you born in?</option>
+                  <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                  <option value="What is your favorite book?">What is your favorite book?</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <input type="text" id="adminNewSecurityAnswer" class="form-control form-control-sm" placeholder="Security Answer *">
+              </div>
+              <div class="col-md-4">
+                <select class="form-select form-select-sm" id="adminNewRole">
+                  <option value="staff" selected>Staff</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <button class="btn btn-success btn-sm w-100" onclick="adminAddUser()">
+                  <i class="bi bi-plus-circle"></i> Add User
+                </button>
+              </div>
+              <div class="col-md-4" id="adminLimitInfo" style="display:none;">
+                <small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Admin already exists</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User List -->
+        <div id="adminUsersList">
+          <div class="text-center text-muted py-3">Loading users...</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- DATA RETENTION MODAL -->
+<!-- ============================================================ -->
+<div class="modal fade" id="retentionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title"><i class="bi bi-clock-history"></i> Data Retention</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i> 
+          This will permanently delete transaction records older than the selected period.
+          <br><strong class="text-danger"> This action cannot be undone!</strong>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Retention Period</label>
+          <select class="form-select" id="retentionPeriod" onchange="updateRetentionStats()">
+            <option value="30">30 days (1 month)</option>
+            <option value="60" selected>60 days (2 months)</option>
+            <option value="90">90 days (3 months)</option>
+            <option value="180">180 days (6 months)</option>
+            <option value="365">365 days (1 year)</option>
+          </select>
+          <small class="text-muted">Delete records older than selected period</small>
+        </div>
+        
+        <div id="retentionStats">
+          <!-- Rendered by JavaScript -->
+        </div>
+        
+        <div class="form-check mt-3">
+          <input class="form-check-input" type="checkbox" id="retentionConfirm">
+          <label class="form-check-label" for="retentionConfirm">
+            I understand this action <strong class="text-danger">cannot be undone</strong>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-warning" id="retentionExecuteBtn" onclick="executeRetention()" disabled>
+          <i class="bi bi-trash"></i> Delete Old Records
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TOAST - RESPONSIVE -->
 <!-- ============================================================ -->
 <div class="toast-container">
-    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
-        <div class="d-flex">
-            <div class="toast-body" id="toastMessage"></div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
+  <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastMessage"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>
+  </div>
 </div>
 
 <!-- ============================================================ -->
-<!-- JAVASCRIPT - SIMPLIFIED FIX -->
+<!-- JAVASCRIPT -->
 <!-- ============================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ============================================================
-    // CONFIG
-    // ============================================================
-    const USERS_KEY = 'lubaga_users';
-    const SESSION_KEY = 'lubaga_session';
+  // ============================================================
+  // CONFIG
+  // ============================================================
+  const USERS_KEY = 'lubaga_users';
+  const SESSION_KEY = 'lubaga_session';
 
-    function getUsers() {
-        try { const raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
-    }
+  function getUsers() {
+    try {
+      const raw = localStorage.getItem(USERS_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+  }
 
-    // ============================================================
-    // GET TRANSACTIONS - DIRECT READ
-    // ============================================================
-    function getTransactions() {
+  function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+
+  // ============================================================
+  // TRANSACTIONS
+  // ============================================================
+  function getTransactions() {
+    try {
+      const keys = ['lubaga_transactions','lubaga_projector_data','lubaga_projector_data_v2','lubaga_projector_data_v3','lubaga_projector_data_v4'];
+      for (const key of keys) {
         try {
-            // Try to read from all possible keys
-            const keys = [
-                'lubaga_transactions',
-                'lubaga_projector_data',
-                'lubaga_projector_data_v2',
-                'lubaga_projector_data_v3',
-                'lubaga_projector_data_v4'
-            ];
-            
-            for (const key of keys) {
-                try {
-                    const raw = localStorage.getItem(key);
-                    if (raw) {
-                        const data = JSON.parse(raw);
-                        if (data && Array.isArray(data) && data.length > 0) {
-                            console.log(' Found data in:', key, data.length, 'records');
-                            // If found in old key, copy to main key
-                            if (key !== 'lubaga_transactions') {
-                                localStorage.setItem('lubaga_transactions', raw);
-                                console.log('Migrated to lubaga_transactions');
-                            }
-                            return data;
-                        }
-                    }
-                } catch (e) {}
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const data = JSON.parse(raw);
+            if (data && Array.isArray(data) && data.length > 0) {
+              if (key !== 'lubaga_transactions') localStorage.setItem('lubaga_transactions', raw);
+              return data;
             }
+          }
+        } catch (e) {}
+      }
+      return [];
+    } catch { return []; }
+  }
+
+  function saveTransactions(data) {
+    try { localStorage.setItem('lubaga_transactions', JSON.stringify(data)); } catch (e) {}
+  }
+
+  // ============================================================
+  // STATE
+  // ============================================================
+  let transactions = [];
+  let pieChartInstance = null;
+  let barChartInstance = null;
+  let pendingAction = null;
+
+  // ============================================================
+  // SESSION CHECK
+  // ============================================================
+  (function checkSession() {
+    const session = localStorage.getItem(SESSION_KEY);
+    const users = getUsers();
+    if (!session || !users[session] || users[session].active === false) {
+      localStorage.removeItem(SESSION_KEY);
+      window.location.href = 'index.html';
+    }
+    document.getElementById('usernameDisplay').textContent = session;
+
+    if (users[session] && users[session].role === 'admin') {
+      document.getElementById('adminBtn').style.display = 'inline-block';
+    }
+  })();
+
+  // ============================================================
+  // LOGOUT
+  // ============================================================
+  function handleLogout() {
+    localStorage.removeItem(SESSION_KEY);
+    window.location.href = 'index.html';
+  }
+
+  // ============================================================
+  // TOAST - FULLY RESPONSIVE
+  // ============================================================
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('liveToast');
+    const body = document.getElementById('toastMessage');
+    
+    // Icons
+    const icons = {
+      success: ' ',
+      danger: ' ',
+      warning: '',
+      info: '',
+      primary: ' '
+    };
+    body.innerHTML = (icons[type] || '') + message;
+    
+    // Class
+    toast.className = 'toast align-items-center text-white border-0';
+    if (type === 'success') toast.classList.add('bg-success');
+    else if (type === 'danger') toast.classList.add('bg-danger');
+    else if (type === 'warning') toast.classList.add('bg-warning');
+    else if (type === 'info') toast.classList.add('bg-info');
+    else toast.classList.add('bg-primary');
+    
+    // Show
+    const bsToast = new bootstrap.Toast(toast, { delay: 4000 });
+    bsToast.show();
+  }
+
+  // ============================================================
+  // CONFIRMATION
+  // ============================================================
+  function showConfirm(message, action) {
+    pendingAction = action;
+    document.getElementById('confirmMessage').textContent = message;
+    new bootstrap.Modal(document.getElementById('confirmModal')).show();
+  }
+
+  function executeConfirmedAction() {
+    if (pendingAction) {
+      pendingAction();
+      pendingAction = null;
+    }
+    bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+  }
+
+  // ============================================================
+  // REFRESH
+  // ============================================================
+  function refreshData() {
+    showToast('Refreshing data...', 'info');
+    loadData();
+    loadDashboard();
+    setTimeout(() => showToast('Data refreshed', 'success'), 500);
+  }
+
+  // ============================================================
+  // HELPER - TICK DISPLAY
+  // ============================================================
+  function renderTick(value) {
+    if (value === 'Yes' || value === 'yes' || value === true) return '<span class="tick-yes">✓</span>';
+    else if (value === 'No' || value === 'no' || value === false || value === '') return '<span class="tick-no">✗</span>';
+    return value || '—';
+  }
+
+  // ============================================================
+  // DATA OPERATIONS
+  // ============================================================
+  function loadData() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    let all = getTransactions();
+    if (search && all.length > 0) all = all.filter(t => (t.requestor || '').toLowerCase().includes(search) || (t.contact || '').toLowerCase().includes(search));
+    transactions = all;
+    renderTable();
+    renderMobileCards();
+    document.getElementById('recordCount').textContent = transactions.length + ' records';
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    if (transactions.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="12" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No transactions found.</td></tr>`;
+      return;
+    }
+    let html = '';
+    transactions.forEach((t, i) => {
+      const returned = !!(t.returned_by && t.returned_by !== '');
+      const rowClass = returned ? 'returned-row' : 'out-row';
+      const statusHtml = returned ? '<span class="status-badge returned">Returned</span>' : '<span class="status-badge out">Out</span>';
+      const showActions = !returned;
+      html += `<tr class="${rowClass}">
+        <td>${showActions ? `<input type="checkbox" class="row-cb" value="${t.id}">` : '<span class="text-muted">—</span>'}</td>
+        <td>${i + 1}</td>
+        <td>${t.date || ''}</td>
+        <td><strong>${t.requestor || ''}</strong></td>
+        <td>${t.contact || '—'}</td>
+        <td>${t.big_small || ''}</td>
+        <td>${t.issued_by || ''}</td>
+        <td>${renderTick(t.power_code)}</td>
+        <td>${renderTick(t.power_extension)}</td>
+        <td>${t.vga_hdmi || ''}</td>
+        <td>${renderTick(t.hdmi_adapter)}</td>
+        <td>${statusHtml}</td>
+      </tr>`;
+    });
+    tbody.innerHTML = html;
+    updateReturnButton();
+  }
+
+  function renderMobileCards() {
+    const container = document.getElementById('mobileCards');
+    if (transactions.length === 0) {
+      container.innerHTML = `<div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No transactions found.</div>`;
+      return;
+    }
+    let html = '';
+    transactions.forEach((t, i) => {
+      const returned = !!(t.returned_by && t.returned_by !== '');
+      const rowClass = returned ? 'returned-row' : 'out-row';
+      const statusHtml = returned ? '<span class="status-badge returned">Returned</span>' : '<span class="status-badge out">Out</span>';
+      const showActions = !returned;
+      html += `<div class="mobile-card ${rowClass}">
+        <div class="card-header"><span class="row-number">NO: ${i + 1}</span><span>${statusHtml}</span></div>
+        <div class="card-body">
+          <div class="field-row"><span class="field-label">Date</span><span class="field-value">${t.date || ''}</span></div>
+          <div class="field-row"><span class="field-label">Requestor</span><span class="field-value"><strong>${t.requestor || ''}</strong></span></div>
+          <div class="field-row"><span class="field-label">Contact</span><span class="field-value">${t.contact || '—'}</span></div>
+          <div class="field-row"><span class="field-label">Big/Small</span><span class="field-value">${t.big_small || ''}</span></div>
+          <div class="field-row"><span class="field-label">Issued By</span><span class="field-value">${t.issued_by || ''}</span></div>
+          <div class="field-row"><span class="field-label">Power Code</span><span class="field-value">${renderTick(t.power_code)}</span></div>
+          <div class="field-row"><span class="field-label">Power Ext</span><span class="field-value">${renderTick(t.power_extension)}</span></div>
+          <div class="field-row"><span class="field-label">VGA/HDMI</span><span class="field-value">${t.vga_hdmi || ''}</span></div>
+          <div class="field-row"><span class="field-label">HDMI Adapter</span><span class="field-value">${renderTick(t.hdmi_adapter)}</span></div>
+        </div>
+        <div class="card-footer">
+          ${showActions ? `
+            <div class="checkbox-wrapper"><input type="checkbox" class="row-cb-mobile" value="${t.id}" id="cb_${t.id}"><label for="cb_${t.id}" style="font-size:13px; color:#6c757d; margin:0;">Select</label></div>
+            <div class="action-btn"><button class="btn btn-sm btn-success" onclick="openReturn('${t.id}')"><i class="bi bi-arrow-return-left"></i> Return</button></div>
+          ` : `<div style="width:100%; text-align:right;"><span class="text-muted small">Returned</span></div>`}
+        </div>
+      </div>`;
+    });
+    container.innerHTML = html;
+    document.querySelectorAll('.row-cb-mobile').forEach(cb => cb.addEventListener('change', function() {
+      const desktopCb = document.querySelector(`.row-cb[value="${this.value}"]`);
+      if (desktopCb) desktopCb.checked = this.checked;
+      updateReturnButton();
+    }));
+  }
+
+  function updateReturnButton() {
+    const checked = document.querySelectorAll('.row-cb:checked').length;
+    document.getElementById('returnBtn').disabled = checked === 0;
+    document.getElementById('returnBtn').innerHTML = checked > 0 ? `<i class="bi bi-arrow-return-left"></i> ${checked} selected` : `<i class="bi bi-arrow-return-left"></i> Return`;
+  }
+
+  document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('row-cb')) {
+      const mobileCb = document.querySelector(`.row-cb-mobile[value="${e.target.value}"]`);
+      if (mobileCb) mobileCb.checked = e.target.checked;
+      updateReturnButton();
+    }
+  });
+
+  // ============================================================
+  // DASHBOARD
+  // ============================================================
+  function loadDashboard() {
+    const all = getTransactions();
+    const total = all.length, out = all.filter(t => !t.returned_by).length, returned = all.filter(t => t.returned_by).length;
+    const overdue = all.filter(t => { if (t.returned_by || !t.date) return false; const days = (Date.now() - new Date(t.date).getTime()) / 86400000; return days > 3; }).length;
+    document.getElementById('dTotal').textContent = total;
+    document.getElementById('dOut').textContent = out;
+    document.getElementById('dReturned').textContent = returned;
+    document.getElementById('dOverdue').textContent = overdue;
+
+    if (typeof Chart === 'undefined') return;
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    if (pieChartInstance) pieChartInstance.destroy();
+    pieChartInstance = new Chart(ctxPie, {
+      type: 'pie',
+      data: { labels: ['Out', 'Returned'], datasets: [{ data: [out, returned], backgroundColor: ['#dc3545', '#198754'], borderWidth: 2, borderColor: '#fff' }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 13 } } } } }
+    });
+
+    const monthly = {};
+    all.forEach(t => { if (!t.date) return; const month = t.date.substring(0, 7); monthly[month] = (monthly[month] || 0) + 1; });
+    const months = Object.keys(monthly).sort().slice(-6);
+    const counts = months.map(m => monthly[m]);
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    if (barChartInstance) barChartInstance.destroy();
+    barChartInstance = new Chart(ctxBar, {
+      type: 'bar',
+      data: { labels: months.length ? months : ['No Data'], datasets: [{ label: 'Issued', data: counts.length ? counts : [0], backgroundColor: ['#0a58ca', '#0d6efd', '#3d8bfd', '#6ba8fe', '#9ac5fe', '#c8e2fe'], borderRadius: 6 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#e9ecef' } }, x: { grid: { display: false } } } }
+    });
+  }
+
+  // ============================================================
+  // CHECKOUT
+  // ============================================================
+  function doCheckout() {
+    const date = document.getElementById('req_date').value;
+    const requestor = document.getElementById('req_requestor').value.trim();
+    const issuedBy = document.getElementById('req_issuedby').value.trim();
+    const size = document.getElementById('req_size').value;
+    const powerCode = document.getElementById('req_powercode').value;
+    const powerExt = document.getElementById('req_powerext').value;
+    const cable = document.getElementById('req_cable').value;
+    const adapter = document.getElementById('req_adapter').value;
+    if (!date || !requestor || !issuedBy || !size || !powerCode || !powerExt || !cable || !adapter) {
+      showToast('Please fill in all required fields.', 'danger');
+      return;
+    }
+    const record = {
+      id: 'P' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      date, requestor,
+      contact: document.getElementById('req_contact').value.trim(),
+      big_small: size,
+      issued_by: issuedBy,
+      power_code: powerCode,
+      power_extension: powerExt,
+      vga_hdmi: cable,
+      hdmi_adapter: adapter,
+      returned_by: '',
+      received_by: '',
+      signature_return: '',
+      signature_receiver: ''
+    };
+    const all = getTransactions();
+    all.unshift(record);
+    saveTransactions(all);
+    document.getElementById('checkoutForm').reset();
+    bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
+    loadData();
+    loadDashboard();
+    showToast('Checked out to ' + requestor, 'success');
+  }
+
+  // ============================================================
+  // RETURN
+  // ============================================================
+  function openReturn(id) {
+    const row = transactions.find(t => t.id === id);
+    if (!row) return;
+    document.getElementById('ret_requestor').textContent = row.requestor;
+    document.getElementById('ret_id').value = id;
+    document.getElementById('ret_returnedby').value = '';
+    document.getElementById('ret_receivedby').value = '';
+    document.getElementById('ret_sig_return').value = '';
+    document.getElementById('ret_sig_receiver').value = '';
+    new bootstrap.Modal(document.getElementById('returnModal')).show();
+  }
+
+  function doReturn() {
+    const id = document.getElementById('ret_id').value;
+    const returnedBy = document.getElementById('ret_returnedby').value.trim();
+    const receivedBy = document.getElementById('ret_receivedby').value.trim();
+    const sigRet = document.getElementById('ret_sig_return').value.trim();
+    const sigRec = document.getElementById('ret_sig_receiver').value.trim();
+    if (!returnedBy || !receivedBy || !sigRet || !sigRec) {
+      showToast('All return fields are required.', 'danger');
+      return;
+    }
+    let all = getTransactions();
+    const idx = all.findIndex(t => t.id === id);
+    if (idx === -1) { showToast('Record not found.', 'danger'); return; }
+    all[idx].returned_by = returnedBy;
+    all[idx].received_by = receivedBy;
+    all[idx].signature_return = sigRet;
+    all[idx].signature_receiver = sigRec;
+    saveTransactions(all);
+    bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
+    loadData();
+    loadDashboard();
+    showToast('Return completed for ' + all[idx].requestor, 'success');
+  }
+
+  // ============================================================
+  // BULK RETURN
+  // ============================================================
+  document.getElementById('returnBtn').addEventListener('click', function() {
+    const checked = document.querySelectorAll('.row-cb:checked');
+    if (checked.length === 0) return;
+    if (checked.length === 1) { openReturn(checked[0].value); return; }
+    showConfirm(`Return ${checked.length} selected projectors? (Bulk signature "BULK")`, function() {
+      let all = getTransactions();
+      let count = 0;
+      checked.forEach(cb => {
+        const idx = all.findIndex(t => t.id === cb.value);
+        if (idx !== -1 && !all[idx].returned_by) {
+          all[idx].returned_by = 'BULK';
+          all[idx].received_by = 'BULK';
+          all[idx].signature_return = 'BULK';
+          all[idx].signature_receiver = 'BULK';
+          count++;
+        }
+      });
+      saveTransactions(all);
+      loadData();
+      loadDashboard();
+      showToast(count + ' projectors returned (BULK)', 'success');
+    });
+  });
+
+  // ============================================================
+  // EXPORT CSV
+  // ============================================================
+  function exportCSV() {
+    const all = getTransactions();
+    if (all.length === 0) { showToast('No data to export.', 'warning'); return; }
+    const headers = ['Date','Requestor','Contact','Big/Small','Issued By','Power Code','Power Extension','VGA/HDMI','HDMI Adapter','Returned By','Received By','Signature Return','Signature Receiver'];
+    let csv = '\uFEFF' + headers.join(',') + '\n';
+    all.forEach(t => {
+      const row = [t.date, t.requestor, t.contact, t.big_small, t.issued_by, t.power_code, t.power_extension, t.vga_hdmi, t.hdmi_adapter, t.returned_by, t.received_by, t.signature_return, t.signature_receiver];
+      csv += row.map(f => `"${(f || '').replace(/"/g, '""')}"`).join(',') + '\n';
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Lubaga_Log_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    showToast('CSV exported', 'success');
+  }
+
+  // ============================================================
+  // SEED SAMPLE DATA
+  // ============================================================
+  function seedSampleData() {
+    if (getTransactions().length > 0) return;
+    const today = new Date();
+    const formatDate = (d) => d.toISOString().split('T')[0];
+    const sample = [
+      { id: 'P001', date: formatDate(new Date(today - 86400000 * 2)), requestor: 'Dr. Sarah Nakato', contact: '0772-123456', big_small: 'Big', issued_by: 'John IT', power_code: 'Yes', power_extension: 'Yes', vga_hdmi: 'HDMI', hdmi_adapter: 'Yes', returned_by: '', received_by: '', signature_return: '', signature_receiver: '' },
+      { id: 'P002', date: formatDate(new Date(today - 86400000 * 5)), requestor: 'Dr. Peter Okello', contact: '0773-789012', big_small: 'Small', issued_by: 'Mary IT', power_code: 'No', power_extension: 'No', vga_hdmi: 'VGA', hdmi_adapter: 'No', returned_by: 'Dr. Okello', received_by: 'John IT', signature_return: 'PO', signature_receiver: 'JM' },
+      { id: 'P003', date: formatDate(new Date(today - 86400000 * 1)), requestor: 'Nurse Grace Auma', contact: '0774-345678', big_small: 'Big', issued_by: 'John IT', power_code: 'Yes', power_extension: 'No', vga_hdmi: 'HDMI', hdmi_adapter: 'Yes', returned_by: '', received_by: '', signature_return: '', signature_receiver: '' }
+    ];
+    saveTransactions(sample);
+  }
+
+  // ============================================================
+  // ADMIN PANEL FUNCTIONS
+  // ============================================================
+
+  function hasAdmin(users) {
+    for (const [username, userData] of Object.entries(users)) {
+      if (userData.role === 'admin' && userData.active !== false) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function openAdminPanel() {
+    const users = getUsers();
+    const session = localStorage.getItem(SESSION_KEY);
+    if (!users[session] || users[session].role !== 'admin') {
+      showToast('Admin access required.', 'danger');
+      return;
+    }
+    renderAdminUsers();
+    new bootstrap.Modal(document.getElementById('adminModal')).show();
+  }
+
+  function adminAddUser() {
+    const username = document.getElementById('adminNewUser').value.trim();
+    const email = document.getElementById('adminNewEmail').value.trim();
+    const password = document.getElementById('adminNewPass').value;
+    const confirm = document.getElementById('adminNewPassConfirm').value;
+    const securityQuestion = document.getElementById('adminNewSecurityQuestion').value;
+    const securityAnswer = document.getElementById('adminNewSecurityAnswer').value.trim().toLowerCase();
+    const role = document.getElementById('adminNewRole').value;
+
+    if (!username || username.length < 3) {
+      showToast('Username must be at least 3 characters.', 'danger');
+      return;
+    }
+    if (!email || !email.includes('@')) {
+      showToast('Valid email is required.', 'danger');
+      return;
+    }
+    if (!password || password.length < 6) {
+      showToast('Password must be at least 6 characters.', 'danger');
+      return;
+    }
+    if (password !== confirm) {
+      showToast('Passwords do not match.', 'danger');
+      return;
+    }
+    if (!securityQuestion) {
+      showToast('Please select a security question.', 'danger');
+      return;
+    }
+    if (!securityAnswer || securityAnswer.length < 2) {
+      showToast('Please provide a security answer.', 'danger');
+      return;
+    }
+
+    const users = getUsers();
+    
+    if (users[username]) {
+      showToast('Username already exists.', 'danger');
+      return;
+    }
+    
+    for (const [existingUser, userData] of Object.entries(users)) {
+      if (userData.email && userData.email.toLowerCase() === email.toLowerCase()) {
+        showToast('Email already registered.', 'danger');
+        return;
+      }
+    }
+    
+    if (role === 'admin' && hasAdmin(users)) {
+      showToast('Only one Admin allowed. Use Staff role.', 'danger');
+      return;
+    }
+
+    users[username] = {
+      password: password,
+      email: email,
+      role: role,
+      active: true,
+      securityQuestion: securityQuestion,
+      securityAnswer: securityAnswer,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+
+    saveUsers(users);
+    showToast('User "' + username + '" added as ' + role, 'success');
+
+    document.getElementById('adminNewUser').value = '';
+    document.getElementById('adminNewEmail').value = '';
+    document.getElementById('adminNewPass').value = '';
+    document.getElementById('adminNewPassConfirm').value = '';
+    document.getElementById('adminNewSecurityQuestion').value = '';
+    document.getElementById('adminNewSecurityAnswer').value = '';
+    
+    renderAdminUsers();
+  }
+
+  function adminResetPassword(username) {
+    const newPassword = prompt('Enter new password for "' + username + '":');
+    if (!newPassword || newPassword.length < 6) {
+      showToast('Password must be at least 6 characters.', 'danger');
+      return;
+    }
+    const users = getUsers();
+    if (users[username]) {
+      users[username].password = newPassword;
+      saveUsers(users);
+      showToast('Password reset for "' + username + '"', 'success');
+      renderAdminUsers();
+    }
+  }
+
+  function adminToggleUser(username) {
+    const users = getUsers();
+    if (!users[username]) return;
+
+    const newStatus = users[username].active !== false;
+    const action = newStatus ? 'disable' : 'enable';
+
+    if (!confirm('Are you sure you want to ' + action + ' user "' + username + '"?')) return;
+
+    const session = localStorage.getItem(SESSION_KEY);
+    if (username === session) {
+      showToast('You cannot disable yourself.', 'danger');
+      return;
+    }
+
+    users[username].active = !newStatus;
+    saveUsers(users);
+
+    showToast('User "' + username + '" ' + (newStatus ? 'disabled' : 'enabled'), 'success');
+    renderAdminUsers();
+  }
+
+  function adminDeleteUser(username) {
+    if (!confirm('Delete user "' + username + '"? This cannot be undone.')) return;
+    if (!confirm('Are you absolutely sure?')) return;
+
+    const users = getUsers();
+    const session = localStorage.getItem(SESSION_KEY);
+    
+    if (username === session) {
+      showToast('You cannot delete yourself.', 'danger');
+      return;
+    }
+    
+    if (users[username] && users[username].role === 'admin') {
+      const adminCount = Object.values(users).filter(u => u.role === 'admin' && u.active !== false).length;
+      if (adminCount === 1) {
+        if (!confirm('You are deleting the ONLY Admin. This will allow a new user to register as Admin. Continue?')) {
+          return;
+        }
+      }
+    }
+    
+    delete users[username];
+    saveUsers(users);
+    showToast('User "' + username + '" deleted.', 'warning');
+    renderAdminUsers();
+  }
+
+  // ============================================================
+  // RENDER ADMIN USERS
+  // ============================================================
+  function renderAdminUsers() {
+    const users = getUsers();
+    const container = document.getElementById('adminUsersList');
+
+    const total = Object.keys(users).length;
+    const active = Object.values(users).filter(u => u.active !== false).length;
+    const inactive = total - active;
+    const adminExists = hasAdmin(users);
+
+    document.getElementById('adminTotalUsers').textContent = total;
+    document.getElementById('adminActiveUsers').textContent = active;
+    document.getElementById('adminInactiveUsers').textContent = inactive;
+    document.getElementById('adminStatusDisplay').textContent = adminExists ? '👑' : '❌';
+
+    const roleSelect = document.getElementById('adminNewRole');
+    const limitInfo = document.getElementById('adminLimitInfo');
+    if (roleSelect) {
+      if (adminExists) {
+        roleSelect.querySelector('option[value="admin"]').disabled = true;
+        if (roleSelect.value === 'admin') {
+          roleSelect.value = 'staff';
+        }
+        limitInfo.style.display = 'block';
+      } else {
+        roleSelect.querySelector('option[value="admin"]').disabled = false;
+        limitInfo.style.display = 'none';
+      }
+    }
+
+    if (total === 0) {
+      container.innerHTML = '<p class="text-center text-muted py-3">No users found.</p>';
+      return;
+    }
+
+    const sessionUser = localStorage.getItem(SESSION_KEY);
+
+    let html = `<div class="table-responsive">
+      <table class="table table-bordered table-hover table-sm admin-table">
+        <thead class="table-light">
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    for (const [username, userData] of Object.entries(users)) {
+      const email = userData.email || '—';
+      const role = userData.role || 'staff';
+      const isActive = userData.active !== false;
+      const isCurrentUser = username === sessionUser;
+
+      const roleBadge = role === 'admin'
+        ? '<span class="badge bg-danger">Admin</span>'
+        : '<span class="badge bg-secondary">Staff</span>';
+
+      const statusBadge = isActive
+        ? '<span class="badge bg-success">Active</span>'
+        : '<span class="badge bg-danger">Disabled</span>';
+
+      html += `<tr>
+        <td><strong>${username}</strong> ${isCurrentUser ? '<span class="badge bg-info">You</span>' : ''}</td>
+        <td>${email}</td>
+        <td>${roleBadge}</td>
+        <td>${statusBadge}</td>
+        <td>
+          ${!isCurrentUser ? `
+            <button class="btn btn-warning btn-sm btn-action-sm" onclick="adminResetPassword('${username}')" title="Reset Password">
+              <i class="bi bi-key"></i>
+            </button>
+            <button class="btn ${isActive ? 'btn-danger' : 'btn-success'} btn-sm btn-action-sm" onclick="adminToggleUser('${username}')" title="${isActive ? 'Disable' : 'Enable'}">
+              <i class="bi ${isActive ? 'bi-person-x' : 'bi-person-check'}"></i>
+            </button>
+            <button class="btn btn-outline-danger btn-sm btn-action-sm" onclick="adminDeleteUser('${username}')" title="Delete">
+              <i class="bi bi-trash"></i>
+            </button>
+          ` : '<span class="text-muted small">Cannot modify yourself</span>'}
+        </td>
+      </tr>`;
+    }
+
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+  }
+
+  // ============================================================
+  // DATA RETENTION FUNCTIONS
+  // ============================================================
+
+  function openRetentionModal() {
+    updateRetentionStats();
+    document.getElementById('retentionConfirm').checked = false;
+    document.getElementById('retentionExecuteBtn').disabled = true;
+    new bootstrap.Modal(document.getElementById('retentionModal')).show();
+  }
+
+  function updateRetentionStats() {
+    const all = getTransactions();
+    const total = all.length;
+    const period = parseInt(document.getElementById('retentionPeriod').value);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - period);
+    
+    let toDelete = 0;
+    let toKeep = 0;
+    let oldestDate = null;
+    let newestDate = null;
+    
+    all.forEach(t => {
+        if (t.date) {
+            const recordDate = new Date(t.date);
+            if (!oldestDate || recordDate < oldestDate) oldestDate = recordDate;
+            if (!newestDate || recordDate > newestDate) newestDate = recordDate;
             
-            console.log('No data found');
-            return [];
-        } catch (e) {
-            console.error('Error:', e);
-            return [];
+            if (recordDate < cutoffDate) {
+                toDelete++;
+            } else {
+                toKeep++;
+            }
         }
-    }
-
-    function saveTransactions(data) {
-        try {
-            localStorage.setItem('lubaga_transactions', JSON.stringify(data));
-            console.log(' Saved', data.length, 'transactions');
-        } catch (e) {
-            console.error('Error saving:', e);
-        }
-    }
-
-    // ============================================================
-    // STATE
-    // ============================================================
-    let transactions = [];
-    let pieChartInstance = null;
-    let barChartInstance = null;
-    let pendingAction = null;
-
-    // ============================================================
-    // SESSION CHECK
-    // ============================================================
-    (function checkSession() {
-        const session = localStorage.getItem(SESSION_KEY);
-        const users = getUsers();
-        if (!session || !users[session]) {
-            window.location.href = 'index.html';
-        }
-        document.getElementById('usernameDisplay').textContent = session;
-        console.log('👤 Logged in as:', session);
-    })();
-
-    // ============================================================
-    // LOGOUT
-    // ============================================================
-    function handleLogout() {
-        localStorage.removeItem(SESSION_KEY);
-        window.location.href = 'index.html';
-    }
-
-    // ============================================================
-    // TOAST
-    // ============================================================
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('liveToast');
-        const body = document.getElementById('toastMessage');
-        body.textContent = message;
-        toast.className = 'toast align-items-center text-white border-0';
-        if (type === 'success') toast.classList.add('bg-success');
-        else if (type === 'danger') toast.classList.add('bg-danger');
-        else if (type === 'warning') toast.classList.add('bg-warning');
-        else toast.classList.add('bg-primary');
-        new bootstrap.Toast(toast, { delay: 4000 }).show();
-    }
-
-    // ============================================================
-    // CONFIRMATION
-    // ============================================================
-    function showConfirm(message, action) {
-        pendingAction = action;
-        document.getElementById('confirmMessage').textContent = message;
-        new bootstrap.Modal(document.getElementById('confirmModal')).show();
-    }
-
-    function executeConfirmedAction() {
-        if (pendingAction) {
-            pendingAction();
-            pendingAction = null;
-        }
-        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
-    }
-
-    // ============================================================
-    // REFRESH
-    // ============================================================
-    function refreshData() {
-        showToast('Refreshing data...', 'info');
-        loadData();
-        loadDashboard();
-        setTimeout(() => showToast(' Data refreshed', 'success'), 500);
-    }
-
-    // ============================================================
-    // HELPER - TICK DISPLAY
-    // ============================================================
-    function renderTick(value) {
-        if (value === 'Yes' || value === 'yes' || value === true) {
-            return '<span class="tick-yes">✓</span>';
-        } else if (value === 'No' || value === 'no' || value === false || value === '') {
-            return '<span class="tick-no">✗</span>';
-        }
-        return value || '—';
-    }
-
-    // ============================================================
-    // DATA OPERATIONS
-    // ============================================================
-    function loadData() {
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        let all = getTransactions();
-        console.log('Loaded', all.length, 'records');
-        
-        if (search && all.length > 0) {
-            all = all.filter(t => 
-                (t.requestor || '').toLowerCase().includes(search) ||
-                (t.contact || '').toLowerCase().includes(search)
-            );
-        }
-        transactions = all;
-        renderTable();
-        renderMobileCards();
-        document.getElementById('statusBadge').innerHTML = '<i class="bi bi-circle-fill text-success"></i> Online';
-        document.getElementById('recordCount').textContent = transactions.length + ' records';
-    }
-
-    // ===== DESKTOP TABLE =====
-    function renderTable() {
-        const tbody = document.getElementById('tableBody');
-        if (transactions.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="12" class="text-center py-4 text-muted">
-                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                        No transactions found.
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        let html = '';
-        transactions.forEach((t, i) => {
-            const returned = !!(t.returned_by && t.returned_by !== '');
-            const rowClass = returned ? 'returned-row' : 'out-row';
-            
-            const statusHtml = returned 
-                ? '<span class="status-badge returned">Returned</span>'
-                : '<span class="status-badge out">Out</span>';
-            
-            const showActions = !returned;
-            
-            const powerCodeDisplay = renderTick(t.power_code);
-            const powerExtDisplay = renderTick(t.power_extension);
-            const hdmiAdapterDisplay = renderTick(t.hdmi_adapter);
-            
-            html += `<tr class="${rowClass}">
-                <td>
-                    ${showActions ? `<input type="checkbox" class="row-cb" value="${t.id}">` : '<span class="text-muted">—</span>'}
-                </td>
-                <td>${i + 1}</td>
-                <td>${t.date || ''}</td>
-                <td><strong>${t.requestor || ''}</strong></td>
-                <td>${t.contact || '—'}</td>
-                <td>${t.big_small || ''}</td>
-                <td>${t.issued_by || ''}</td>
-                <td>${powerCodeDisplay}</td>
-                <td>${powerExtDisplay}</td>
-                <td>${t.vga_hdmi || ''}</td>
-                <td>${hdmiAdapterDisplay}</td>
-                <td>${statusHtml}</td>
-            </tr>`;
-        });
-        tbody.innerHTML = html;
-        const selectAll = document.getElementById('selectAll');
-        if (selectAll) selectAll.checked = false;
-        updateReturnButton();
-    }
-
-    // ===== MOBILE CARDS =====
-    function renderMobileCards() {
-        const container = document.getElementById('mobileCards');
-        if (transactions.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-4 text-muted">
-                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                    No transactions found.
+    });
+    
+    const container = document.getElementById('retentionStats');
+    container.innerHTML = `
+        <div class="row g-2">
+            <div class="col-4">
+                <div class="admin-stat-box">
+                    <div class="number text-primary">${total}</div>
+                    <small class="text-muted">Total Records</small>
                 </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        transactions.forEach((t, i) => {
-            const returned = !!(t.returned_by && t.returned_by !== '');
-            const rowClass = returned ? 'returned-row' : 'out-row';
-            
-            const statusHtml = returned 
-                ? '<span class="status-badge returned">Returned</span>'
-                : '<span class="status-badge out">Out</span>';
-            
-            const showActions = !returned;
-            
-            const powerCodeDisplay = renderTick(t.power_code);
-            const powerExtDisplay = renderTick(t.power_extension);
-            const hdmiAdapterDisplay = renderTick(t.hdmi_adapter);
-            
-            html += `
-                <div class="mobile-card ${rowClass}">
-                    <div class="card-header">
-                        <span class="row-number">NO: ${i + 1}</span>
-                        <span>${statusHtml}</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="field-row">
-                            <span class="field-label">Date</span>
-                            <span class="field-value">${t.date || ''}</span>
-                        </div>
-                        <div class="field-row">
-                            <span class="field-label">Requestor</span>
-                            <span class="field-value"><strong>${t.requestor || ''}</strong></span>
-                        </div>
-                        <div class="field-row">
-                            <span class="field-label">Contact</span>
-                            <span class="field-value">${t.contact || '—'}</span>
-                        </div>
-                        <div class="field-row">
-                            <span class="field-label">Big/Small</span>
-                            <span class="field-value">${t.big_small || ''}</span>
-                        </div>
-                        <div class="field-row">
-                            <span class="field-label">Issued By</span>
-                            <span class="field-value">${t.issued_by || ''}</span>
-                        </div>
-                        <div class="field-row">
-                            <span class="field-label">Power Code</span>
-                            <span class="field-value">${powerCodeDisplay}</span>
-                        </div>
-                        <div class="field-row">
-                            <span class="field-label">Power Ext</span>
-                            <span class="field-value">${powerExtDisplay}</span>
-                        </div>
-                        <div class="field-row">
-                            <span class="field-label">VGA/HDMI</span>
-                            <span class="field-value">${t.vga_hdmi || ''}</span>
-                        </div>
-                        <div class="field-row">
-                            <span class="field-label">HDMI Adapter</span>
-                            <span class="field-value">${hdmiAdapterDisplay}</span>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        ${showActions ? `
-                            <div class="checkbox-wrapper">
-                                <input type="checkbox" class="row-cb-mobile" value="${t.id}" id="cb_${t.id}">
-                                <label for="cb_${t.id}" style="font-size:13px; color:#6c757d; margin:0;">Select</label>
-                            </div>
-                            <div class="action-btn">
-                                <button class="btn btn-sm btn-success" onclick="openReturn('${t.id}')" title="Return this projector">
-                                    <i class="bi bi-arrow-return-left"></i> Return
-                                </button>
-                            </div>
-                        ` : `
-                            <div style="width:100%; text-align:right;">
-                                <span class="text-muted small">Returned</span>
-                            </div>
-                        `}
-                    </div>
+            </div>
+            <div class="col-4">
+                <div class="admin-stat-box">
+                    <div class="number text-danger">${toDelete}</div>
+                    <small class="text-muted">To Delete</small>
                 </div>
-            `;
-        });
-        container.innerHTML = html;
-        
-        document.querySelectorAll('.row-cb-mobile').forEach(cb => {
-            cb.addEventListener('change', function() {
-                const desktopCb = document.querySelector(`.row-cb[value="${this.value}"]`);
-                if (desktopCb) desktopCb.checked = this.checked;
-                updateReturnButton();
-            });
-        });
+            </div>
+            <div class="col-4">
+                <div class="admin-stat-box">
+                    <div class="number text-success">${toKeep}</div>
+                    <small class="text-muted">To Keep</small>
+                </div>
+            </div>
+        </div>
+        <div class="mt-2 small text-muted">
+            ${oldestDate ? 'Oldest record: ' + oldestDate.toLocaleDateString() : 'No records'}
+            ${newestDate ? ' | Newest record: ' + newestDate.toLocaleDateString() : ''}
+            <br>Cutoff date: ${cutoffDate.toLocaleDateString()}
+        </div>
+    `;
+    
+    if (toDelete > 0) {
+        document.getElementById('retentionConfirm').disabled = false;
+    } else {
+        document.getElementById('retentionConfirm').disabled = true;
+        document.getElementById('retentionExecuteBtn').disabled = true;
     }
+  }
 
-    function updateReturnButton() {
-        const checked = document.querySelectorAll('.row-cb:checked').length;
-        document.getElementById('returnBtn').disabled = checked === 0;
-        if (checked > 0) {
-            document.getElementById('returnBtn').innerHTML = `<i class="bi bi-arrow-return-left"></i> Return ${checked} Selected`;
+  document.addEventListener('change', function(e) {
+    if (e.target.id === 'retentionConfirm') {
+        const toDelete = getRecordsToDelete();
+        document.getElementById('retentionExecuteBtn').disabled = !e.target.checked || toDelete === 0;
+    }
+  });
+
+  function getRecordsToDelete() {
+    const all = getTransactions();
+    const period = parseInt(document.getElementById('retentionPeriod').value);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - period);
+    
+    let count = 0;
+    all.forEach(t => {
+        if (t.date) {
+            const recordDate = new Date(t.date);
+            if (recordDate < cutoffDate) {
+                count++;
+            }
+        }
+    });
+    return count;
+  }
+
+  function executeRetention() {
+    const period = parseInt(document.getElementById('retentionPeriod').value);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - period);
+    
+    const all = getTransactions();
+    let deleted = 0;
+    let kept = [];
+    
+    all.forEach(t => {
+        if (t.date) {
+            const recordDate = new Date(t.date);
+            if (recordDate < cutoffDate) {
+                deleted++;
+            } else {
+                kept.push(t);
+            }
         } else {
-            document.getElementById('returnBtn').innerHTML = `<i class="bi bi-arrow-return-left"></i> Return Selected`;
-        }
-    }
-
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('row-cb')) {
-            const mobileCb = document.querySelector(`.row-cb-mobile[value="${e.target.value}"]`);
-            if (mobileCb) mobileCb.checked = e.target.checked;
-            updateReturnButton();
+            kept.push(t);
         }
     });
-
-    // ============================================================
-    // DASHBOARD
-    // ============================================================
-    function loadDashboard() {
-        // Always read the latest saved records
-        const all = getTransactions();
-        transactions = all;
-
-        const total = all.length;
-        const out = all.filter(t => !t.returned_by).length;
-        const returned = all.filter(t => t.returned_by).length;
-        const overdue = all.filter(t => {
-            if (t.returned_by || !t.date) return false;
-            const days = (Date.now() - new Date(t.date).getTime()) / 86400000;
-            return days > 3;
-        }).length;
-
-        document.getElementById('dTotal').textContent = total;
-        document.getElementById('dOut').textContent = out;
-        document.getElementById('dReturned').textContent = returned;
-        document.getElementById('dOverdue').textContent = overdue;
-
-        if (typeof Chart === 'undefined') {
-            console.error('Chart.js is not loaded.');
-            return;
-        }
-
-        const ctxPie = document.getElementById('pieChart').getContext('2d');
-        if (pieChartInstance) pieChartInstance.destroy();
-        pieChartInstance = new Chart(ctxPie, {
-            type: 'pie',
-            data: {
-                labels: ['Out', 'Returned'],
-                datasets: [{
-                    data: [out, returned],
-                    backgroundColor: ['#dc3545', '#198754'],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { 
-                    legend: { 
-                        position: 'bottom', 
-                        labels: { 
-                            boxWidth: 12, 
-                            padding: 12,
-                            font: { size: 13 }
-                        } 
-                    } 
-                }
-            }
-        });
-
-        const monthly = {};
-        all.forEach(t => {
-            if (!t.date) return;
-            const month = t.date.substring(0, 7);
-            monthly[month] = (monthly[month] || 0) + 1;
-        });
-        const months = Object.keys(monthly).sort().slice(-6);
-        const counts = months.map(m => monthly[m]);
-
-        const ctxBar = document.getElementById('barChart').getContext('2d');
-        if (barChartInstance) barChartInstance.destroy();
-        barChartInstance = new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: months.length ? months : ['No Data'],
-                datasets: [{
-                    label: 'Issued',
-                    data: counts.length ? counts : [0],
-                    backgroundColor: ['#0a58ca', '#0d6efd', '#3d8bfd', '#6ba8fe', '#9ac5fe', '#c8e2fe'],
-                    borderRadius: 6,
-                    borderSkipped: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { 
-                    y: { 
-                        beginAtZero: true, 
-                        ticks: { stepSize: 1 },
-                        grid: { color: '#e9ecef' }
-                    },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
+    
+    if (deleted === 0) {
+        showToast('No records to delete for this period.', 'info');
+        return;
     }
-
-    // ============================================================
-    // CHECKOUT
-    // ============================================================
-    function doCheckout() {
-        const date = document.getElementById('req_date').value;
-        const requestor = document.getElementById('req_requestor').value.trim();
-        const issuedBy = document.getElementById('req_issuedby').value.trim();
-        const size = document.getElementById('req_size').value;
-        const powerCode = document.getElementById('req_powercode').value;
-        const powerExt = document.getElementById('req_powerext').value;
-        const cable = document.getElementById('req_cable').value;
-        const adapter = document.getElementById('req_adapter').value;
-
-        if (!date || !requestor || !issuedBy || !size || !powerCode || !powerExt || !cable || !adapter) {
-            showToast('Please fill in all required fields (marked with *).', 'danger');
-            return;
-        }
-
-        const record = {
-            id: 'P' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-            date: date,
-            requestor: requestor,
-            contact: document.getElementById('req_contact').value.trim(),
-            big_small: size,
-            issued_by: issuedBy,
-            power_code: powerCode,
-            power_extension: powerExt,
-            vga_hdmi: cable,
-            hdmi_adapter: adapter,
-            returned_by: '',
-            received_by: '',
-            signature_return: '',
-            signature_receiver: ''
-        };
-
-        const all = getTransactions();
-        all.unshift(record);
-        saveTransactions(all);
-        document.getElementById('checkoutForm').reset();
-        bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
-        loadData();
-        loadDashboard();
-        showToast('Checked out to ' + requestor, 'success');
+    
+    if (!confirm('Permanently delete ' + deleted + ' record(s) older than ' + period + ' days?')) {
+        return;
     }
-
-    // ============================================================
-    // RETURN
-    // ============================================================
-    function openReturn(id) {
-        const row = transactions.find(t => t.id === id);
-        if (!row) return;
-        document.getElementById('ret_requestor').textContent = row.requestor;
-        document.getElementById('ret_id').value = id;
-        document.getElementById('ret_returnedby').value = '';
-        document.getElementById('ret_receivedby').value = '';
-        document.getElementById('ret_sig_return').value = '';
-        document.getElementById('ret_sig_receiver').value = '';
-        new bootstrap.Modal(document.getElementById('returnModal')).show();
+    if (!confirm('This cannot be undone! Continue?')) {
+        return;
     }
+    
+    saveTransactions(kept);
+    loadData();
+    loadDashboard();
+    updateRetentionStats();
+    showToast('Deleted ' + deleted + ' old record(s). ' + kept.length + ' kept.', 'warning');
+    
+    setTimeout(() => {
+        bootstrap.Modal.getInstance(document.getElementById('retentionModal')).hide();
+    }, 2000);
+  }
 
-    function doReturn() {
-        const id = document.getElementById('ret_id').value;
-        const returnedBy = document.getElementById('ret_returnedby').value.trim();
-        const receivedBy = document.getElementById('ret_receivedby').value.trim();
-        const sigRet = document.getElementById('ret_sig_return').value.trim();
-        const sigRec = document.getElementById('ret_sig_receiver').value.trim();
-
-        if (!returnedBy || !receivedBy || !sigRet || !sigRec) {
-            showToast('All return fields are required.', 'danger');
-            return;
-        }
-
-        let all = getTransactions();
-        const idx = all.findIndex(t => t.id === id);
-        if (idx === -1) { showToast('Record not found.', 'danger'); return; }
-
-        all[idx].returned_by = returnedBy;
-        all[idx].received_by = receivedBy;
-        all[idx].signature_return = sigRet;
-        all[idx].signature_receiver = sigRec;
-        saveTransactions(all);
-        bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
-        loadData();
-        loadDashboard();
-        showToast('Return completed for ' + all[idx].requestor, 'success');
-    }
-
-    // ============================================================
-    // BULK SELECT / RETURN
-    // ============================================================
-    function toggleAllCheckboxes() {
-        const checked = document.getElementById('selectAll').checked;
-        document.querySelectorAll('.row-cb').forEach(cb => cb.checked = checked);
-        document.querySelectorAll('.row-cb-mobile').forEach(cb => cb.checked = checked);
-        updateReturnButton();
-    }
-
-    document.getElementById('returnBtn').addEventListener('click', function() {
-        const checked = document.querySelectorAll('.row-cb:checked');
-        if (checked.length === 0) return;
-        
-        if (checked.length === 1) {
-            openReturn(checked[0].value);
-        } else {
-            showConfirm(
-                `Return ${checked.length} selected projectors? (Bulk signature will be "BULK")`,
-                function() {
-                    let all = getTransactions();
-                    let count = 0;
-                    checked.forEach(cb => {
-                        const idx = all.findIndex(t => t.id === cb.value);
-                        if (idx !== -1 && !all[idx].returned_by) {
-                            all[idx].returned_by = 'BULK';
-                            all[idx].received_by = 'BULK';
-                            all[idx].signature_return = 'BULK';
-                            all[idx].signature_receiver = 'BULK';
-                            count++;
-                        }
-                    });
-                    saveTransactions(all);
-                    loadData();
-                    loadDashboard();
-                    showToast(' ' + count + ' projectors returned (BULK)', 'success');
-                }
-            );
-        }
-    });
-
-    // ============================================================
-    // EXPORT CSV
-    // ============================================================
-    function exportCSV() {
-        const all = getTransactions();
-        if (all.length === 0) { showToast('No data to export.', 'warning'); return; }
-        const headers = ['Date','Requestor','Contact','Big/Small','Issued By','Power Code','Power Extension','VGA/HDMI','HDMI Adapter','Returned By','Received By','Signature Return','Signature Receiver'];
-        let csv = '\uFEFF' + headers.join(',') + '\n';
-        all.forEach(t => {
-            const row = [
-                t.date, t.requestor, t.contact, t.big_small, t.issued_by,
-                t.power_code, t.power_extension, t.vga_hdmi, t.hdmi_adapter,
-                t.returned_by, t.received_by, t.signature_return, t.signature_receiver
-            ];
-            csv += row.map(f => `"${(f || '').replace(/"/g, '""')}"`).join(',') + '\n';
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `Lubaga_Projector_Log_${new Date().toISOString().slice(0,10)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(a.href);
-        showToast(' CSV exported successfully', 'success');
-    }
-
-    // ============================================================
-    // SEED SAMPLE DATA
-    // ============================================================
-    function seedSampleData() {
-        const existing = getTransactions();
-        if (existing.length > 0) return;
-        
-        const today = new Date();
-        const formatDate = (d) => d.toISOString().split('T')[0];
-        
-        const sample = [
-            {
-                id: 'P001',
-                date: formatDate(new Date(today - 86400000 * 2)),
-                requestor: 'Dr. Sarah Nakato',
-                contact: '0772-123456',
-                big_small: 'Big',
-                issued_by: 'John IT',
-                power_code: 'Yes',
-                power_extension: 'Yes',
-                vga_hdmi: 'HDMI',
-                hdmi_adapter: 'Yes',
-                returned_by: '',
-                received_by: '',
-                signature_return: '',
-                signature_receiver: ''
-            },
-            {
-                id: 'P002',
-                date: formatDate(new Date(today - 86400000 * 5)),
-                requestor: 'Dr. Peter Okello',
-                contact: '0773-789012',
-                big_small: 'Small',
-                issued_by: 'Mary IT',
-                power_code: 'No',
-                power_extension: 'No',
-                vga_hdmi: 'VGA',
-                hdmi_adapter: 'No',
-                returned_by: 'Dr. Okello',
-                received_by: 'John IT',
-                signature_return: 'PO',
-                signature_receiver: 'JM'
-            },
-            {
-                id: 'P003',
-                date: formatDate(new Date(today - 86400000 * 1)),
-                requestor: 'Nurse Grace Auma',
-                contact: '0774-345678',
-                big_small: 'Big',
-                issued_by: 'John IT',
-                power_code: 'Yes',
-                power_extension: 'No',
-                vga_hdmi: 'HDMI',
-                hdmi_adapter: 'Yes',
-                returned_by: '',
-                received_by: '',
-                signature_return: '',
-                signature_receiver: ''
-            }
-        ];
-        saveTransactions(sample);
-    }
-
-    // ============================================================
-    // INIT
-    // ============================================================
-    document.addEventListener('shown.bs.tab', function(e) {
-        if (e.target.id === 'dashboard-tab') {
-            loadDashboard();
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('req_date').value = today;
-        
-        console.log('Dashboard loading...');
-        
-        // Force reload data
-        const data = getTransactions();
-        console.log('Total records found:', data.length);
-        
-        if (data.length === 0) {
-            console.log('No data found, seeding sample...');
-            seedSampleData();
-        }
-        
-        loadData();
-        loadDashboard();
-        console.log('Dashboard ready');
-    });
+  // ============================================================
+  // INIT
+  // ============================================================
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('req_date').value = new Date().toISOString().split('T')[0];
+    if (getTransactions().length === 0) seedSampleData();
+    loadData();
+    loadDashboard();
+  });
 </script>
 </body>
 </html>

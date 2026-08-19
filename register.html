@@ -15,11 +15,12 @@
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 16px;
         }
         .register-container {
-            max-width: 440px;
+            max-width: 480px;
             width: 100%;
-            margin: 20px;
+            margin: 0 auto;
         }
         .register-card {
             background: #fff;
@@ -78,6 +79,15 @@
             border-color: #0a58ca;
             box-shadow: 0 0 0 0.2rem rgba(10, 88, 202, 0.15);
         }
+        .register-body .form-select {
+            border-radius: 10px;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+        }
+        .register-body .form-select:focus {
+            border-color: #0a58ca;
+            box-shadow: 0 0 0 0.2rem rgba(10, 88, 202, 0.15);
+        }
         .register-body .btn-primary {
             border-radius: 10px;
             padding: 12px;
@@ -101,7 +111,157 @@
         }
         .register-footer a:hover { text-decoration: underline; }
         .alert-danger, .alert-success { border-radius: 10px; }
-        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+        
+        .field-required { color: #dc3545; font-weight: bold; margin-left: 2px; }
+        .form-text {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .role-info {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+        .info-banner {
+            background: #cfe2ff;
+            border: 1px solid #9ec5fe;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #052c65;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .info-banner i {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+        .info-banner .highlight {
+            font-weight: 700;
+            color: #0a58ca;
+        }
+        .admin-badge {
+            background: #dc3545;
+            color: #fff;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* ===== TOAST - FULLY RESPONSIVE ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 90%;
+            pointer-events: none;
+        }
+        .toast {
+            min-width: 200px;
+            max-width: 420px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            pointer-events: auto;
+            opacity: 1 !important;
+            border: none;
+        }
+        .toast .toast-body {
+            font-size: 14px;
+            padding: 14px 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1.4;
+        }
+        .toast .btn-close {
+            padding: 10px;
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+        }
+        .toast .btn-close:hover { opacity: 1; }
+        .toast.bg-success .toast-body { color: #fff; }
+        .toast.bg-danger .toast-body { color: #fff; }
+        .toast.bg-warning .toast-body { color: #333; }
+        .toast.bg-warning .btn-close { filter: brightness(0); }
+        .toast.bg-primary .toast-body { color: #fff; }
+        .toast.bg-info .toast-body { color: #fff; }
+
+        @media (max-width: 576px) {
+            .toast-container {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: 100%;
+                padding: 0;
+            }
+            .toast {
+                max-width: 100%;
+                width: 100%;
+                border-radius: 10px;
+                margin-bottom: 8px;
+            }
+            .toast .toast-body {
+                font-size: 13px;
+                padding: 12px 16px;
+            }
+            .toast .btn-close {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+            .register-body {
+                padding: 20px;
+            }
+            .register-header {
+                padding: 25px 20px 20px;
+            }
+            .register-header .logo {
+                width: 60px;
+                height: 60px;
+            }
+            .register-header h3 {
+                font-size: 20px;
+            }
+            .register-header p {
+                font-size: 13px;
+            }
+            .register-body .form-control,
+            .register-body .form-select {
+                font-size: 14px;
+                padding: 10px 14px;
+            }
+            .register-body .btn-primary {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .toast .toast-body {
+                font-size: 12px;
+                padding: 10px 14px;
+            }
+            .toast .btn-close {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            .register-body {
+                padding: 16px;
+            }
+            .register-body .form-control,
+            .register-body .form-select {
+                font-size: 13px;
+                padding: 8px 12px;
+            }
+            .register-body .btn-primary {
+                font-size: 13px;
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -117,39 +277,71 @@
             <span class="badge-register"><i class="bi bi-person-plus"></i> Create Account</span>
         </div>
         <div class="register-body">
+            
+            <!-- ===== INFO BANNER ===== -->
+            <div class="info-banner" id="infoBanner">
+                <i class="bi bi-info-circle-fill"></i>
+                <span id="bannerMessage">Only <span class="highlight">Admin</span> can add new users. Please contact IT Admin.</span>
+            </div>
+            
             <form id="registerForm" onsubmit="handleRegister(event)">
                 <div id="registerError" class="alert alert-danger" style="display:none;"></div>
                 <div id="registerSuccess" class="alert alert-success" style="display:none;"></div>
                 
                 <!-- ===== USERNAME ===== -->
                 <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-person"></i> Username <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold"><i class="bi bi-person"></i> Username <span class="field-required">*</span></label>
                     <input type="text" id="registerUser" class="form-control" placeholder="Choose a username" required autofocus>
-                    <small class="text-muted">Minimum 3 characters</small>
+                    <small class="form-text">Minimum 3 characters</small>
                 </div>
                 
                 <!-- ===== EMAIL ===== -->
                 <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-envelope"></i> Email Address <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold"><i class="bi bi-envelope"></i> Email Address <span class="field-required">*</span></label>
                     <input type="email" id="registerEmail" class="form-control" placeholder="Enter your email address" required>
-                    <small class="text-muted">We'll send you account updates</small>
+                    <small class="form-text">Used for login and account recovery</small>
                 </div>
                 
                 <!-- ===== PASSWORD ===== -->
                 <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-lock"></i> Password <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold"><i class="bi bi-lock"></i> Password <span class="field-required">*</span></label>
                     <input type="password" id="registerPass" class="form-control" placeholder="Min 6 characters" required>
-                    <small class="text-muted">Minimum 6 characters</small>
+                    <small class="form-text">Minimum 6 characters</small>
                 </div>
                 
                 <!-- ===== CONFIRM PASSWORD ===== -->
                 <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-lock"></i> Confirm Password <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold"><i class="bi bi-lock"></i> Confirm Password <span class="field-required">*</span></label>
                     <input type="password" id="registerPassConfirm" class="form-control" placeholder="Confirm your password" required>
                 </div>
                 
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-person-plus"></i> Create Account
+                <!-- ===== SECURITY QUESTION ===== -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><i class="bi bi-shield-lock"></i> Security Question <span class="field-required">*</span></label>
+                    <select class="form-select" id="securityQuestion" required>
+                        <option value="">Select a security question...</option>
+                        <option value="What was your first pet's name?">What was your first pet's name?</option>
+                        <option value="What was your first school?">What was your first school?</option>
+                        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                        <option value="What city were you born in?">What city were you born in?</option>
+                        <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                        <option value="What is your favorite book?">What is your favorite book?</option>
+                    </select>
+                    <small class="form-text">Used to reset your password if you forget it</small>
+                </div>
+                
+                <!-- ===== SECURITY ANSWER ===== -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><i class="bi bi-shield-lock"></i> Security Answer <span class="field-required">*</span></label>
+                    <input type="text" id="securityAnswer" class="form-control" placeholder="Your answer (case insensitive)" required>
+                    <small class="form-text">Keep this private. You'll need it to reset your password.</small>
+                </div>
+                
+                <!-- ===== ROLE (hidden - set by system) ===== -->
+                <input type="hidden" id="registerRole" value="staff">
+                
+                <button type="submit" class="btn btn-primary w-100" id="registerBtn">
+                    <i class="bi bi-person-plus"></i> <span id="registerBtnText">Create Account</span>
                 </button>
             </form>
         </div>
@@ -159,9 +351,11 @@
     </div>
 </div>
 
-<!-- Toast -->
+<!-- ============================================================ -->
+<!-- TOAST - FULLY RESPONSIVE -->
+<!-- ============================================================ -->
 <div class="toast-container">
-    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
+    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body" id="toastMessage"></div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
@@ -171,6 +365,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // ============================================================
+    // CONFIG
+    // ============================================================
     const USERS_KEY = 'lubaga_users';
     const SESSION_KEY = 'lubaga_session';
 
@@ -185,18 +382,106 @@
         localStorage.setItem(USERS_KEY, JSON.stringify(users));
     }
 
+    // ============================================================
+    // TOAST - FULLY RESPONSIVE
+    // ============================================================
     function showToast(message, type = 'success') {
         const toast = document.getElementById('liveToast');
         const body = document.getElementById('toastMessage');
-        body.textContent = message;
+        
+        // Icons
+        const icons = {
+            success: '✅ ',
+            danger: '❌ ',
+            warning: '⚠️ ',
+            info: 'ℹ️ ',
+            primary: '📢 '
+        };
+        body.innerHTML = (icons[type] || '') + message;
+        
+        // Class
         toast.className = 'toast align-items-center text-white border-0';
         if (type === 'success') toast.classList.add('bg-success');
         else if (type === 'danger') toast.classList.add('bg-danger');
         else if (type === 'warning') toast.classList.add('bg-warning');
+        else if (type === 'info') toast.classList.add('bg-info');
         else toast.classList.add('bg-primary');
-        new bootstrap.Toast(toast, { delay: 4000 }).show();
+        
+        // Show
+        const bsToast = new bootstrap.Toast(toast, { delay: 4000 });
+        bsToast.show();
     }
 
+    // ============================================================
+    // CHECK IF ADMIN EXISTS
+    // ============================================================
+    function hasAdmin(users) {
+        for (const [username, userData] of Object.entries(users)) {
+            if (userData.role === 'admin' && userData.active !== false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ============================================================
+    // UPDATE UI BASED ON ADMIN STATUS
+    // ============================================================
+    function updateUI() {
+        const users = getUsers();
+        const adminExists = hasAdmin(users);
+        const isFirstUser = Object.keys(users).length === 0;
+        
+        const banner = document.getElementById('infoBanner');
+        const bannerMsg = document.getElementById('bannerMessage');
+        const registerBtn = document.getElementById('registerBtn');
+        const btnText = document.getElementById('registerBtnText');
+        const roleInput = document.getElementById('registerRole');
+
+        // Enable all form inputs first
+        document.querySelectorAll('#registerForm .form-control, #registerForm .form-select').forEach(el => {
+            el.disabled = false;
+        });
+        registerBtn.disabled = false;
+
+        if (isFirstUser) {
+            // First user - can register as admin
+            banner.className = 'info-banner';
+            banner.style.background = '#d1e7dd';
+            banner.style.borderColor = '#badbcc';
+            bannerMsg.innerHTML = '🌟 You are the <span class="highlight">first user</span>! You will be the <span class="admin-badge">Admin</span>.';
+            roleInput.value = 'admin';
+            btnText.textContent = 'Create Account (Admin)';
+            registerBtn.className = 'btn btn-danger w-100';
+        } else if (adminExists) {
+            // Admin exists - registration is blocked
+            banner.className = 'info-banner';
+            banner.style.background = '#fff3cd';
+            banner.style.borderColor = '#ffc107';
+            bannerMsg.innerHTML = '🔒 Only <span class="highlight">Admin</span> can add new users. Please contact IT Admin.';
+            roleInput.value = 'staff';
+            btnText.textContent = 'Registration Disabled';
+            registerBtn.disabled = true;
+            registerBtn.className = 'btn btn-secondary w-100';
+            // Disable all form inputs
+            document.querySelectorAll('#registerForm .form-control, #registerForm .form-select').forEach(el => {
+                el.disabled = true;
+            });
+        } else {
+            // No admin exists - allow registration as admin
+            banner.className = 'info-banner';
+            banner.style.background = '#cfe2ff';
+            banner.style.borderColor = '#9ec5fe';
+            bannerMsg.innerHTML = '⚠️ No <span class="highlight">Admin</span> found. You will be the <span class="admin-badge">Admin</span>.';
+            roleInput.value = 'admin';
+            btnText.textContent = 'Create Account (Admin)';
+            registerBtn.className = 'btn btn-danger w-100';
+        }
+    }
+
+    // ============================================================
+    // REGISTER
+    // ============================================================
     function handleRegister(e) {
         e.preventDefault();
         
@@ -207,38 +492,62 @@
         errorEl.textContent = '';
         successEl.textContent = '';
 
+        // Check if registration is disabled
+        const registerBtn = document.getElementById('registerBtn');
+        if (registerBtn.disabled) {
+            errorEl.textContent = '❌ Registration is disabled. Only Admin can add users.';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        // Get form values
         const username = document.getElementById('registerUser').value.trim();
         const email = document.getElementById('registerEmail').value.trim();
         const password = document.getElementById('registerPass').value;
         const confirm = document.getElementById('registerPassConfirm').value;
+        const securityQuestion = document.getElementById('securityQuestion').value;
+        const securityAnswer = document.getElementById('securityAnswer').value.trim().toLowerCase();
+        const role = document.getElementById('registerRole').value;
 
-        // Validate
+        // ===== VALIDATION =====
         if (!username || username.length < 3) {
-            errorEl.textContent = ' Username must be at least 3 characters.';
+            errorEl.textContent = '❌ Username must be at least 3 characters.';
             errorEl.style.display = 'block';
             return;
         }
         if (!email || !email.includes('@') || !email.includes('.')) {
-            errorEl.textContent = ' Please enter a valid email address.';
+            errorEl.textContent = '❌ Please enter a valid email address.';
             errorEl.style.display = 'block';
             return;
         }
         if (!password || password.length < 6) {
-            errorEl.textContent = ' Password must be at least 6 characters.';
+            errorEl.textContent = '❌ Password must be at least 6 characters.';
             errorEl.style.display = 'block';
             return;
         }
         if (password !== confirm) {
-            errorEl.textContent = ' Passwords do not match.';
+            errorEl.textContent = '❌ Passwords do not match.';
+            errorEl.style.display = 'block';
+            return;
+        }
+        if (!securityQuestion) {
+            errorEl.textContent = '❌ Please select a security question.';
+            errorEl.style.display = 'block';
+            return;
+        }
+        if (!securityAnswer || securityAnswer.length < 2) {
+            errorEl.textContent = '❌ Please provide a security answer.';
             errorEl.style.display = 'block';
             return;
         }
 
-        // Check if email already exists
+        // ===== CHECK EXISTING USERS =====
         const users = getUsers();
+        
+        // Check if email already exists
         for (const [existingUser, userData] of Object.entries(users)) {
             if (userData.email && userData.email.toLowerCase() === email.toLowerCase()) {
-                errorEl.textContent = ' This email is already registered. Please login.';
+                errorEl.textContent = '❌ This email is already registered. Please login.';
                 errorEl.style.display = 'block';
                 return;
             }
@@ -246,40 +555,63 @@
         
         // Check if username already exists
         if (users[username]) {
-            errorEl.textContent = ' Username already exists. Please choose another.';
+            errorEl.textContent = '❌ Username already exists. Please choose another.';
             errorEl.style.display = 'block';
             return;
         }
 
-        // Save user (store username + password + email)
+        // ===== SAVE USER =====
         users[username] = {
             password: password,
-            email: email
+            email: email,
+            role: role,
+            active: true,
+            securityQuestion: securityQuestion,
+            securityAnswer: securityAnswer.toLowerCase().trim(),
+            createdAt: new Date().toISOString().split('T')[0]
         };
         saveUsers(users);
 
-        successEl.innerHTML = ' Account "' + username + '" created successfully!';
+        // ===== SUCCESS MESSAGE =====
+        const roleText = role === 'admin' ? ' 👑 (Admin)' : ' (Staff)';
+        successEl.innerHTML = '✅ Account "' + username + '" created successfully!' + roleText;
         successEl.style.display = 'block';
-        showToast(' Account created! Please login.', 'success');
+        showToast('Account created! Please login.', 'success');
 
-        // Clear form
+        // ===== CLEAR FORM =====
         document.getElementById('registerUser').value = '';
         document.getElementById('registerEmail').value = '';
         document.getElementById('registerPass').value = '';
         document.getElementById('registerPassConfirm').value = '';
+        document.getElementById('securityQuestion').value = '';
+        document.getElementById('securityAnswer').value = '';
 
+        // ===== UPDATE UI =====
+        updateUI();
+
+        // ===== REDIRECT TO LOGIN =====
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 2000);
     }
 
+    // ============================================================
+    // CHECK SESSION
+    // ============================================================
     (function checkSession() {
         const session = localStorage.getItem(SESSION_KEY);
         const users = getUsers();
-        if (session && users[session]) {
+        if (session && users[session] && users[session].active !== false) {
             window.location.href = 'dashboard.html';
         }
     })();
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        updateUI();
+    });
 </script>
 </body>
 </html>
