@@ -1066,14 +1066,8 @@
     const toast = document.getElementById('liveToast');
     const body = document.getElementById('toastMessage');
     
-    const icons = {
-      success: '✅ ',
-      danger: '❌ ',
-      warning: '⚠️ ',
-      info: 'ℹ️ ',
-      primary: '📢 '
-    };
-    body.innerHTML = (icons[type] || '') + message;
+    // No icons - plain text only
+    body.textContent = message;
     
     toast.className = 'toast align-items-center text-white border-0';
     if (type === 'success') toast.classList.add('bg-success');
