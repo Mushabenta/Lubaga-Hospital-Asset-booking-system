@@ -119,9 +119,7 @@
       .navbar-custom .navbar-text .status-dot { width: 5px; height: 5px; }
       .btn-admin { font-size: 0.6rem; padding: 2px 6px; }
       .container-fluid { padding-left: 6px !important; padding-right: 6px !important; }
-      .navbar-custom .container-fluid {
-        gap: 2px;
-      }
+      .navbar-custom .container-fluid { gap: 2px; }
     }
     @media (max-width: 400px) {
       .navbar-custom .navbar-brand {
@@ -478,6 +476,23 @@
       border-left: 1px solid #dee2e6;
     }
 
+    /* ===== RETENTION STATS ===== */
+    .retention-record-list {
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 13px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+    .retention-record-list .record-item {
+      padding: 3px 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+    .retention-record-list .record-item:last-child {
+      border-bottom: none;
+    }
+
     /* ===== RESPONSIVE MODALS ===== */
     .modal-content {
       border-radius: 16px;
@@ -561,7 +576,7 @@
 </head>
 <body>
 
-<!-- ===== HEADER - FULL TEXT WITH WRAP ===== -->
+<!-- ===== HEADER ===== -->
 <nav class="navbar navbar-expand navbar-custom">
   <div class="container-fluid px-2 px-sm-3">
     <a class="navbar-brand" href="#" title="Lubaga Hospital Projector Tracker">
@@ -591,7 +606,7 @@
   </div>
 </nav>
 
-<!-- ===== MAIN CONTENT (rest of the page) ===== -->
+<!-- ===== MAIN CONTENT ===== -->
 <div class="container mt-3">
   <ul class="nav nav-tabs" id="mainTabs" role="tablist">
     <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboardPanel" type="button" role="tab"><i class="bi bi-speedometer2"></i> Dashboard</button></li>
@@ -648,10 +663,8 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- MODALS (Checkout, Return, Confirm, Admin, Retention) -->
-<!-- ============================================================ -->
-
 <!-- CHECKOUT MODAL -->
+<!-- ============================================================ -->
 <div class="modal fade" id="checkoutModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -874,7 +887,9 @@
   </div>
 </div>
 
-<!-- DATA RETENTION MODAL -->
+<!-- ============================================================ -->
+<!-- DATA RETENTION MODAL - DYNAMIC DATE RANGE -->
+<!-- ============================================================ -->
 <div class="modal fade" id="retentionModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -885,23 +900,28 @@
       <div class="modal-body">
         <div class="alert alert-info">
           <i class="bi bi-info-circle"></i> 
-          This will permanently delete transaction records older than the selected period.
+          This will permanently delete transaction records within the selected date range.
           <br><strong class="text-danger"> This action cannot be undone!</strong>
         </div>
         
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Retention Period</label>
-          <select class="form-select" id="retentionPeriod" onchange="updateRetentionStats()">
-            <option value="30">30 days (1 month)</option>
-            <option value="60" selected>60 days (2 months)</option>
-            <option value="90">90 days (3 months)</option>
-            <option value="180">180 days (6 months)</option>
-            <option value="365">365 days (1 year)</option>
-          </select>
-          <small class="text-muted">Delete records older than selected period</small>
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">From Date <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="retentionFromDate" onchange="updateRetentionStats()" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">To Date <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="retentionToDate" onchange="updateRetentionStats()" required>
+          </div>
         </div>
         
-        <div id="retentionStats">
+        <div class="mt-2">
+          <button class="btn btn-outline-secondary btn-sm" onclick="updateRetentionStats()">
+            <i class="bi bi-search"></i> Check Records
+          </button>
+        </div>
+        
+        <div id="retentionStats" class="mt-3">
           <!-- Rendered by JavaScript -->
         </div>
         
@@ -915,7 +935,7 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button class="btn btn-warning" id="retentionExecuteBtn" onclick="executeRetention()" disabled>
-          <i class="bi bi-trash"></i> Delete Old Records
+          <i class="bi bi-trash"></i> Delete Records in Range
         </button>
       </div>
     </div>
@@ -1023,11 +1043,11 @@
     const body = document.getElementById('toastMessage');
     
     const icons = {
-      success: ' ',
-      danger: '',
-      warning: '',
-      info: '',
-      primary: ''
+      success: '✅ ',
+      danger: '❌ ',
+      warning: '⚠️ ',
+      info: 'ℹ️ ',
+      primary: '📢 '
     };
     body.innerHTML = (icons[type] || '') + message;
     
@@ -1596,146 +1616,220 @@
   }
 
   // ============================================================
-  // DATA RETENTION FUNCTIONS
+  // DATA RETENTION FUNCTIONS - DYNAMIC DATE RANGE
   // ============================================================
 
   function openRetentionModal() {
-    updateRetentionStats();
+    // Set default dates
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    document.getElementById('retentionFromDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+    document.getElementById('retentionToDate').value = today.toISOString().split('T')[0];
     document.getElementById('retentionConfirm').checked = false;
     document.getElementById('retentionExecuteBtn').disabled = true;
+    
+    updateRetentionStats();
     new bootstrap.Modal(document.getElementById('retentionModal')).show();
   }
 
   function updateRetentionStats() {
-    const all = getTransactions();
-    const total = all.length;
-    const period = parseInt(document.getElementById('retentionPeriod').value);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - period);
+    const fromDate = document.getElementById('retentionFromDate').value;
+    const toDate = document.getElementById('retentionToDate').value;
     
+    if (!fromDate || !toDate) {
+      document.getElementById('retentionStats').innerHTML = `
+        <div class="alert alert-warning">Please select both From and To dates.</div>
+      `;
+      return;
+    }
+    
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+    from.setHours(0, 0, 0, 0);
+    to.setHours(23, 59, 59, 999);
+    
+    if (from > to) {
+      document.getElementById('retentionStats').innerHTML = `
+        <div class="alert alert-danger">From date must be before To date.</div>
+      `;
+      return;
+    }
+    
+    const all = getTransactions();
     let toDelete = 0;
     let toKeep = 0;
-    let oldestDate = null;
-    let newestDate = null;
+    let deletedRecords = [];
+    let keptRecords = [];
     
     all.forEach(t => {
-        if (t.date) {
-            const recordDate = new Date(t.date);
-            if (!oldestDate || recordDate < oldestDate) oldestDate = recordDate;
-            if (!newestDate || recordDate > newestDate) newestDate = recordDate;
-            
-            if (recordDate < cutoffDate) {
-                toDelete++;
-            } else {
-                toKeep++;
-            }
+      if (t.date) {
+        const recordDate = new Date(t.date);
+        recordDate.setHours(0, 0, 0, 0);
+        
+        if (recordDate >= from && recordDate <= to) {
+          toDelete++;
+          deletedRecords.push(t);
+        } else {
+          toKeep++;
+          keptRecords.push(t);
         }
+      } else {
+        toKeep++;
+        keptRecords.push(t);
+      }
     });
     
     const container = document.getElementById('retentionStats');
-    container.innerHTML = `
-        <div class="row g-2">
-            <div class="col-4">
-                <div class="admin-stat-box">
-                    <div class="number text-primary">${total}</div>
-                    <small class="text-muted">Total Records</small>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="admin-stat-box">
-                    <div class="number text-danger">${toDelete}</div>
-                    <small class="text-muted">To Delete</small>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="admin-stat-box">
-                    <div class="number text-success">${toKeep}</div>
-                    <small class="text-muted">To Keep</small>
-                </div>
-            </div>
+    
+    // Build stats HTML
+    let statsHtml = `
+      <div class="row g-2">
+        <div class="col-4">
+          <div class="admin-stat-box">
+            <div class="number text-primary">${all.length}</div>
+            <small class="text-muted">Total Records</small>
+          </div>
         </div>
-        <div class="mt-2 small text-muted">
-            ${oldestDate ? 'Oldest record: ' + oldestDate.toLocaleDateString() : 'No records'}
-            ${newestDate ? ' | Newest record: ' + newestDate.toLocaleDateString() : ''}
-            <br>Cutoff date: ${cutoffDate.toLocaleDateString()}
+        <div class="col-4">
+          <div class="admin-stat-box">
+            <div class="number text-danger">${toDelete}</div>
+            <small class="text-muted">To Delete</small>
+          </div>
         </div>
+        <div class="col-4">
+          <div class="admin-stat-box">
+            <div class="number text-success">${toKeep}</div>
+            <small class="text-muted">To Keep</small>
+          </div>
+        </div>
+      </div>
+      <div class="mt-2 small text-muted">
+        <strong>Date range:</strong> ${from.toLocaleDateString()} to ${to.toLocaleDateString()}
+      </div>
     `;
     
+    // Show records to be deleted
     if (toDelete > 0) {
-        document.getElementById('retentionConfirm').disabled = false;
+      statsHtml += `
+        <div class="mt-2">
+          <strong>Records to be deleted (${toDelete}):</strong>
+          <div class="retention-record-list">
+            ${deletedRecords.map(t => 
+              `<div class="record-item">• ${t.date} - <strong>${t.requestor}</strong> (${t.big_small})</div>`
+            ).join('')}
+          </div>
+        </div>
+      `;
     } else {
-        document.getElementById('retentionConfirm').disabled = true;
-        document.getElementById('retentionExecuteBtn').disabled = true;
+      statsHtml += `
+        <div class="alert alert-success mt-2">No records found in this date range.</div>
+      `;
+    }
+    
+    container.innerHTML = statsHtml;
+    
+    // Enable/disable confirm checkbox
+    const confirmCheckbox = document.getElementById('retentionConfirm');
+    if (toDelete > 0) {
+      confirmCheckbox.disabled = false;
+    } else {
+      confirmCheckbox.disabled = true;
+      document.getElementById('retentionExecuteBtn').disabled = true;
     }
   }
 
   document.addEventListener('change', function(e) {
     if (e.target.id === 'retentionConfirm') {
-        const toDelete = getRecordsToDelete();
-        document.getElementById('retentionExecuteBtn').disabled = !e.target.checked || toDelete === 0;
+      const toDelete = getRecordsToDelete();
+      document.getElementById('retentionExecuteBtn').disabled = !e.target.checked || toDelete === 0;
     }
   });
 
   function getRecordsToDelete() {
-    const all = getTransactions();
-    const period = parseInt(document.getElementById('retentionPeriod').value);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - period);
+    const fromDate = document.getElementById('retentionFromDate').value;
+    const toDate = document.getElementById('retentionToDate').value;
     
+    if (!fromDate || !toDate) return 0;
+    
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+    from.setHours(0, 0, 0, 0);
+    to.setHours(23, 59, 59, 999);
+    
+    const all = getTransactions();
     let count = 0;
     all.forEach(t => {
-        if (t.date) {
-            const recordDate = new Date(t.date);
-            if (recordDate < cutoffDate) {
-                count++;
-            }
+      if (t.date) {
+        const recordDate = new Date(t.date);
+        recordDate.setHours(0, 0, 0, 0);
+        if (recordDate >= from && recordDate <= to) {
+          count++;
         }
+      }
     });
     return count;
   }
 
   function executeRetention() {
-    const period = parseInt(document.getElementById('retentionPeriod').value);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - period);
+    const fromDate = document.getElementById('retentionFromDate').value;
+    const toDate = document.getElementById('retentionToDate').value;
+    
+    if (!fromDate || !toDate) {
+      showToast('Please select both From and To dates.', 'danger');
+      return;
+    }
+    
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+    from.setHours(0, 0, 0, 0);
+    to.setHours(23, 59, 59, 999);
+    
+    if (from > to) {
+      showToast('From date must be before To date.', 'danger');
+      return;
+    }
     
     const all = getTransactions();
     let deleted = 0;
     let kept = [];
     
     all.forEach(t => {
-        if (t.date) {
-            const recordDate = new Date(t.date);
-            if (recordDate < cutoffDate) {
-                deleted++;
-            } else {
-                kept.push(t);
-            }
+      if (t.date) {
+        const recordDate = new Date(t.date);
+        recordDate.setHours(0, 0, 0, 0);
+        if (recordDate >= from && recordDate <= to) {
+          deleted++;
         } else {
-            kept.push(t);
+          kept.push(t);
         }
+      } else {
+        kept.push(t);
+      }
     });
     
     if (deleted === 0) {
-        showToast('No records to delete for this period.', 'info');
-        return;
+      showToast('No records found in this date range.', 'info');
+      return;
     }
     
-    if (!confirm('Permanently delete ' + deleted + ' record(s) older than ' + period + ' days?')) {
-        return;
+    if (!confirm('Permanently delete ' + deleted + ' record(s) from ' + from.toLocaleDateString() + ' to ' + to.toLocaleDateString() + '?')) {
+      return;
     }
     if (!confirm('This cannot be undone! Continue?')) {
-        return;
+      return;
     }
     
     saveTransactions(kept);
     loadData();
     loadDashboard();
     updateRetentionStats();
-    showToast('Deleted ' + deleted + ' old record(s). ' + kept.length + ' kept.', 'warning');
+    showToast('Deleted ' + deleted + ' record(s). ' + kept.length + ' kept.', 'warning');
     
+    // Close modal after 2 seconds
     setTimeout(() => {
-        bootstrap.Modal.getInstance(document.getElementById('retentionModal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('retentionModal')).hide();
     }, 2000);
   }
 
