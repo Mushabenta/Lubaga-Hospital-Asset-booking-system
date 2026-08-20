@@ -15,30 +15,35 @@
       padding-bottom: 40px;
     }
 
-    /* ===== HEADER – responsive ===== */
+    /* ===== HEADER - FULL TEXT WITH WRAP ===== */
     .navbar-custom {
       background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
       box-shadow: 0 2px 12px rgba(0,0,0,0.15);
       padding: 8px 0;
     }
+    .navbar-custom .container-fluid {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
     .navbar-custom .navbar-brand {
       color: #fff !important;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.9rem;
       padding: 0;
       margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      line-height: 1.2;
+      line-height: 1.3;
       white-space: normal;
-      word-break: break-word;
-      max-width: 160px;
+      word-wrap: break-word;
+      max-width: 200px;
+      flex: 0 1 auto;
     }
     .navbar-custom .navbar-brand i { display: none; }
     .navbar-custom .navbar-text {
       color: rgba(255,255,255,0.85) !important;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       margin: 0;
       padding: 0;
       display: flex;
@@ -49,24 +54,24 @@
     .navbar-custom .btn-outline-light {
       color: #fff !important;
       border-color: rgba(255,255,255,0.3);
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       padding: 4px 12px;
       white-space: nowrap;
     }
     .navbar-custom .btn-outline-light:hover { background: rgba(255,255,255,0.15); }
     .status-dot {
       display: inline-block;
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: #28a745;
-      margin-right: 4px;
+      margin-right: 3px;
       flex-shrink: 0;
     }
     .btn-admin {
       color: #ffc107 !important;
       border-color: rgba(255,193,7,0.3);
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       padding: 4px 12px;
       white-space: nowrap;
       background: transparent;
@@ -78,42 +83,60 @@
 
     .navbar-custom .navbar-text .user-name {
       display: inline-block !important;
-      max-width: 80px;
+      max-width: 70px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
+    .navbar-custom .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
     @media (max-width: 576px) {
       .navbar-custom .navbar-brand {
-        font-size: 0.8rem;
-        max-width: 100px;
-        gap: 4px;
+        font-size: 0.75rem;
+        max-width: 140px;
         white-space: normal;
-        word-break: break-word;
+        word-wrap: break-word;
+        line-height: 1.2;
       }
       .navbar-custom .navbar-text {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         gap: 2px;
-        white-space: nowrap;
       }
       .navbar-custom .navbar-text .user-name {
-        max-width: 50px;
-        font-size: 0.7rem;
+        max-width: 40px;
+        font-size: 0.65rem;
         display: inline-block !important;
       }
       .navbar-custom .navbar-text .status-label { display: none; }
-      .navbar-custom .btn-outline-light { font-size: 0.7rem; padding: 2px 8px; }
-      .navbar-custom .navbar-text .status-dot { width: 6px; height: 6px; }
-      .btn-admin { font-size: 0.65rem; padding: 2px 8px; }
-      .container-fluid { padding-left: 8px !important; padding-right: 8px !important; }
+      .navbar-custom .btn-outline-light { font-size: 0.6rem; padding: 2px 6px; }
+      .navbar-custom .navbar-text .status-dot { width: 5px; height: 5px; }
+      .btn-admin { font-size: 0.6rem; padding: 2px 6px; }
+      .container-fluid { padding-left: 6px !important; padding-right: 6px !important; }
+      .navbar-custom .container-fluid {
+        gap: 2px;
+      }
     }
     @media (max-width: 400px) {
-      .navbar-custom .navbar-brand { font-size: 0.7rem; max-width: 80px; }
-      .navbar-custom .navbar-text { font-size: 0.6rem; }
-      .navbar-custom .navbar-text .user-name { max-width: 35px; font-size: 0.6rem; }
-      .navbar-custom .btn-outline-light { font-size: 0.6rem; padding: 2px 6px; }
-      .btn-admin { font-size: 0.55rem; padding: 2px 6px; }
+      .navbar-custom .navbar-brand {
+        font-size: 0.65rem;
+        max-width: 100px;
+      }
+      .navbar-custom .navbar-text {
+        font-size: 0.55rem;
+      }
+      .navbar-custom .navbar-text .user-name {
+        max-width: 30px;
+        font-size: 0.55rem;
+      }
+      .navbar-custom .btn-outline-light { font-size: 0.5rem; padding: 2px 4px; }
+      .btn-admin { font-size: 0.5rem; padding: 2px 4px; }
     }
 
     /* ===== STAT CARDS ===== */
@@ -314,7 +337,7 @@
 
     .table tbody tr.returned-row td:first-child input[type="checkbox"] { display: none !important; }
 
-    /* ===== TOAST - FULLY RESPONSIVE ===== */
+    /* ===== TOAST ===== */
     .toast-container {
       position: fixed;
       bottom: 20px;
@@ -397,7 +420,7 @@
       .table-wrapper { display: block !important; }
     }
 
-    /* ===== ADMIN PANEL STYLES ===== */
+    /* ===== ADMIN TABLE - CLEAN ===== */
     .admin-stat-box {
       background: #f8f9fa;
       padding: 12px;
@@ -406,23 +429,53 @@
     }
     .admin-stat-box .number { font-size: 28px; font-weight: 700; }
     .admin-table td, .admin-table th { vertical-align: middle; }
-    .btn-action-sm { padding: 2px 6px; font-size: 12px; }
-    
+
     .admin-table {
       min-width: auto;
     }
     .admin-table thead th {
       white-space: nowrap;
       font-size: 12px;
-      padding: 8px 6px;
+      padding: 10px 8px;
+      text-align: center;
+      background: #f8f9fa;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
     .admin-table tbody td {
-      padding: 8px 6px;
+      padding: 10px 8px;
       font-size: 13px;
+      text-align: center;
+      vertical-align: middle;
     }
-    .admin-table .btn-action-sm {
-      padding: 2px 5px;
-      font-size: 11px;
+    .admin-table tbody td:first-child {
+      text-align: left;
+    }
+    .admin-table tbody td:nth-child(2) {
+      text-align: left;
+    }
+    .admin-table tbody td:last-child {
+      text-align: center;
+      min-width: 200px;
+    }
+
+    .action-link {
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
+      padding: 0 10px;
+      transition: 0.2s;
+      display: inline-block;
+    }
+    .action-link:hover {
+      opacity: 0.6;
+    }
+    .action-link.text-warning { color: #d39e00; }
+    .action-link.text-danger { color: #dc3545; }
+    .action-link.text-success { color: #198754; }
+    .action-link + .action-link {
+      border-left: 1px solid #dee2e6;
     }
 
     /* ===== RESPONSIVE MODALS ===== */
@@ -447,13 +500,9 @@
         font-size: 11px;
         padding: 6px 4px;
       }
-      .admin-table .btn-action-sm {
-        padding: 1px 4px;
-        font-size: 10px;
-      }
-      .admin-table .badge {
-        font-size: 10px;
-        padding: 2px 6px;
+      .action-link {
+        font-size: 11px;
+        padding: 0 6px;
       }
       .admin-stat-box .number { font-size: 20px; }
       .admin-stat-box small { font-size: 10px; }
@@ -489,10 +538,6 @@
       .modal .row .col-md-6 {
         margin-bottom: 8px;
       }
-      .modal .row .col-md-4:last-child,
-      .modal .row .col-md-6:last-child {
-        margin-bottom: 0;
-      }
     }
 
     @media (max-width: 400px) {
@@ -516,15 +561,14 @@
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
+<!-- ===== HEADER - FULL TEXT WITH WRAP ===== -->
 <nav class="navbar navbar-expand navbar-custom">
-  <div class="container-fluid px-2 px-sm-3 d-flex justify-content-between align-items-center">
-    <a class="navbar-brand" href="#">
-      <span class="d-none d-sm-inline">Lubaga Hospital Projector Tracker</span>
-      <span class="d-inline d-sm-none">Lubaga IT Tracker</span>
+  <div class="container-fluid px-2 px-sm-3">
+    <a class="navbar-brand" href="#" title="Lubaga Hospital Projector Tracker">
+      Lubaga Hospital Projector Tracker
     </a>
 
-    <div class="d-flex align-items-center gap-1 gap-sm-3 flex-shrink-0">
+    <div class="nav-right">
       <span class="navbar-text d-flex align-items-center">
         <span class="status-dot"></span>
         <span class="d-none d-sm-inline status-label">Online</span>
@@ -536,7 +580,7 @@
       </span>
 
       <button class="btn-admin" id="adminBtn" style="display:none;" onclick="openAdminPanel()">
-        <i class="bi bi-shield-lock"></i> <span class="d-none d-sm-inline">Admin</span>
+        <i class="bi bi-shield-lock"></i> Admin
       </button>
 
       <button class="btn btn-outline-light btn-sm" onclick="handleLogout()">
@@ -547,11 +591,11 @@
   </div>
 </nav>
 
-<!-- ===== MAIN CONTENT ===== -->
+<!-- ===== MAIN CONTENT (rest of the page) ===== -->
 <div class="container mt-3">
   <ul class="nav nav-tabs" id="mainTabs" role="tablist">
-    <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboardPanel" type="button" role="tab"><i class="bi bi-speedometer2"></i> <span class="d-none d-sm-inline">Dashboard</span></button></li>
-    <li class="nav-item"><button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logsPanel" type="button" role="tab"><i class="bi bi-list-ul"></i> <span class="d-none d-sm-inline">Transaction Log</span></button></li>
+    <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboardPanel" type="button" role="tab"><i class="bi bi-speedometer2"></i> Dashboard</button></li>
+    <li class="nav-item"><button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logsPanel" type="button" role="tab"><i class="bi bi-list-ul"></i> Transaction Log</button></li>
   </ul>
 
   <div class="tab-content mt-3">
@@ -573,12 +617,12 @@
     <div class="tab-pane fade" id="logsPanel" role="tabpanel">
       <div class="row mb-3 g-2">
         <div class="col-12 col-md-9 d-flex flex-wrap gap-1 gap-sm-2">
-          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#checkoutModal"><i class="bi bi-plus-circle"></i> <span class="d-none d-sm-inline">Check Out</span></button>
-          <button class="btn btn-success btn-sm" id="returnBtn" disabled><i class="bi bi-arrow-return-left"></i> <span class="d-none d-sm-inline">Return Selected</span></button>
+          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#checkoutModal"><i class="bi bi-plus-circle"></i> Check Out</button>
+          <button class="btn btn-success btn-sm" id="returnBtn" disabled><i class="bi bi-arrow-return-left"></i> Return Selected</button>
           <button class="btn btn-outline-secondary btn-sm" onclick="refreshData()"><i class="bi bi-arrow-clockwise"></i></button>
-          <button class="btn btn-outline-info btn-sm" onclick="exportCSV()"><i class="bi bi-download"></i> <span class="d-none d-sm-inline">CSV</span></button>
+          <button class="btn btn-outline-info btn-sm" onclick="exportCSV()"><i class="bi bi-download"></i> CSV</button>
           <button class="btn btn-outline-warning btn-sm" onclick="openRetentionModal()">
-            <i class="bi bi-clock-history"></i> <span class="d-none d-sm-inline">Retention</span>
+            <i class="bi bi-clock-history"></i> Retention
           </button>
         </div>
         <div class="col-12 col-md-3">
@@ -604,8 +648,10 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- CHECKOUT MODAL -->
+<!-- MODALS (Checkout, Return, Confirm, Admin, Retention) -->
 <!-- ============================================================ -->
+
+<!-- CHECKOUT MODAL -->
 <div class="modal fade" id="checkoutModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -683,9 +729,7 @@
   </div>
 </div>
 
-<!-- ============================================================ -->
 <!-- RETURN MODAL -->
-<!-- ============================================================ -->
 <div class="modal fade" id="returnModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -711,9 +755,7 @@
   </div>
 </div>
 
-<!-- ============================================================ -->
 <!-- CONFIRMATION MODAL -->
-<!-- ============================================================ -->
 <div class="modal fade" id="confirmModal" tabindex="-1">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
@@ -814,7 +856,7 @@
                 </button>
               </div>
               <div class="col-md-4" id="adminLimitInfo" style="display:none;">
-                <small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Admin already exists</small>
+                <small class="text-warning">Admin already exists</small>
               </div>
             </div>
           </div>
@@ -832,9 +874,7 @@
   </div>
 </div>
 
-<!-- ============================================================ -->
 <!-- DATA RETENTION MODAL -->
-<!-- ============================================================ -->
 <div class="modal fade" id="retentionModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -883,7 +923,7 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- TOAST - RESPONSIVE -->
+<!-- TOAST -->
 <!-- ============================================================ -->
 <div class="toast-container">
   <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -976,23 +1016,21 @@
   }
 
   // ============================================================
-  // TOAST - FULLY RESPONSIVE
+  // TOAST
   // ============================================================
   function showToast(message, type = 'success') {
     const toast = document.getElementById('liveToast');
     const body = document.getElementById('toastMessage');
     
-    // Icons
     const icons = {
       success: ' ',
-      danger: ' ',
+      danger: '',
       warning: '',
       info: '',
-      primary: ' '
+      primary: ''
     };
     body.innerHTML = (icons[type] || '') + message;
     
-    // Class
     toast.className = 'toast align-items-center text-white border-0';
     if (type === 'success') toast.classList.add('bg-success');
     else if (type === 'danger') toast.classList.add('bg-danger');
@@ -1000,7 +1038,6 @@
     else if (type === 'info') toast.classList.add('bg-info');
     else toast.classList.add('bg-primary');
     
-    // Show
     const bsToast = new bootstrap.Toast(toast, { delay: 4000 });
     bsToast.show();
   }
@@ -1498,7 +1535,7 @@
     document.getElementById('adminTotalUsers').textContent = total;
     document.getElementById('adminActiveUsers').textContent = active;
     document.getElementById('adminInactiveUsers').textContent = inactive;
-    document.getElementById('adminStatusDisplay').textContent = adminExists ? '' : '';
+    document.getElementById('adminStatusDisplay').textContent = adminExists ? 'Admin' : 'None';
 
     const roleSelect = document.getElementById('adminNewRole');
     const limitInfo = document.getElementById('adminLimitInfo');
@@ -1528,8 +1565,6 @@
           <tr>
             <th>Username</th>
             <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -1537,35 +1572,21 @@
 
     for (const [username, userData] of Object.entries(users)) {
       const email = userData.email || '—';
-      const role = userData.role || 'staff';
       const isActive = userData.active !== false;
       const isCurrentUser = username === sessionUser;
 
-      const roleBadge = role === 'admin'
-        ? '<span class="badge bg-danger">Admin</span>'
-        : '<span class="badge bg-secondary">Staff</span>';
-
-      const statusBadge = isActive
-        ? '<span class="badge bg-success">Active</span>'
-        : '<span class="badge bg-danger">Disabled</span>';
+      const toggleText = isActive ? 'Disable' : 'Enable';
+      const toggleColor = isActive ? 'text-danger' : 'text-success';
 
       html += `<tr>
         <td><strong>${username}</strong> ${isCurrentUser ? '<span class="badge bg-info">You</span>' : ''}</td>
         <td>${email}</td>
-        <td>${roleBadge}</td>
-        <td>${statusBadge}</td>
         <td>
           ${!isCurrentUser ? `
-            <button class="btn btn-warning btn-sm btn-action-sm" onclick="adminResetPassword('${username}')" title="Reset Password">
-              <i class="bi bi-key"></i>
-            </button>
-            <button class="btn ${isActive ? 'btn-danger' : 'btn-success'} btn-sm btn-action-sm" onclick="adminToggleUser('${username}')" title="${isActive ? 'Disable' : 'Enable'}">
-              <i class="bi ${isActive ? 'bi-person-x' : 'bi-person-check'}"></i>
-            </button>
-            <button class="btn btn-outline-danger btn-sm btn-action-sm" onclick="adminDeleteUser('${username}')" title="Delete">
-              <i class="bi bi-trash"></i>
-            </button>
-          ` : '<span class="text-muted small">Cannot modify yourself</span>'}
+            <span class="action-link text-warning" onclick="adminResetPassword('${username}')">Reset</span>
+            <span class="action-link ${toggleColor}" onclick="adminToggleUser('${username}')">${toggleText}</span>
+            <span class="action-link text-danger" onclick="adminDeleteUser('${username}')">Delete</span>
+          ` : '<span class="text-muted">—</span>'}
         </td>
       </tr>`;
     }

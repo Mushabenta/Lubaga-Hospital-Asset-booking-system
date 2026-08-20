@@ -391,11 +391,11 @@
         
         // Icons
         const icons = {
-            success: '✅ ',
-            danger: '❌ ',
-            warning: '⚠️ ',
-            info: 'ℹ️ ',
-            primary: '📢 '
+            success: ' ',
+            danger: '',
+            warning: '',
+            info: '',
+            primary: ' '
         };
         body.innerHTML = (icons[type] || '') + message;
         
@@ -449,7 +449,7 @@
             banner.className = 'info-banner';
             banner.style.background = '#d1e7dd';
             banner.style.borderColor = '#badbcc';
-            bannerMsg.innerHTML = '🌟 You are the <span class="highlight">first user</span>! You will be the <span class="admin-badge">Admin</span>.';
+            bannerMsg.innerHTML = 'You are the <span class="highlight">first user</span>! You will be the <span class="admin-badge">Admin</span>.';
             roleInput.value = 'admin';
             btnText.textContent = 'Create Account (Admin)';
             registerBtn.className = 'btn btn-danger w-100';
@@ -458,7 +458,7 @@
             banner.className = 'info-banner';
             banner.style.background = '#fff3cd';
             banner.style.borderColor = '#ffc107';
-            bannerMsg.innerHTML = '🔒 Only <span class="highlight">Admin</span> can add new users. Please contact IT Admin.';
+            bannerMsg.innerHTML = 'Only <span class="highlight">Admin</span> can add new users. Please contact IT Admin.';
             roleInput.value = 'staff';
             btnText.textContent = 'Registration Disabled';
             registerBtn.disabled = true;
@@ -472,7 +472,7 @@
             banner.className = 'info-banner';
             banner.style.background = '#cfe2ff';
             banner.style.borderColor = '#9ec5fe';
-            bannerMsg.innerHTML = '⚠️ No <span class="highlight">Admin</span> found. You will be the <span class="admin-badge">Admin</span>.';
+            bannerMsg.innerHTML = ' No <span class="highlight">Admin</span> found. You will be the <span class="admin-badge">Admin</span>.';
             roleInput.value = 'admin';
             btnText.textContent = 'Create Account (Admin)';
             registerBtn.className = 'btn btn-danger w-100';
@@ -495,7 +495,7 @@
         // Check if registration is disabled
         const registerBtn = document.getElementById('registerBtn');
         if (registerBtn.disabled) {
-            errorEl.textContent = '❌ Registration is disabled. Only Admin can add users.';
+            errorEl.textContent = 'Registration is disabled. Only Admin can add users.';
             errorEl.style.display = 'block';
             return;
         }
@@ -511,32 +511,32 @@
 
         // ===== VALIDATION =====
         if (!username || username.length < 3) {
-            errorEl.textContent = '❌ Username must be at least 3 characters.';
+            errorEl.textContent = 'Username must be at least 3 characters.';
             errorEl.style.display = 'block';
             return;
         }
         if (!email || !email.includes('@') || !email.includes('.')) {
-            errorEl.textContent = '❌ Please enter a valid email address.';
+            errorEl.textContent = 'Please enter a valid email address.';
             errorEl.style.display = 'block';
             return;
         }
         if (!password || password.length < 6) {
-            errorEl.textContent = '❌ Password must be at least 6 characters.';
+            errorEl.textContent = 'Password must be at least 6 characters.';
             errorEl.style.display = 'block';
             return;
         }
         if (password !== confirm) {
-            errorEl.textContent = '❌ Passwords do not match.';
+            errorEl.textContent = 'Passwords do not match.';
             errorEl.style.display = 'block';
             return;
         }
         if (!securityQuestion) {
-            errorEl.textContent = '❌ Please select a security question.';
+            errorEl.textContent = 'Please select a security question.';
             errorEl.style.display = 'block';
             return;
         }
         if (!securityAnswer || securityAnswer.length < 2) {
-            errorEl.textContent = '❌ Please provide a security answer.';
+            errorEl.textContent = 'Please provide a security answer.';
             errorEl.style.display = 'block';
             return;
         }
@@ -547,7 +547,7 @@
         // Check if email already exists
         for (const [existingUser, userData] of Object.entries(users)) {
             if (userData.email && userData.email.toLowerCase() === email.toLowerCase()) {
-                errorEl.textContent = '❌ This email is already registered. Please login.';
+                errorEl.textContent = 'This email is already registered. Please login.';
                 errorEl.style.display = 'block';
                 return;
             }
@@ -555,7 +555,7 @@
         
         // Check if username already exists
         if (users[username]) {
-            errorEl.textContent = '❌ Username already exists. Please choose another.';
+            errorEl.textContent = 'Username already exists. Please choose another.';
             errorEl.style.display = 'block';
             return;
         }
@@ -573,8 +573,8 @@
         saveUsers(users);
 
         // ===== SUCCESS MESSAGE =====
-        const roleText = role === 'admin' ? ' 👑 (Admin)' : ' (Staff)';
-        successEl.innerHTML = '✅ Account "' + username + '" created successfully!' + roleText;
+        const roleText = role === 'admin' ? '  (Admin)' : ' (Staff)';
+        successEl.innerHTML = 'Account "' + username + '" created successfully!' + roleText;
         successEl.style.display = 'block';
         showToast('Account created! Please login.', 'success');
 
