@@ -15,7 +15,6 @@
       padding-bottom: 40px;
     }
 
-    /* ===== HEADER - FULL TEXT WITH WRAP ===== */
     .navbar-custom {
       background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
       box-shadow: 0 2px 12px rgba(0,0,0,0.15);
@@ -40,7 +39,6 @@
       max-width: 200px;
       flex: 0 1 auto;
     }
-    .navbar-custom .navbar-brand i { display: none; }
     .navbar-custom .navbar-text {
       color: rgba(255,255,255,0.85) !important;
       font-size: 0.8rem;
@@ -137,7 +135,6 @@
       .btn-admin { font-size: 0.5rem; padding: 2px 4px; }
     }
 
-    /* ===== STAT CARDS ===== */
     .stat-card {
       background: #fff;
       border-radius: 12px;
@@ -157,18 +154,18 @@
     .stat-card.warning { border-left-color: #ffc107; }
     .stat-card.warning .number { color: #fd7e14; }
 
-    .status-badge {
-      padding: 4px 16px;
-      border-radius: 4px;
+    /* PLAIN TEXT STATUS - no badges, no buttons, no wrap */
+    .status-text {
       font-weight: 600;
-      font-size: 13px;
-      display: inline-block;
-      text-align: center;
-      min-width: 85px;
+      font-size: 14px;
       white-space: nowrap;
     }
-    .status-badge.returned { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
-    .status-badge.out { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+    .status-text.returned {
+      color: #198754;
+    }
+    .status-text.out {
+      color: #dc3545;
+    }
 
     .tick-yes { color: #198754; font-weight: 700; font-size: 16px; }
     .tick-no { color: #dc3545; font-weight: 700; font-size: 16px; }
@@ -249,12 +246,6 @@
       flex-shrink: 0;
     }
     .mobile-card .card-body .field-row .field-value { flex: 1; word-break: break-word; padding-left: 8px; }
-    .mobile-card .card-body .field-row .field-value code {
-      background: #e9ecef;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 13px;
-    }
     .mobile-card .card-footer {
       padding: 12px 16px;
       background: #f8f9fa;
@@ -278,7 +269,6 @@
     @media screen and (max-width: 767px) {
       .table-wrapper { display: none; }
       .mobile-cards { display: block; }
-      .status-badge { font-size: 12px; padding: 3px 12px; min-width: 75px; }
       .stat-card .number { font-size: 24px; }
       .stat-card .label { font-size: 11px; }
       .nav-tabs .nav-link { font-size: 13px; padding: 8px 12px; }
@@ -335,7 +325,6 @@
 
     .table tbody tr.returned-row td:first-child input[type="checkbox"] { display: none !important; }
 
-    /* ===== TOAST ===== */
     .toast-container {
       position: fixed;
       bottom: 20px;
@@ -418,7 +407,6 @@
       .table-wrapper { display: block !important; }
     }
 
-    /* ===== ADMIN TABLE - CLEAN ===== */
     .admin-stat-box {
       background: #f8f9fa;
       padding: 12px;
@@ -476,24 +464,73 @@
       border-left: 1px solid #dee2e6;
     }
 
-    /* ===== RETENTION STATS ===== */
     .retention-record-list {
-      max-height: 150px;
+      max-height: 300px;
       overflow-y: auto;
       font-size: 13px;
       background: #f8f9fa;
       border-radius: 6px;
       padding: 8px 12px;
+      border: 1px solid #e9ecef;
     }
     .retention-record-list .record-item {
-      padding: 3px 0;
+      padding: 4px 0;
       border-bottom: 1px solid #e9ecef;
+      font-size: 13px;
+      line-height: 1.4;
     }
     .retention-record-list .record-item:last-child {
       border-bottom: none;
     }
+    .retention-record-list .record-item .badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      margin-left: 4px;
+    }
+    .retention-record-list .record-item .text-muted {
+      color: #6c757d;
+      font-size: 12px;
+    }
 
-    /* ===== RESPONSIVE MODALS ===== */
+    .retention-table {
+      font-size: 13px;
+    }
+    .retention-table thead th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      padding: 6px 8px;
+      background: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
+    }
+    .retention-table tbody td {
+      padding: 6px 8px;
+      vertical-align: middle;
+      border-bottom: 1px solid #e9ecef;
+    }
+    /* Plain text status in retention table - no badges */
+    .retention-status-text {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .retention-status-text.returned {
+      color: #198754;
+    }
+    .retention-status-text.out {
+      color: #dc3545;
+    }
+    details summary {
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 0;
+    }
+    details summary:hover {
+      color: #0a58ca;
+    }
+    details summary::-webkit-details-marker {
+      color: #0a58ca;
+    }
+
     .modal-content {
       border-radius: 16px;
       border: none;
@@ -521,6 +558,25 @@
       }
       .admin-stat-box .number { font-size: 20px; }
       .admin-stat-box small { font-size: 10px; }
+      .retention-record-list {
+        max-height: 150px;
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+      .retention-record-list .record-item {
+        font-size: 12px;
+      }
+      .retention-table {
+        font-size: 12px;
+      }
+      .retention-table thead th {
+        font-size: 10px;
+        padding: 4px 6px;
+      }
+      .retention-table tbody td {
+        font-size: 11px;
+        padding: 4px 6px;
+      }
       
       .modal-dialog {
         margin: 10px;
@@ -576,28 +632,24 @@
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
+<!-- HEADER -->
 <nav class="navbar navbar-expand navbar-custom">
   <div class="container-fluid px-2 px-sm-3">
     <a class="navbar-brand" href="#" title="Lubaga Hospital Projector Tracker">
       Lubaga Hospital Projector Tracker
     </a>
-
     <div class="nav-right">
       <span class="navbar-text d-flex align-items-center">
         <span class="status-dot"></span>
         <span class="d-none d-sm-inline status-label">Online</span>
       </span>
-
       <span class="navbar-text d-flex align-items-center">
         <i class="bi bi-person-circle me-1"></i>
         <span class="user-name" id="usernameDisplay">admin</span>
       </span>
-
       <button class="btn-admin" id="adminBtn" style="display:none;" onclick="openAdminPanel()">
         <i class="bi bi-shield-lock"></i> Admin
       </button>
-
       <button class="btn btn-outline-light btn-sm" onclick="handleLogout()">
         <span class="d-none d-sm-inline">Logout</span>
         <span class="d-inline d-sm-none"><i class="bi bi-box-arrow-right"></i></span>
@@ -606,7 +658,7 @@
   </div>
 </nav>
 
-<!-- ===== MAIN CONTENT ===== -->
+<!-- MAIN CONTENT -->
 <div class="container mt-3">
   <ul class="nav nav-tabs" id="mainTabs" role="tablist">
     <li class="nav-item"><button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboardPanel" type="button" role="tab"><i class="bi bi-speedometer2"></i> Dashboard</button></li>
@@ -662,9 +714,7 @@
   </div>
 </div>
 
-<!-- ============================================================ -->
 <!-- CHECKOUT MODAL -->
-<!-- ============================================================ -->
 <div class="modal fade" id="checkoutModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -785,9 +835,7 @@
   </div>
 </div>
 
-<!-- ============================================================ -->
 <!-- ADMIN PANEL MODAL -->
-<!-- ============================================================ -->
 <div class="modal fade" id="adminModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -796,7 +844,6 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <!-- Stats -->
         <div class="row g-2 mb-3">
           <div class="col-3 col-md-3">
             <div class="admin-stat-box">
@@ -824,7 +871,6 @@
           </div>
         </div>
 
-        <!-- Add New User -->
         <div class="card mb-3">
           <div class="card-header bg-primary text-white">
             <i class="bi bi-person-plus"></i> Add New User
@@ -875,7 +921,6 @@
           </div>
         </div>
 
-        <!-- User List -->
         <div id="adminUsersList">
           <div class="text-center text-muted py-3">Loading users...</div>
         </div>
@@ -887,11 +932,9 @@
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- DATA RETENTION MODAL - DYNAMIC DATE RANGE -->
-<!-- ============================================================ -->
+<!-- DATA RETENTION MODAL -->
 <div class="modal fade" id="retentionModal" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-warning text-dark">
         <h5 class="modal-title"><i class="bi bi-clock-history"></i> Data Retention</h5>
@@ -900,7 +943,7 @@
       <div class="modal-body">
         <div class="alert alert-info">
           <i class="bi bi-info-circle"></i> 
-          This will permanently delete transaction records within the selected date range.
+          This will permanently delete <strong>returned</strong> transaction records within the selected date range.
           <br><strong class="text-danger"> This action cannot be undone!</strong>
         </div>
         
@@ -921,9 +964,7 @@
           </button>
         </div>
         
-        <div id="retentionStats" class="mt-3">
-          <!-- Rendered by JavaScript -->
-        </div>
+        <div id="retentionStats" class="mt-3"></div>
         
         <div class="form-check mt-3">
           <input class="form-check-input" type="checkbox" id="retentionConfirm">
@@ -935,16 +976,14 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button class="btn btn-warning" id="retentionExecuteBtn" onclick="executeRetention()" disabled>
-          <i class="bi bi-trash"></i> Delete Records in Range
+          <i class="bi bi-trash"></i> Delete Returned Records
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ============================================================ -->
 <!-- TOAST -->
-<!-- ============================================================ -->
 <div class="toast-container">
   <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="d-flex">
@@ -954,9 +993,6 @@
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- JAVASCRIPT -->
-<!-- ============================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   // ============================================================
@@ -976,9 +1012,6 @@
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
   }
 
-  // ============================================================
-  // TRANSACTIONS
-  // ============================================================
   function getTransactions() {
     try {
       const keys = ['lubaga_transactions','lubaga_projector_data','lubaga_projector_data_v2','lubaga_projector_data_v3','lubaga_projector_data_v4'];
@@ -1002,9 +1035,6 @@
     try { localStorage.setItem('lubaga_transactions', JSON.stringify(data)); } catch (e) {}
   }
 
-  // ============================================================
-  // STATE
-  // ============================================================
   let transactions = [];
   let pieChartInstance = null;
   let barChartInstance = null;
@@ -1027,17 +1057,11 @@
     }
   })();
 
-  // ============================================================
-  // LOGOUT
-  // ============================================================
   function handleLogout() {
     localStorage.removeItem(SESSION_KEY);
     window.location.href = 'index.html';
   }
 
-  // ============================================================
-  // TOAST
-  // ============================================================
   function showToast(message, type = 'success') {
     const toast = document.getElementById('liveToast');
     const body = document.getElementById('toastMessage');
@@ -1062,9 +1086,6 @@
     bsToast.show();
   }
 
-  // ============================================================
-  // CONFIRMATION
-  // ============================================================
   function showConfirm(message, action) {
     pendingAction = action;
     document.getElementById('confirmMessage').textContent = message;
@@ -1079,9 +1100,6 @@
     bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
   }
 
-  // ============================================================
-  // REFRESH
-  // ============================================================
   function refreshData() {
     showToast('Refreshing data...', 'info');
     loadData();
@@ -1089,9 +1107,6 @@
     setTimeout(() => showToast('Data refreshed', 'success'), 500);
   }
 
-  // ============================================================
-  // HELPER - TICK DISPLAY
-  // ============================================================
   function renderTick(value) {
     if (value === 'Yes' || value === 'yes' || value === true) return '<span class="tick-yes">✓</span>';
     else if (value === 'No' || value === 'no' || value === false || value === '') return '<span class="tick-no">✗</span>';
@@ -1121,7 +1136,9 @@
     transactions.forEach((t, i) => {
       const returned = !!(t.returned_by && t.returned_by !== '');
       const rowClass = returned ? 'returned-row' : 'out-row';
-      const statusHtml = returned ? '<span class="status-badge returned">Returned</span>' : '<span class="status-badge out">Out</span>';
+      // PLAIN TEXT STATUS - no badges, no buttons, no wrap
+      const statusText = returned ? 'Returned' : 'Out';
+      const statusClass = returned ? 'status-text returned' : 'status-text out';
       const showActions = !returned;
       html += `<tr class="${rowClass}">
         <td>${showActions ? `<input type="checkbox" class="row-cb" value="${t.id}">` : '<span class="text-muted">—</span>'}</td>
@@ -1135,7 +1152,7 @@
         <td>${renderTick(t.power_extension)}</td>
         <td>${t.vga_hdmi || ''}</td>
         <td>${renderTick(t.hdmi_adapter)}</td>
-        <td>${statusHtml}</td>
+        <td><span class="${statusClass}">${statusText}</span></td>
       </tr>`;
     });
     tbody.innerHTML = html;
@@ -1152,10 +1169,11 @@
     transactions.forEach((t, i) => {
       const returned = !!(t.returned_by && t.returned_by !== '');
       const rowClass = returned ? 'returned-row' : 'out-row';
-      const statusHtml = returned ? '<span class="status-badge returned">Returned</span>' : '<span class="status-badge out">Out</span>';
+      const statusText = returned ? 'Returned' : 'Out';
+      const statusClass = returned ? 'status-text returned' : 'status-text out';
       const showActions = !returned;
       html += `<div class="mobile-card ${rowClass}">
-        <div class="card-header"><span class="row-number">NO: ${i + 1}</span><span>${statusHtml}</span></div>
+        <div class="card-header"><span class="row-number">NO: ${i + 1}</span><span class="${statusClass}">${statusText}</span></div>
         <div class="card-body">
           <div class="field-row"><span class="field-label">Date</span><span class="field-value">${t.date || ''}</span></div>
           <div class="field-row"><span class="field-label">Requestor</span><span class="field-value"><strong>${t.requestor || ''}</strong></span></div>
@@ -1379,7 +1397,6 @@
   // ============================================================
   // ADMIN PANEL FUNCTIONS
   // ============================================================
-
   function hasAdmin(users) {
     for (const [username, userData] of Object.entries(users)) {
       if (userData.role === 'admin' && userData.active !== false) {
@@ -1540,9 +1557,6 @@
     renderAdminUsers();
   }
 
-  // ============================================================
-  // RENDER ADMIN USERS
-  // ============================================================
   function renderAdminUsers() {
     const users = getUsers();
     const container = document.getElementById('adminUsersList');
@@ -1616,11 +1630,9 @@
   }
 
   // ============================================================
-  // DATA RETENTION FUNCTIONS - DYNAMIC DATE RANGE
+  // DATA RETENTION FUNCTIONS
   // ============================================================
-
   function openRetentionModal() {
-    // Set default dates
     const today = new Date();
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -1658,10 +1670,9 @@
     }
     
     const all = getTransactions();
-    let toDelete = 0;
-    let toKeep = 0;
-    let deletedRecords = [];
-    let keptRecords = [];
+    let totalRecords = 0;
+    let returnedRecords = [];
+    let outRecords = [];
     
     all.forEach(t => {
       if (t.date) {
@@ -1669,39 +1680,36 @@
         recordDate.setHours(0, 0, 0, 0);
         
         if (recordDate >= from && recordDate <= to) {
-          toDelete++;
-          deletedRecords.push(t);
-        } else {
-          toKeep++;
-          keptRecords.push(t);
+          totalRecords++;
+          if (t.returned_by && t.returned_by !== '') {
+            returnedRecords.push(t);
+          } else {
+            outRecords.push(t);
+          }
         }
-      } else {
-        toKeep++;
-        keptRecords.push(t);
       }
     });
     
     const container = document.getElementById('retentionStats');
     
-    // Build stats HTML
     let statsHtml = `
       <div class="row g-2">
         <div class="col-4">
           <div class="admin-stat-box">
-            <div class="number text-primary">${all.length}</div>
-            <small class="text-muted">Total Records</small>
+            <div class="number text-primary">${totalRecords}</div>
+            <small class="text-muted">Total in Range</small>
           </div>
         </div>
         <div class="col-4">
           <div class="admin-stat-box">
-            <div class="number text-danger">${toDelete}</div>
-            <small class="text-muted">To Delete</small>
+            <div class="number text-success">${returnedRecords.length}</div>
+            <small class="text-muted">Returned</small>
           </div>
         </div>
         <div class="col-4">
           <div class="admin-stat-box">
-            <div class="number text-success">${toKeep}</div>
-            <small class="text-muted">To Keep</small>
+            <div class="number text-danger">${outRecords.length}</div>
+            <small class="text-muted">Out</small>
           </div>
         </div>
       </div>
@@ -1710,29 +1718,92 @@
       </div>
     `;
     
-    // Show records to be deleted
-    if (toDelete > 0) {
+    if (returnedRecords.length > 0) {
       statsHtml += `
-        <div class="mt-2">
-          <strong>Records to be deleted (${toDelete}):</strong>
-          <div class="retention-record-list">
-            ${deletedRecords.map(t => 
-              `<div class="record-item">• ${t.date} - <strong>${t.requestor}</strong> (${t.big_small})</div>`
-            ).join('')}
+        <div class="mt-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Returned Records (${returnedRecords.length})</strong>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-bordered table-sm table-striped retention-table">
+              <thead class="table-light">
+                <tr>
+                  <th>Date</th>
+                  <th>Requestor</th>
+                  <th>Issued By</th>
+                  <th>Big/Small</th>
+                  <th>VGA/HDMI</th>
+                  <th>Power Code</th>
+                  <th>Power Ext</th>
+                  <th>HDMI Adapter</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${returnedRecords.map(t => `
+                  <tr>
+                    <td><strong>${t.date}</strong></td>
+                    <td>${t.requestor}</td>
+                    <td>${t.issued_by || '—'}</td>
+                    <td>${t.big_small || '—'}</td>
+                    <td>${t.vga_hdmi || '—'}</td>
+                    <td>${t.power_code || '—'}</td>
+                    <td>${t.power_extension || '—'}</td>
+                    <td>${t.hdmi_adapter || '—'}</td>
+                    <td><span class="retention-status-text returned">Returned</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
           </div>
         </div>
       `;
     } else {
       statsHtml += `
-        <div class="alert alert-success mt-2">No records found in this date range.</div>
+        <div class="alert alert-info mt-3">No returned records found in this date range.</div>
+      `;
+    }
+    
+    if (outRecords.length > 0) {
+      statsHtml += `
+        <div class="mt-2">
+          <details>
+            <summary class="text-muted" style="cursor:pointer; font-size:13px;">
+              <i class="bi bi-chevron-right"></i> Out records (${outRecords.length})
+            </summary>
+            <div class="table-responsive mt-2">
+              <table class="table table-bordered table-sm" style="font-size:12px;">
+                <thead class="table-light">
+                  <tr>
+                    <th>Date</th>
+                    <th>Requestor</th>
+                    <th>Issued By</th>
+                    <th>Big/Small</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${outRecords.map(t => `
+                    <tr class="table-warning">
+                      <td>${t.date}</td>
+                      <td>${t.requestor}</td>
+                      <td>${t.issued_by || '—'}</td>
+                      <td>${t.big_small || '—'}</td>
+                      <td><span class="retention-status-text out">Out</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </div>
       `;
     }
     
     container.innerHTML = statsHtml;
     
-    // Enable/disable confirm checkbox
     const confirmCheckbox = document.getElementById('retentionConfirm');
-    if (toDelete > 0) {
+    if (returnedRecords.length > 0) {
       confirmCheckbox.disabled = false;
     } else {
       confirmCheckbox.disabled = true;
@@ -1742,12 +1813,12 @@
 
   document.addEventListener('change', function(e) {
     if (e.target.id === 'retentionConfirm') {
-      const toDelete = getRecordsToDelete();
-      document.getElementById('retentionExecuteBtn').disabled = !e.target.checked || toDelete === 0;
+      const returnedCount = getReturnedRecordsToDelete();
+      document.getElementById('retentionExecuteBtn').disabled = !e.target.checked || returnedCount === 0;
     }
   });
 
-  function getRecordsToDelete() {
+  function getReturnedRecordsToDelete() {
     const fromDate = document.getElementById('retentionFromDate').value;
     const toDate = document.getElementById('retentionToDate').value;
     
@@ -1764,7 +1835,7 @@
       if (t.date) {
         const recordDate = new Date(t.date);
         recordDate.setHours(0, 0, 0, 0);
-        if (recordDate >= from && recordDate <= to) {
+        if (recordDate >= from && recordDate <= to && t.returned_by && t.returned_by !== '') {
           count++;
         }
       }
@@ -1799,7 +1870,7 @@
       if (t.date) {
         const recordDate = new Date(t.date);
         recordDate.setHours(0, 0, 0, 0);
-        if (recordDate >= from && recordDate <= to) {
+        if (recordDate >= from && recordDate <= to && t.returned_by && t.returned_by !== '') {
           deleted++;
         } else {
           kept.push(t);
@@ -1810,11 +1881,11 @@
     });
     
     if (deleted === 0) {
-      showToast('No records found in this date range.', 'info');
+      showToast('No returned records found in this date range.', 'info');
       return;
     }
     
-    if (!confirm('Permanently delete ' + deleted + ' record(s) from ' + from.toLocaleDateString() + ' to ' + to.toLocaleDateString() + '?')) {
+    if (!confirm('Permanently delete ' + deleted + ' returned record(s) from ' + from.toLocaleDateString() + ' to ' + to.toLocaleDateString() + '?')) {
       return;
     }
     if (!confirm('This cannot be undone! Continue?')) {
@@ -1825,9 +1896,8 @@
     loadData();
     loadDashboard();
     updateRetentionStats();
-    showToast('Deleted ' + deleted + ' record(s). ' + kept.length + ' kept.', 'warning');
+    showToast('Deleted ' + deleted + ' returned record(s). ' + kept.length + ' records kept.', 'warning');
     
-    // Close modal after 2 seconds
     setTimeout(() => {
       bootstrap.Modal.getInstance(document.getElementById('retentionModal')).hide();
     }, 2000);
