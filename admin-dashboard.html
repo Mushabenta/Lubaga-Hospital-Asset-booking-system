@@ -524,8 +524,7 @@
         <div class="container-fluid">
             <div class="header-logo-wrapper">
                 <div class="logo-image-container">
-                    <!-- REPLACE WITH YOUR LOGO IMAGE -->
-                    <img src="lubaga logo.png" alt="Lubaga Hospital" id="hospitalLogo"
+                    <img src="lubaga-logo.png" alt="Lubaga Hospital" id="hospitalLogo"
                     onerror="this.style.display='none'; document.getElementById('logoIcon').style.display='flex'">
                     <i id="logoIcon" class="bi bi-hospital" style="display:none;"></i>
                 </div>
@@ -647,6 +646,17 @@
                                 <div class="col-md-4"><input type="password" id="adminNewPass" class="form-control form-control-sm" placeholder="Password *" required></div>
                                 <div class="col-md-4"><input type="password" id="adminNewPassConfirm" class="form-control form-control-sm" placeholder="Confirm Password *" required></div>
                                 <div class="col-md-6"><select class="form-select form-select-sm" id="adminNewDept" required><option value="">Department *</option><option value="Cardiology">Cardiology</option><option value="Oncology">Oncology</option><option value="Neurology">Neurology</option><option value="Pediatrics">Pediatrics</option><option value="Orthopedics">Orthopedics</option><option value="Dermatology">Dermatology</option><option value="Endocrinology">Endocrinology</option><option value="Gastroenterology">Gastroenterology</option><option value="Nephrology">Nephrology</option><option value="Pulmonology">Pulmonology</option><option value="Rheumatology">Rheumatology</option><option value="Urology">Urology</option><option value="Gynecology">Gynecology</option><option value="Obstetrics">Obstetrics</option><option value="Emergency">Emergency</option><option value="ICU">ICU</option><option value="Operating Theatre">Operating Theatre</option><option value="Radiology">Radiology</option><option value="Laboratory">Laboratory</option><option value="Pharmacy">Pharmacy</option><option value="Physiotherapy">Physiotherapy</option><option value="Administration">Administration</option><option value="HR">Human Resources</option><option value="Finance">Finance</option><option value="Procurement">Procurement</option><option value="IT">IT</option><option value="Facilities">Facilities</option><option value="Maintenance">Maintenance</option><option value="Security">Security</option></select></div>
+                                <div class="col-md-6">
+                                    <select class="form-select form-select-sm" id="adminNewSecurityQuestion" required>
+                                        <option value="">Select Security Question *</option>
+                                        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                                        <option value="What village were you born in?">What village were you born in?</option>
+                                        <option value="What is your clan name?">What is your clan name?</option>
+                                        <option value="What was the name of your primary school?">What was the name of your primary school?</option>
+                                        <option value="Who is your favorite Ugandan musician?">Who is your favorite Ugandan musician?</option>
+                                        <option value="What is your favorite local dish?">What is your favorite local dish?</option>
+                                    </select>
+                                </div>
                                 <div class="col-md-6"><input type="text" id="adminNewSecurityAnswer" class="form-control form-control-sm" placeholder="Security Answer *"></div>
                                 <div class="col-md-4"><select class="form-select form-select-sm" id="adminNewRole"><option value="admin">Admin</option></select></div>
                                 <div class="col-md-4"><button class="btn btn-gradient-success w-100" onclick="adminAddUser()"><i class="bi bi-plus-circle"></i> Add Admin</button></div>
@@ -1011,6 +1021,7 @@
             const password = document.getElementById('adminNewPass').value;
             const confirm = document.getElementById('adminNewPassConfirm').value;
             const department = document.getElementById('adminNewDept').value;
+            const securityQuestion = document.getElementById('adminNewSecurityQuestion').value;
             const securityAnswer = document.getElementById('adminNewSecurityAnswer').value.trim().toLowerCase();
             const role = document.getElementById('adminNewRole').value;
 
@@ -1019,6 +1030,7 @@
             if (!password || password.length < 6) { showToast('Password must be at least 6 characters.', 'danger'); return; }
             if (password !== confirm) { showToast('Passwords do not match.', 'danger'); return; }
             if (!department) { showToast('Please select a department.', 'danger'); return; }
+            if (!securityQuestion) { showToast('Please select a security question.', 'danger'); return; }
             if (!securityAnswer || securityAnswer.length < 2) { showToast('Please provide a security answer.', 'danger'); return; }
 
             const users = getUsers();
@@ -1042,7 +1054,7 @@
                 department: department,
                 role: role,
                 active: true,
-                securityQuestion: 'Admin created',
+                securityQuestion: securityQuestion,
                 securityAnswer: securityAnswer,
                 createdAt: new Date().toISOString().split('T')[0]
             };
@@ -1054,6 +1066,7 @@
             document.getElementById('adminNewPass').value = '';
             document.getElementById('adminNewPassConfirm').value = '';
             document.getElementById('adminNewDept').value = '';
+            document.getElementById('adminNewSecurityQuestion').value = '';
             document.getElementById('adminNewSecurityAnswer').value = '';
             renderAdminUsers();
         }
