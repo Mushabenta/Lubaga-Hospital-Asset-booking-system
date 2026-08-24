@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard - Lubaga Hospital Asset Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #f0f4f8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 40px;
+        }
+        .navbar-custom {
+            background: #fd7e14;
+            box-shadow: 0 2px 16px rgba(253,126,20,0.3);
+            padding: 0;
+        }
+        .navbar-custom .container-fluid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+            width: 100%;
+        }
+
+        /* HEADER - Clean, no borders */
+        .header-logo-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #fd7e14;
+            padding: 12px 0 4px 0;
+        }
+        .header-logo-wrapper .logo-image-container {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            max-height: 120px;
+            background: transparent;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+        }
+        .header-logo-wrapper .logo-image-container img {
+            width: 100%;
+            height: auto;
+            max-height: 100px;
+            object-fit: contain;
+            object-position: center;
+            display: block;
+        }
+        .header-logo-wrapper .logo-image-container i {
+            font-size: 70px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Brand text - only "Asset Booking System" */
+        .brand-text-wrapper {
+            text-align: center;
+            line-height: 1.3;
+            padding: 4px 0 2px 0;
+            width: 100%;
+            background: transparent;
+        }
+        .brand-text-wrapper .brand-title {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* User controls - Blue background */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 6px 15px 7px 15px;
+            width: 100%;
+            background: #0a58ca;
+            flex-wrap: wrap;
+        }
+        .navbar-custom .navbar-text {
+            color: rgba(255,255,255,0.95) !important;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        .navbar-custom .btn-outline-light {
+            color: #fff !important;
+            border-color: rgba(255,255,255,0.3);
+            font-size: 0.75rem;
+            padding: 4px 14px;
+            border-radius: 8px;
+            transition: 0.3s;
+            white-space: nowrap;
+            width: auto;
+            flex-shrink: 0;
+        }
+        .navbar-custom .btn-outline-light:hover { background: rgba(255,255,255,0.15); }
+        .btn-users {
+            color: #fff !important;
+            border-color: rgba(255,255,255,0.3);
+            font-size: 0.75rem;
+            padding: 4px 14px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            white-space: nowrap;
+            width: auto;
+            flex-shrink: 0;
+        }
+        .btn-users:hover { background: rgba(255,255,255,0.15); }
+
+        @media (max-width: 576px) {
+            .header-logo-wrapper .logo-image-container {
+                max-height: 90px;
+                padding: 0 10px;
+            }
+            .header-logo-wrapper .logo-image-container img {
+                max-height: 75px;
+            }
+            .brand-text-wrapper .brand-title {
+                font-size: 0.85rem;
+            }
+            .nav-right {
+                gap: 6px;
+                padding: 5px 10px 6px 10px;
+            }
+            .navbar-custom .navbar-text {
+                font-size: 0.7rem;
+            }
+            .btn-users {
+                font-size: 0.65rem;
+                padding: 3px 10px;
+            }
+            .navbar-custom .btn-outline-light {
+                font-size: 0.65rem;
+                padding: 3px 10px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header-logo-wrapper .logo-image-container {
+                max-height: 75px;
+                padding: 0 8px;
+            }
+            .header-logo-wrapper .logo-image-container img {
+                max-height: 60px;
+            }
+            .brand-text-wrapper .brand-title {
+                font-size: 0.75rem;
+            }
+            .nav-right {
+                gap: 4px;
+                padding: 4px 8px 5px 8px;
+            }
+            .navbar-custom .btn-outline-light {
+                font-size: 0.6rem;
+                padding: 2px 8px;
+            }
+            .btn-users {
+                font-size: 0.6rem;
+                padding: 2px 8px;
+            }
+            .navbar-custom .navbar-text {
+                font-size: 0.65rem;
+            }
+        }
+
+        .tabs-wrapper {
+            background: #fff;
+            border-radius: 16px;
+            padding: 6px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 18px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 14px;
+            color: #6c757d;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { color: #0a58ca; background: rgba(13,110,253,0.06); }
+        .tab-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
+            box-shadow: 0 4px 20px rgba(13,110,253,0.35);
+        }
+        .tab-btn .badge-tab {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        .tab-btn:not(.active) .badge-tab { background: #e9ecef; color: #6c757d; }
+        @media (max-width: 576px) {
+            .tab-btn { font-size: 11px; padding: 8px 12px; min-width: 60px; }
+            .tab-btn i { font-size: 14px; }
+        }
+        @media (max-width: 400px) {
+            .tab-btn { font-size: 10px; padding: 6px 10px; min-width: 50px; gap: 4px; }
+            .tab-btn .badge-tab { font-size: 8px; padding: 1px 6px; }
+        }
+
+        .tab-panel { display: none; animation: fadeSlide 0.3s ease; }
+        .tab-panel.active { display: block; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px 14px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: 0.3s;
+            border-left: 5px solid #0a58ca;
+            position: relative;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+        .stat-card .number { font-size: 32px; font-weight: 700; color: #0a58ca; line-height: 1.2; }
+        .stat-card .label { font-size: 12px; color: #6c757d; margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .icon { font-size: 24px; opacity: 0.12; position: absolute; right: 12px; bottom: 12px; }
+        .stat-card.warning { border-left-color: #fd7e14; }
+        .stat-card.warning .number { color: #fd7e14; }
+        .stat-card.success { border-left-color: #28a745; }
+        .stat-card.success .number { color: #28a745; }
+        .stat-card.danger { border-left-color: #dc3545; }
+        .stat-card.danger .number { color: #dc3545; }
+        @media (max-width: 576px) {
+            .stat-card .number { font-size: 24px; }
+            .stat-card .label { font-size: 10px; }
+            .stat-card { padding: 12px 8px; }
+        }
+        @media (max-width: 400px) {
+            .stat-card .number { font-size: 20px; }
+            .stat-card .label { font-size: 9px; }
+            .stat-card { padding: 10px 6px; }
+        }
+
+        .status-badge {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-badge.pending { background: #fff3e0; color: #e65100; }
+        .status-badge.approved { background: #e8f5e9; color: #2e7d32; }
+        .status-badge.rejected { background: #ffebee; color: #c62828; }
+
+        .table-container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .table-container .table-header {
+            padding: 14px 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            font-weight: 600;
+        }
+        .table-wrapper { overflow-x: auto; }
+        .table {
+            font-size: 13px;
+            min-width: 1100px;
+            margin-bottom: 0;
+        }
+        .table thead th {
+            background: #f8f9fa;
+            padding: 10px 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #495057;
+            border: 1px solid #dee2e6;
+            white-space: nowrap;
+        }
+        .table tbody td {
+            padding: 8px 8px;
+            vertical-align: middle;
+            border: 1px solid #dee2e6;
+        }
+        .table tbody tr:nth-child(even) { background: #f8f9fa; }
+        .table tbody tr:hover { background: #e9ecef !important; }
+
+        .action-link {
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            padding: 0 8px;
+            transition: 0.2s;
+            display: inline-block;
+        }
+        .action-link:hover { opacity: 0.6; }
+        .action-link.text-success { color: #2e7d32; }
+        .action-link.text-danger { color: #c62828; }
+        @media (max-width: 576px) {
+            .action-link { font-size: 11px; padding: 0 6px; }
+        }
+
+        .chart-container { height: 200px; position: relative; }
+        .chart-card {
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: none;
+        }
+        .chart-card .card-header {
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            padding: 12px 18px;
+            border-radius: 16px 16px 0 0;
+        }
+        .chart-card .card-body { padding: 16px 18px; }
+
+        .admin-stat-box {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .admin-stat-box .number { font-size: 26px; font-weight: 700; }
+        .admin-stat-box small { font-size: 11px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.3px; }
+        @media (max-width: 576px) {
+            .admin-stat-box .number { font-size: 20px; }
+            .admin-stat-box small { font-size: 9px; }
+            .admin-stat-box { padding: 6px; }
+        }
+
+        .admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .admin-table {
+            width: 100%;
+            font-size: 13px;
+            margin-bottom: 0;
+            border-collapse: collapse;
+        }
+        .admin-table thead th {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            text-align: left;
+            white-space: nowrap;
+        }
+        .admin-table tbody td {
+            padding: 10px 12px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .admin-table tbody tr:hover { background: #f8f9fa; }
+        @media (max-width: 576px) {
+            .admin-table thead th { font-size: 10px; padding: 6px 8px; }
+            .admin-table tbody td { font-size: 12px; padding: 6px 8px; }
+        }
+
+        .btn-gradient-success {
+            background: linear-gradient(135deg, #198754 0%, #28a745 100%);
+            color: #fff;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(25,135,84,0.3);
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .btn-gradient-success:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(25,135,84,0.4); color: #fff; }
+        .btn-gradient-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%);
+            color: #fff;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: 0.3s;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .btn-gradient-danger:hover { transform: translateY(-2px); color: #fff; }
+        .btn-gradient-info {
+            background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%);
+            color: #fff;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: 0.3s;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .btn-gradient-info:hover { transform: translateY(-2px); color: #fff; }
+        @media (max-width: 576px) {
+            .btn-gradient-success, .btn-gradient-danger, .btn-gradient-info {
+                font-size: 12px;
+                padding: 4px 12px;
+            }
+        }
+
+        .modal-content { border-radius: 16px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .modal-header { border-radius: 16px 16px 0 0; }
+        .modal-footer { border-radius: 0 0 16px 16px; }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 90%;
+        }
+        .toast {
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            border: none;
+            min-width: 200px;
+            max-width: 420px;
+        }
+        .toast .toast-body { font-size: 14px; padding: 14px 18px; font-weight: 500; }
+        .toast .btn-close { padding: 10px; filter: brightness(0) invert(1); opacity: 0.8; }
+        .toast .btn-close:hover { opacity: 1; }
+
+        .mobile-cards { display: none; padding: 16px; }
+        .mobile-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 14px;
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+        }
+        .mobile-card .card-header {
+            padding: 10px 14px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .mobile-card .card-body { padding: 0; }
+        .mobile-card .card-body .field-row {
+            display: flex;
+            padding: 8px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+        .mobile-card .card-body .field-row:last-child { border-bottom: none; }
+        .mobile-card .card-body .field-row .field-label {
+            font-weight: 700;
+            color: #6c757d;
+            font-size: 11px;
+            text-transform: uppercase;
+            width: 100px;
+            flex-shrink: 0;
+        }
+        .mobile-card .card-body .field-row .field-value {
+            flex: 1;
+            padding-left: 8px;
+            word-break: break-word;
+        }
+        .mobile-card .card-footer {
+            padding: 10px 14px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        @media screen and (max-width: 767px) {
+            .table-wrapper { display: none; }
+            .mobile-cards { display: block; }
+        }
+        @media (max-width: 400px) {
+            .mobile-card .card-body .field-row { font-size: 12px; padding: 6px 10px; }
+            .mobile-card .card-body .field-row .field-label { width: 80px; font-size: 10px; }
+            .mobile-card .card-header { font-size: 12px; padding: 8px 10px; }
+            .mobile-card .card-footer { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand navbar-custom">
+        <div class="container-fluid">
+            <div class="header-logo-wrapper">
+                <div class="logo-image-container">
+                    <!-- REPLACE WITH YOUR LOGO IMAGE -->
+                    <img src="lubaga logo.png" alt="Lubaga Hospital" id="hospitalLogo"
+                    onerror="this.style.display='none'; document.getElementById('logoIcon').style.display='flex'">
+                    <i id="logoIcon" class="bi bi-hospital" style="display:none;"></i>
+                </div>
+                <div class="brand-text-wrapper">
+                    <span class="brand-title">Asset Booking System</span>
+                </div>
+            </div>
+            <div class="nav-right">
+                <span class="navbar-text d-flex align-items-center">
+                    <i class="bi bi-person-circle me-1"></i>
+                    <span id="usernameDisplay">admin</span>
+                </span>
+                <button class="btn-users" onclick="openAdminPanel()">
+                    <i class="bi bi-people"></i> Users
+                </button>
+                <button class="btn btn-outline-light btn-sm" onclick="handleLogout()">
+                    <span class="d-none d-sm-inline">Logout</span>
+                    <span class="d-inline d-sm-none"><i class="bi bi-box-arrow-right"></i></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-3">
+        <div class="tabs-wrapper">
+            <button class="tab-btn active" data-tab="dashboard">
+                <i class="bi bi-speedometer2"></i> Dashboard
+                <span class="badge-tab">Live</span>
+            </button>
+            <button class="tab-btn" data-tab="logs">
+                <i class="bi bi-list-ul"></i> Transaction Logs
+                <span class="badge-tab" id="logBadge">0</span>
+            </button>
+        </div>
+
+        <div class="tab-content-wrapper">
+            <div class="tab-panel active" id="panel-dashboard">
+                <div class="row g-2 g-sm-3 mb-4">
+                    <div class="col-3 col-md-3"><div class="stat-card primary"><div class="number" id="dTotal">0</div><div class="label">Total Requests</div><i class="bi bi-boxes icon"></i></div></div>
+                    <div class="col-3 col-md-3"><div class="stat-card warning"><div class="number" id="dPending">0</div><div class="label">Pending</div><i class="bi bi-clock icon"></i></div></div>
+                    <div class="col-3 col-md-3"><div class="stat-card success"><div class="number" id="dApproved">0</div><div class="label">Approved</div><i class="bi bi-check-circle icon"></i></div></div>
+                    <div class="col-3 col-md-3"><div class="stat-card danger"><div class="number" id="dRejected">0</div><div class="label">Rejected</div><i class="bi bi-x-circle icon"></i></div></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card chart-card">
+                            <div class="card-header"><i class="bi bi-pie-chart-fill text-primary"></i> Request Status</div>
+                            <div class="card-body"><div class="chart-container"><canvas id="pieChart"></canvas></div></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card chart-card">
+                            <div class="card-header"><i class="bi bi-bar-chart-fill text-primary"></i> Monthly Requests</div>
+                            <div class="card-body"><div class="chart-container"><canvas id="barChart"></canvas></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="panel-logs">
+                <div class="row mb-3 g-2">
+                    <div class="col-12 col-md-9">
+                        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                            <button class="btn-gradient-success" onclick="exportCSV()"><i class="bi bi-download"></i> CSV</button>
+                            <button class="btn-gradient-info" onclick="refreshData()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search..." oninput="loadLogs()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <span><i class="bi bi-clock-history"></i> Transaction Logs</span>
+                        <span class="text-muted-small" id="logCount">0 records</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table" id="logsTable">
+                            <thead>
+                                <tr><th>NO</th><th>Booking Date</th><th>Requestor</th><th>Contact</th><th>Asset</th><th>Department</th><th>Status</th><th>Approved By</th><th>Date Approved</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="logsBody">
+                                <tr><td colspan="10" class="text-center py-4 text-muted">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mobile-cards" id="logsMobile"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div class="modal fade" id="adminModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-shield-lock"></i> Admin Panel – User Management</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-3"><div class="admin-stat-box"><div class="number text-primary" id="adminTotalUsers">0</div><small>Total</small></div></div>
+                        <div class="col-3"><div class="admin-stat-box"><div class="number text-success" id="adminActiveUsers">0</div><small>Active</small></div></div>
+                        <div class="col-3"><div class="admin-stat-box"><div class="number text-danger" id="adminInactiveUsers">0</div><small>Disabled</small></div></div>
+                        <div class="col-3"><div class="admin-stat-box"><div class="number text-warning" id="adminStatusDisplay"></div><small>Admin</small></div></div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white"><i class="bi bi-person-plus"></i> Add Admin</div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-md-4"><input type="text" id="adminNewUser" class="form-control form-control-sm" placeholder="Username *" required></div>
+                                <div class="col-md-4"><input type="email" id="adminNewEmail" class="form-control form-control-sm" placeholder="Email *" required></div>
+                                <div class="col-md-4"><input type="password" id="adminNewPass" class="form-control form-control-sm" placeholder="Password *" required></div>
+                                <div class="col-md-4"><input type="password" id="adminNewPassConfirm" class="form-control form-control-sm" placeholder="Confirm Password *" required></div>
+                                <div class="col-md-6"><select class="form-select form-select-sm" id="adminNewDept" required><option value="">Department *</option><option value="Cardiology">Cardiology</option><option value="Oncology">Oncology</option><option value="Neurology">Neurology</option><option value="Pediatrics">Pediatrics</option><option value="Orthopedics">Orthopedics</option><option value="Dermatology">Dermatology</option><option value="Endocrinology">Endocrinology</option><option value="Gastroenterology">Gastroenterology</option><option value="Nephrology">Nephrology</option><option value="Pulmonology">Pulmonology</option><option value="Rheumatology">Rheumatology</option><option value="Urology">Urology</option><option value="Gynecology">Gynecology</option><option value="Obstetrics">Obstetrics</option><option value="Emergency">Emergency</option><option value="ICU">ICU</option><option value="Operating Theatre">Operating Theatre</option><option value="Radiology">Radiology</option><option value="Laboratory">Laboratory</option><option value="Pharmacy">Pharmacy</option><option value="Physiotherapy">Physiotherapy</option><option value="Administration">Administration</option><option value="HR">Human Resources</option><option value="Finance">Finance</option><option value="Procurement">Procurement</option><option value="IT">IT</option><option value="Facilities">Facilities</option><option value="Maintenance">Maintenance</option><option value="Security">Security</option></select></div>
+                                <div class="col-md-6"><input type="text" id="adminNewSecurityAnswer" class="form-control form-control-sm" placeholder="Security Answer *"></div>
+                                <div class="col-md-4"><select class="form-select form-select-sm" id="adminNewRole"><option value="admin">Admin</option></select></div>
+                                <div class="col-md-4"><button class="btn btn-gradient-success w-100" onclick="adminAddUser()"><i class="bi bi-plus-circle"></i> Add Admin</button></div>
+                                <div class="col-md-4" id="adminLimitInfo" style="display:none;"><small class="text-warning">Max 20 admins reached</small></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="adminUsersList"><div class="text-center text-muted py-3">Loading users...</div></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container">
+        <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ============================================================
+        // CONFIG & HELPERS
+        // ============================================================
+        const USERS_KEY = 'lubaga_users';
+        const SESSION_KEY = 'lubaga_session';
+        const REQUESTS_KEY = 'lubaga_requests';
+        const MAX_ADMINS = 20;
+
+        function getUsers() {
+            try { const raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
+        }
+
+        function saveUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
+
+        function getRequests() {
+            try { const raw = localStorage.getItem(REQUESTS_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
+        }
+
+        function saveRequests(requests) { localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests)); }
+
+        function isAdmin(user) { return user && (user.role === 'admin' || user.role === 'general_admin'); }
+
+        function getAdminCount(users) {
+            let count = 0;
+            for (const [u, data] of Object.entries(users)) {
+                if (data.role === 'admin' || data.role === 'general_admin') count++;
+            }
+            return count;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('liveToast');
+            const body = document.getElementById('toastMessage');
+            body.textContent = message;
+            toast.className = 'toast align-items-center text-white border-0';
+            if (type === 'success') toast.classList.add('bg-success');
+            else if (type === 'danger') toast.classList.add('bg-danger');
+            else if (type === 'warning') toast.classList.add('bg-warning');
+            else toast.classList.add('bg-primary');
+            new bootstrap.Toast(toast, { delay: 4000 }).show();
+        }
+
+        // ============================================================
+        // SEED ADMIN USER IF NONE
+        // ============================================================
+        function seedAdminUser() {
+            const users = getUsers();
+            if (Object.keys(users).length > 0) return;
+            
+            users['admin'] = {
+                password: 'admin123',
+                email: 'admin@lubaga.org',
+                department: 'Administration',
+                role: 'general_admin',
+                active: true,
+                securityQuestion: 'What is your mother\'s maiden name?',
+                securityAnswer: 'admin',
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+            saveUsers(users);
+            localStorage.setItem(SESSION_KEY, 'admin');
+        }
+
+        // ============================================================
+        // SEED SAMPLE DATA
+        // ============================================================
+        function seedSampleData() {
+            const existing = getRequests();
+            if (existing.length > 0) return;
+            
+            const sampleRequests = [
+                { id: 'req_' + Date.now() + '_1', booking_date: '2026-08-25T10:30', requestor: 'Dr. Sarah Johnson', contact: '0712345678', email: 'sarah.j@lubaga.org', department: 'Cardiology', asset_item: 'ECG Machine', specification: 'GE MAC 2000', requested_by: 'sarahj', status: 'Pending', approved_by: '', date_approved: '' },
+                { id: 'req_' + Date.now() + '_2', booking_date: '2026-08-24T09:00', requestor: 'Dr. Michael Okello', contact: '0723456789', email: 'michael.o@lubaga.org', department: 'Operating Theatre', asset_item: 'Surgical Laser', specification: 'Lumenis Pulse', requested_by: 'michaelo', status: 'Approved', approved_by: 'admin', date_approved: new Date(Date.now() - 86400000).toISOString() },
+                { id: 'req_' + Date.now() + '_3', booking_date: '2026-08-23T14:00', requestor: 'Dr. Grace Nambi', contact: '0734567890', email: 'grace.n@lubaga.org', department: 'Radiology', asset_item: 'X-Ray Machine', specification: 'Siemens Multix Fusion', requested_by: 'gracen', status: 'Rejected', approved_by: 'admin', date_approved: new Date(Date.now() - 172800000).toISOString() },
+                { id: 'req_' + Date.now() + '_4', booking_date: '2026-08-22T11:15', requestor: 'Dr. Peter Wasswa', contact: '0745678901', email: 'peter.w@lubaga.org', department: 'Pediatrics', asset_item: 'Infant Incubator', specification: 'GE Giraffe Omnibed', requested_by: 'peterw', status: 'Pending', approved_by: '', date_approved: '' }
+            ];
+            saveRequests(sampleRequests);
+        }
+
+        // ============================================================
+        // SESSION CHECK - RUNS ONCE
+        // ============================================================
+        let sessionChecked = false;
+
+        function checkSession() {
+            if (sessionChecked) return true;
+            sessionChecked = true;
+            
+            const session = localStorage.getItem(SESSION_KEY);
+            const users = getUsers();
+            
+            if (!session || !users[session]) {
+                window.location.href = 'index.html';
+                return false;
+            }
+            
+            const user = users[session];
+            if (!isAdmin(user)) {
+                window.location.href = 'user-dashboard.html';
+                return false;
+            }
+            
+            document.getElementById('usernameDisplay').textContent = session;
+            return true;
+        }
+
+        function handleLogout() {
+            localStorage.removeItem(SESSION_KEY);
+            window.location.href = 'index.html';
+        }
+
+        // ============================================================
+        // TAB SWITCHING
+        // ============================================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const tab = this.dataset.tab;
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById('panel-' + tab).classList.add('active');
+                if (tab === 'logs') loadLogs();
+                if (tab === 'dashboard') loadDashboard();
+            });
+        });
+
+        // ============================================================
+        // LOAD TRANSACTION LOGS
+        // ============================================================
+        function loadLogs() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            let all = getRequests();
+
+            if (search && all.length > 0) {
+                all = all.filter(r =>
+                    (r.requestor || '').toLowerCase().includes(search) ||
+                    (r.asset_item || '').toLowerCase().includes(search) ||
+                    (r.department || '').toLowerCase().includes(search) ||
+                    (r.status || '').toLowerCase().includes(search)
+                );
+            }
+
+            const tbody = document.getElementById('logsBody');
+            const mobileContainer = document.getElementById('logsMobile');
+            document.getElementById('logCount').textContent = all.length + ' records';
+            document.getElementById('logBadge').textContent = all.length;
+
+            if (all.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No transactions found.</td></tr>';
+                mobileContainer.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No transactions found.</div>';
+                return;
+            }
+
+            let html = '', mobileHtml = '';
+            all.forEach((r, i) => {
+                const statusClass = r.status === 'Approved' ? 'approved' : r.status === 'Rejected' ? 'rejected' : 'pending';
+                const statusLabel = r.status || 'Pending';
+                const canAct = r.status === 'Pending';
+
+                // Get accessories if Projector
+                let accessories = '';
+                if (r.asset_item === 'Projector') {
+                    let parts = [];
+                    if (r.power_code === 'Yes') parts.push('Power Code');
+                    if (r.power_extension === 'Yes') parts.push('Power Ext');
+                    if (r.vga_hdmi && r.vga_hdmi !== 'N/A') parts.push(r.vga_hdmi);
+                    if (r.hdmi_adapter === 'Yes') parts.push('HDMI Adapter');
+                    if (parts.length > 0) accessories = ' (' + parts.join(', ') + ')';
+                }
+                const assetDisplay = r.asset_item + accessories;
+
+                html += `<tr>
+                    <td>${i+1}</td>
+                    <td>${r.booking_date || ''}</td>
+                    <td><strong>${r.requestor || ''}</strong></td>
+                    <td>${r.contact || '—'}</td>
+                    <td>${assetDisplay}</td>
+                    <td>${r.department || ''}</td>
+                    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                    <td>${r.approved_by || '—'}</td>
+                    <td>${r.date_approved ? new Date(r.date_approved).toLocaleString() : '—'}</td>
+                    <td>${canAct ? `<span class="action-link text-success" onclick="approveRequest('${r.id}')">Approve</span><span class="action-link text-danger" onclick="rejectRequest('${r.id}')">Reject</span>` : '<span class="text-muted">—</span>'}</td>
+                </tr>`;
+
+                mobileHtml += `<div class="mobile-card">
+                    <div class="card-header"><span class="row-number">#${i+1}</span><span class="status-badge ${statusClass}">${statusLabel}</span></div>
+                    <div class="card-body">
+                        <div class="field-row"><span class="field-label">Requestor</span><span class="field-value"><strong>${r.requestor || ''}</strong></span></div>
+                        <div class="field-row"><span class="field-label">Contact</span><span class="field-value">${r.contact || '—'}</span></div>
+                        <div class="field-row"><span class="field-label">Asset</span><span class="field-value">${assetDisplay}</span></div>
+                        <div class="field-row"><span class="field-label">Department</span><span class="field-value">${r.department || ''}</span></div>
+                        <div class="field-row"><span class="field-label">Booking Date</span><span class="field-value">${r.booking_date || ''}</span></div>
+                        <div class="field-row"><span class="field-label">Approved By</span><span class="field-value">${r.approved_by || '—'}</span></div>
+                        <div class="field-row"><span class="field-label">Date Approved</span><span class="field-value">${r.date_approved ? new Date(r.date_approved).toLocaleString() : '—'}</span></div>
+                    </div>
+                    ${canAct ? `<div class="card-footer"><span class="action-link text-success" onclick="approveRequest('${r.id}')">Approve</span><span class="action-link text-danger" onclick="rejectRequest('${r.id}')">Reject</span></div>` : ''}
+                </div>`;
+            });
+
+            tbody.innerHTML = html;
+            mobileContainer.innerHTML = mobileHtml;
+        }
+
+        // ============================================================
+        // APPROVE / REJECT
+        // ============================================================
+        function approveRequest(id) { if (!confirm('Approve this request?')) return; processRequest(id, 'Approved'); }
+        function rejectRequest(id) { if (!confirm('Reject this request?')) return; processRequest(id, 'Rejected'); }
+
+        function processRequest(id, status) {
+            const all = getRequests();
+            const idx = all.findIndex(r => r.id === id);
+            if (idx === -1) { showToast('Request not found.', 'danger'); return; }
+            const session = localStorage.getItem(SESSION_KEY);
+            all[idx].status = status;
+            all[idx].approved_by = session;
+            all[idx].date_approved = new Date().toISOString();
+            saveRequests(all);
+            showToast('Request ' + status.toLowerCase() + ' successfully!', status === 'Approved' ? 'success' : 'warning');
+            loadLogs();
+            loadDashboard();
+        }
+
+        // ============================================================
+        // DASHBOARD
+        // ============================================================
+        let pieChartInstance = null, barChartInstance = null;
+
+        function loadDashboard() {
+            const all = getRequests();
+            const total = all.length;
+            const pending = all.filter(r => r.status === 'Pending' || !r.status).length;
+            const approved = all.filter(r => r.status === 'Approved').length;
+            const rejected = all.filter(r => r.status === 'Rejected').length;
+
+            document.getElementById('dTotal').textContent = total;
+            document.getElementById('dPending').textContent = pending;
+            document.getElementById('dApproved').textContent = approved;
+            document.getElementById('dRejected').textContent = rejected;
+
+            if (typeof Chart === 'undefined') return;
+
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            if (pieChartInstance) pieChartInstance.destroy();
+            pieChartInstance = new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: ['Pending', 'Approved', 'Rejected'],
+                    datasets: [{ data: [pending, approved, rejected], backgroundColor: ['#fd7e14', '#28a745', '#dc3545'], borderWidth: 2, borderColor: '#fff' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 12 } } } } }
+            });
+
+            const monthly = {};
+            all.forEach(r => {
+                if (r.booking_date) {
+                    const month = r.booking_date.substring(0, 7);
+                    monthly[month] = (monthly[month] || 0) + 1;
+                }
+            });
+            const months = Object.keys(monthly).sort().slice(-6);
+            const counts = months.map(m => monthly[m]);
+
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            if (barChartInstance) barChartInstance.destroy();
+            barChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: months.length ? months : ['No Data'],
+                    datasets: [{ label: 'Requests', data: counts.length ? counts : [0], backgroundColor: '#0a58ca', borderRadius: 6 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#e9ecef' } }, x: { grid: { display: false } } }
+                }
+            });
+        }
+
+        function refreshData() {
+            showToast('Refreshing data...', 'info');
+            loadLogs();
+            loadDashboard();
+            setTimeout(() => showToast('Data refreshed', 'success'), 500);
+        }
+
+        // ============================================================
+        // EXPORT CSV
+        // ============================================================
+        function exportCSV() {
+            const all = getRequests();
+            if (all.length === 0) { showToast('No data to export.', 'warning'); return; }
+            const headers = ['Booking Date','Requestor','Contact','Email','Department','Asset Item','Specification','Requested By','Status','Approved By','Date Approved'];
+            let csv = '\uFEFF' + headers.join(',') + '\n';
+            all.forEach(r => {
+                const row = [
+                    r.booking_date || '', r.requestor || '', r.contact || '', r.email || '',
+                    r.department || '', r.asset_item || '', r.specification || '',
+                    r.requested_by || '', r.status || 'Pending', r.approved_by || '', r.date_approved || ''
+                ];
+                csv += row.map(f => `"${(f || '').replace(/"/g, '""')}"`).join(',') + '\n';
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Asset_Requests_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+            showToast('CSV exported successfully!', 'success');
+        }
+
+        // ============================================================
+        // ADMIN PANEL
+        // ============================================================
+        function openAdminPanel() {
+            renderAdminUsers();
+            new bootstrap.Modal(document.getElementById('adminModal')).show();
+        }
+
+        function hasGeneralAdmin(users) {
+            for (const [u, data] of Object.entries(users)) {
+                if (data.role === 'general_admin' && data.active !== false) return true;
+            }
+            return false;
+        }
+
+        function adminAddUser() {
+            const username = document.getElementById('adminNewUser').value.trim();
+            const email = document.getElementById('adminNewEmail').value.trim();
+            const password = document.getElementById('adminNewPass').value;
+            const confirm = document.getElementById('adminNewPassConfirm').value;
+            const department = document.getElementById('adminNewDept').value;
+            const securityAnswer = document.getElementById('adminNewSecurityAnswer').value.trim().toLowerCase();
+            const role = document.getElementById('adminNewRole').value;
+
+            if (!username || username.length < 3) { showToast('Username must be at least 3 characters.', 'danger'); return; }
+            if (!email || !email.includes('@')) { showToast('Valid email is required.', 'danger'); return; }
+            if (!password || password.length < 6) { showToast('Password must be at least 6 characters.', 'danger'); return; }
+            if (password !== confirm) { showToast('Passwords do not match.', 'danger'); return; }
+            if (!department) { showToast('Please select a department.', 'danger'); return; }
+            if (!securityAnswer || securityAnswer.length < 2) { showToast('Please provide a security answer.', 'danger'); return; }
+
+            const users = getUsers();
+            if (users[username]) { showToast('Username already exists.', 'danger'); return; }
+            for (const [u, data] of Object.entries(users)) {
+                if (data.email && data.email.toLowerCase() === email.toLowerCase()) {
+                    showToast('Email already registered.', 'danger');
+                    return;
+                }
+            }
+
+            const adminCount = getAdminCount(users);
+            if (adminCount >= MAX_ADMINS) {
+                showToast('Maximum number of admins (' + MAX_ADMINS + ') reached.', 'danger');
+                return;
+            }
+
+            users[username] = {
+                password: password,
+                email: email,
+                department: department,
+                role: role,
+                active: true,
+                securityQuestion: 'Admin created',
+                securityAnswer: securityAnswer,
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+            saveUsers(users);
+            showToast('Admin "' + username + '" added successfully!', 'success');
+            
+            document.getElementById('adminNewUser').value = '';
+            document.getElementById('adminNewEmail').value = '';
+            document.getElementById('adminNewPass').value = '';
+            document.getElementById('adminNewPassConfirm').value = '';
+            document.getElementById('adminNewDept').value = '';
+            document.getElementById('adminNewSecurityAnswer').value = '';
+            renderAdminUsers();
+        }
+
+        function adminResetPassword(username) {
+            const newPassword = prompt('Enter new password for "' + username + '":');
+            if (!newPassword || newPassword.length < 6) { showToast('Password must be at least 6 characters.', 'danger'); return; }
+            const users = getUsers();
+            if (users[username]) {
+                users[username].password = newPassword;
+                saveUsers(users);
+                showToast('Password reset for "' + username + '"', 'success');
+                renderAdminUsers();
+            }
+        }
+
+        function adminToggleUser(username) {
+            const users = getUsers();
+            if (!users[username]) return;
+            const newStatus = users[username].active !== false;
+            const action = newStatus ? 'disable' : 'enable';
+            if (!confirm('Are you sure you want to ' + action + ' user "' + username + '"?')) return;
+            const session = localStorage.getItem(SESSION_KEY);
+            if (username === session) { showToast('You cannot disable yourself.', 'danger'); return; }
+            users[username].active = !newStatus;
+            saveUsers(users);
+            showToast('User "' + username + '" ' + (newStatus ? 'disabled' : 'enabled'), 'success');
+            renderAdminUsers();
+        }
+
+        function adminDeleteUser(username) {
+            if (!confirm('Delete user "' + username + '"? This cannot be undone.')) return;
+            if (!confirm('Are you absolutely sure?')) return;
+            const users = getUsers();
+            const session = localStorage.getItem(SESSION_KEY);
+            if (username === session) { showToast('You cannot delete yourself.', 'danger'); return; }
+            delete users[username];
+            saveUsers(users);
+            showToast('User "' + username + '" deleted.', 'warning');
+            renderAdminUsers();
+        }
+
+        function renderAdminUsers() {
+            const users = getUsers();
+            const container = document.getElementById('adminUsersList');
+            const total = Object.keys(users).length;
+            const active = Object.values(users).filter(u => u.active !== false).length;
+            const inactive = total - active;
+            const adminCount = getAdminCount(users);
+            const hasGA = hasGeneralAdmin(users);
+
+            document.getElementById('adminTotalUsers').textContent = total;
+            document.getElementById('adminActiveUsers').textContent = active;
+            document.getElementById('adminInactiveUsers').textContent = inactive;
+            document.getElementById('adminStatusDisplay').textContent = hasGA ? 'Admin' : 'None';
+
+            const limitInfo = document.getElementById('adminLimitInfo');
+            limitInfo.style.display = adminCount >= MAX_ADMINS ? 'block' : 'none';
+
+            if (total === 0) {
+                container.innerHTML = '<p class="text-center text-muted py-3">No users found.</p>';
+                return;
+            }
+
+            const sessionUser = localStorage.getItem(SESSION_KEY);
+            let html = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Department</th><th style="text-align:center; width:200px;">Actions</th></tr></thead><tbody>`;
+
+            for (const [username, userData] of Object.entries(users)) {
+                if (userData.role !== 'general_admin' && userData.role !== 'admin') continue;
+                const email = userData.email || '—';
+                const dept = userData.department || '—';
+                const isActive = userData.active !== false;
+                const isCurrentUser = username === sessionUser;
+                const toggleText = isActive ? 'Disable' : 'Enable';
+                const toggleColor = isActive ? 'text-danger' : 'text-success';
+
+                html += `<tr>
+                    <td><strong>${username}</strong> ${isCurrentUser ? '<span class="badge bg-info">You</span>' : ''}</td>
+                    <td>${email}</td>
+                    <td>${dept}</td>
+                    <td style="text-align:center;">
+                        ${!isCurrentUser ? `
+                            <span class="action-link text-warning" onclick="adminResetPassword('${username}')">Reset</span>
+                            <span class="action-link ${toggleColor}" onclick="adminToggleUser('${username}')">${toggleText}</span>
+                            <span class="action-link text-danger" onclick="adminDeleteUser('${username}')">Delete</span>
+                        ` : '<span class="text-muted">—</span>'}
+                    </td>
+                </tr>`;
+            }
+
+            html += `</tbody></table></div>`;
+            container.innerHTML = html || '<p class="text-center text-muted py-3">No admin users found.</p>';
+        }
+
+        // ============================================================
+        // INIT - RUNS ONCE
+        // ============================================================
+        let initialized = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (initialized) return;
+            initialized = true;
+            
+            // Seed admin and sample data
+            seedAdminUser();
+            seedSampleData();
+            
+            // Check session
+            if (!checkSession()) return;
+            
+            // Setup tabs
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-dashboard').classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="dashboard"]').classList.add('active');
+            
+            // Load data
+            loadLogs();
+            loadDashboard();
+        });
+    </script>
+</body>
+</html>

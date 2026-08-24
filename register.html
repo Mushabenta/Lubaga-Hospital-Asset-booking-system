@@ -1,361 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Register - Lubaga IT Tracker</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register - Lubaga Hospital Asset Booking System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <style>
         * { box-sizing: border-box; }
-        body { 
-            background: linear-gradient(135deg, #e8edf5 0%, #d5dce6 100%);
+        body {
+            background: linear-gradient(135deg, #e8f0fe 0%, #f5f5f5 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 16px;
+            padding: 20px;
+            margin: 0;
         }
-        .register-container {
+        .auth-container {
             max-width: 480px;
             width: 100%;
-            margin: 0 auto;
-        }
-        .register-card {
             background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border-radius: 24px;
+            padding: 40px 35px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            position: relative;
             overflow: hidden;
-            transition: 0.3s;
         }
-        .register-card:hover {
-            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #0a58ca;
         }
-        .register-header {
-            background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
-            padding: 35px 30px 30px;
-            text-align: center;
-            color: #fff;
-        }
-        .register-header .logo {
-            width: 80px;
-            height: 80px;
+        .auth-container .auth-header { text-align: center; margin-bottom: 24px; }
+        .auth-container .auth-header .logo {
+            width: 80px; height: 80px;
+            background: #0a58ca;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            background: #fff;
+            margin: 0 auto 12px;
+            font-size: 40px;
+            color: #fff;
+            box-shadow: 0 8px 25px rgba(10, 88, 202, 0.3);
         }
-        .register-header .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 8px;
+        .auth-container .auth-header h2 { font-weight: 700; color: #0a58ca; font-size: 24px; margin: 0; }
+        .auth-container .auth-header p { color: #6c757d; font-size: 14px; margin-top: 4px; }
+        .auth-container .auth-header .highlight { color: #fd7e14; font-weight: 700; }
+        .admin-notice {
+            background: #fff3e0;
+            border-left: 4px solid #fd7e14;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 12px;
         }
-        .register-header h3 { margin: 0; font-weight: 700; }
-        .register-header p { margin: 5px 0 0; opacity: 0.85; font-size: 14px; }
-        .register-header .badge-register {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            padding: 4px 16px;
-            border-radius: 20px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 10px;
-        }
-        .register-body { padding: 30px; }
-        .register-body .form-control {
+        .admin-notice .notice-icon { font-size: 22px; color: #fd7e14; flex-shrink: 0; }
+        .admin-notice .notice-text { font-size: 13px; color: #495057; line-height: 1.4; }
+        .admin-notice .notice-text strong { color: #0a58ca; }
+        .admin-notice .notice-text .highlight-text { color: #fd7e14; font-weight: 700; }
+        .auth-container .form-label { font-weight: 600; font-size: 13px; color: #495057; }
+        .auth-container .form-control, .auth-container .form-select {
             border-radius: 10px;
             padding: 12px 16px;
             border: 2px solid #e9ecef;
-            transition: 0.3s;
+            transition: 0.2s;
+            font-size: 14px;
         }
-        .register-body .form-control:focus {
+        .auth-container .form-control:focus, .auth-container .form-select:focus {
             border-color: #0a58ca;
-            box-shadow: 0 0 0 0.2rem rgba(10, 88, 202, 0.15);
+            box-shadow: 0 0 0 3px rgba(10, 88, 202, 0.12);
         }
-        .register-body .form-select {
-            border-radius: 10px;
-            padding: 12px 16px;
-            border: 2px solid #e9ecef;
-        }
-        .register-body .form-select:focus {
-            border-color: #0a58ca;
-            box-shadow: 0 0 0 0.2rem rgba(10, 88, 202, 0.15);
-        }
-        .register-body .btn-primary {
-            border-radius: 10px;
+        .auth-container .btn-primary {
             padding: 12px;
+            border-radius: 10px;
             font-weight: 600;
+            width: 100%;
             font-size: 16px;
             background: #0a58ca;
             border: none;
-        }
-        .register-body .btn-primary:hover {
-            background: #084298;
-        }
-        .register-footer {
-            text-align: center;
-            padding: 0 30px 30px;
-            color: #6c757d;
-        }
-        .register-footer a {
-            color: #0a58ca;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .register-footer a:hover { text-decoration: underline; }
-        .alert-danger, .alert-success { border-radius: 10px; }
-        
-        .field-required { color: #dc3545; font-weight: bold; margin-left: 2px; }
-        .form-text {
-            font-size: 12px;
-            color: #6c757d;
-        }
-        .role-info {
-            background: #f8f9fa;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 4px;
-        }
-        .info-banner {
-            background: #cfe2ff;
-            border: 1px solid #9ec5fe;
-            padding: 12px 16px;
-            border-radius: 8px;
-            color: #052c65;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-        .info-banner i {
-            font-size: 18px;
-            margin-right: 8px;
-        }
-        .info-banner .highlight {
-            font-weight: 700;
-            color: #0a58ca;
-        }
-        .admin-badge {
-            background: #dc3545;
+            transition: 0.3s;
             color: #fff;
-            padding: 2px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
         }
-        
-        /* ===== TOAST - FULLY RESPONSIVE ===== */
+        .auth-container .btn-primary:hover {
+            background: #084298;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(10, 88, 202, 0.35);
+        }
+        .auth-container .btn-primary i { color: #fd7e14; }
+        .auth-container .auth-link { text-align: center; margin-top: 20px; font-size: 14px; color: #6c757d; }
+        .auth-container .auth-link a { color: #0a58ca; text-decoration: none; font-weight: 600; }
+        .auth-container .auth-link a:hover { text-decoration: underline; color: #fd7e14; }
+        .input-icon { position: relative; }
+        .input-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            font-size: 18px;
+            z-index: 1;
+        }
+        .input-icon .form-control, .input-icon .form-select { padding-left: 45px; }
+        .input-icon .orange-icon { color: #fd7e14; }
         .toast-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 9999;
             max-width: 90%;
-            pointer-events: none;
         }
         .toast {
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            border: none;
             min-width: 200px;
             max-width: 420px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-            pointer-events: auto;
-            opacity: 1 !important;
-            border: none;
         }
-        .toast .toast-body {
-            font-size: 14px;
-            padding: 14px 18px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            line-height: 1.4;
-        }
-        .toast .btn-close {
-            padding: 10px;
-            filter: brightness(0) invert(1);
-            opacity: 0.8;
-        }
+        .toast .toast-body { font-size: 14px; padding: 14px 18px; font-weight: 500; }
+        .toast .btn-close { padding: 10px; filter: brightness(0) invert(1); opacity: 0.8; }
         .toast .btn-close:hover { opacity: 1; }
-        .toast.bg-success .toast-body { color: #fff; }
-        .toast.bg-danger .toast-body { color: #fff; }
-        .toast.bg-warning .toast-body { color: #333; }
-        .toast.bg-warning .btn-close { filter: brightness(0); }
-        .toast.bg-primary .toast-body { color: #fff; }
-        .toast.bg-info .toast-body { color: #fff; }
-
         @media (max-width: 576px) {
-            .toast-container {
-                bottom: 10px;
-                right: 10px;
-                left: 10px;
-                max-width: 100%;
-                padding: 0;
-            }
-            .toast {
-                max-width: 100%;
-                width: 100%;
-                border-radius: 10px;
-                margin-bottom: 8px;
-            }
-            .toast .toast-body {
-                font-size: 13px;
-                padding: 12px 16px;
-            }
-            .toast .btn-close {
-                padding: 8px 10px;
-                font-size: 14px;
-            }
-            .register-body {
-                padding: 20px;
-            }
-            .register-header {
-                padding: 25px 20px 20px;
-            }
-            .register-header .logo {
-                width: 60px;
-                height: 60px;
-            }
-            .register-header h3 {
-                font-size: 20px;
-            }
-            .register-header p {
-                font-size: 13px;
-            }
-            .register-body .form-control,
-            .register-body .form-select {
-                font-size: 14px;
-                padding: 10px 14px;
-            }
-            .register-body .btn-primary {
-                font-size: 14px;
-                padding: 10px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .toast .toast-body {
-                font-size: 12px;
-                padding: 10px 14px;
-            }
-            .toast .btn-close {
-                padding: 6px 8px;
-                font-size: 12px;
-            }
-            .register-body {
-                padding: 16px;
-            }
-            .register-body .form-control,
-            .register-body .form-select {
-                font-size: 13px;
-                padding: 8px 12px;
-            }
-            .register-body .btn-primary {
-                font-size: 13px;
-                padding: 8px;
-            }
+            .auth-container { padding: 30px 20px; margin: 0 10px; }
+            .auth-container .auth-header h2 { font-size: 20px; }
+            .auth-container .auth-header .logo { width: 60px; height: 60px; font-size: 30px; }
+            .admin-notice { padding: 10px 14px; font-size: 12px; }
+            .admin-notice .notice-icon { font-size: 18px; }
         }
     </style>
 </head>
 <body>
 
-<div class="register-container">
-    <div class="register-card">
-        <div class="register-header">
-            <div class="logo">
-                <img src="lubaga badge.webp" alt="Lubaga Hospital Logo">
-            </div>
-            <h3>Lubaga Hospital</h3>
-            <p>IT Department – Projector Tracker</p>
-            <span class="badge-register"><i class="bi bi-person-plus"></i> Create Account</span>
+<div class="auth-container">
+    <div class="auth-header">
+        <div class="logo"><i class="bi bi-hospital"></i></div>
+        <h2>Create Account</h2>
+        <p>Register for the <span class="highlight">Asset Booking System</span></p>
+    </div>
+
+    <div class="admin-notice" id="adminNotice">
+        <div class="notice-icon"><i class="bi bi-shield-lock"></i></div>
+        <div class="notice-text">
+            <strong>First User = General Admin</strong><br />
+            The first person to register becomes the <span class="highlight-text">General Admin</span> with full system access.
         </div>
-        <div class="register-body">
-            
-            <!-- ===== INFO BANNER ===== -->
-            <div class="info-banner" id="infoBanner">
-                <i class="bi bi-info-circle-fill"></i>
-                <span id="bannerMessage">Only <span class="highlight">Admin</span> can add new users. Please contact IT Admin.</span>
-            </div>
-            
-            <form id="registerForm" onsubmit="handleRegister(event)">
-                <div id="registerError" class="alert alert-danger" style="display:none;"></div>
-                <div id="registerSuccess" class="alert alert-success" style="display:none;"></div>
-                
-                <!-- ===== USERNAME ===== -->
-                <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-person"></i> Username <span class="field-required">*</span></label>
-                    <input type="text" id="registerUser" class="form-control" placeholder="Choose a username" required autofocus>
-                    <small class="form-text">Minimum 3 characters</small>
-                </div>
-                
-                <!-- ===== EMAIL ===== -->
-                <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-envelope"></i> Email Address <span class="field-required">*</span></label>
-                    <input type="email" id="registerEmail" class="form-control" placeholder="Enter your email address" required>
-                    <small class="form-text">Used for login and account recovery</small>
-                </div>
-                
-                <!-- ===== PASSWORD ===== -->
-                <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-lock"></i> Password <span class="field-required">*</span></label>
-                    <input type="password" id="registerPass" class="form-control" placeholder="Min 6 characters" required>
-                    <small class="form-text">Minimum 6 characters</small>
-                </div>
-                
-                <!-- ===== CONFIRM PASSWORD ===== -->
-                <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-lock"></i> Confirm Password <span class="field-required">*</span></label>
-                    <input type="password" id="registerPassConfirm" class="form-control" placeholder="Confirm your password" required>
-                </div>
-                
-                <!-- ===== SECURITY QUESTION ===== -->
-                <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-shield-lock"></i> Security Question <span class="field-required">*</span></label>
-                    <select class="form-select" id="securityQuestion" required>
-                        <option value="">Select a security question...</option>
-                        <option value="What was your first pet's name?">What was your first pet's name?</option>
-                        <option value="What was your first school?">What was your first school?</option>
-                        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
-                        <option value="What city were you born in?">What city were you born in?</option>
-                        <option value="What was your childhood nickname?">What was your childhood nickname?</option>
-                        <option value="What is your favorite book?">What is your favorite book?</option>
-                    </select>
-                    <small class="form-text">Used to reset your password if you forget it</small>
-                </div>
-                
-                <!-- ===== SECURITY ANSWER ===== -->
-                <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-shield-lock"></i> Security Answer <span class="field-required">*</span></label>
-                    <input type="text" id="securityAnswer" class="form-control" placeholder="Your answer (case insensitive)" required>
-                    <small class="form-text">Keep this private. You'll need it to reset your password.</small>
-                </div>
-                
-                <!-- ===== ROLE (hidden - set by system) ===== -->
-                <input type="hidden" id="registerRole" value="staff">
-                
-                <button type="submit" class="btn btn-primary w-100" id="registerBtn">
-                    <i class="bi bi-person-plus"></i> <span id="registerBtnText">Create Account</span>
-                </button>
-            </form>
+    </div>
+
+    <form id="registerForm">
+        <div class="mb-3 input-icon">
+            <i class="bi bi-person"></i>
+            <input type="text" class="form-control" id="regUsername" placeholder="Choose a username" required>
         </div>
-        <div class="register-footer">
-            Already have an account? <a href="index.html">Login here</a>
+        <div class="mb-3 input-icon">
+            <i class="bi bi-envelope"></i>
+            <input type="email" class="form-control" id="regEmail" placeholder="Enter your email" required>
         </div>
+        <div class="mb-3 input-icon">
+            <i class="bi bi-lock"></i>
+            <input type="password" class="form-control" id="regPassword" placeholder="Min 6 characters" required>
+        </div>
+        <div class="mb-3 input-icon">
+            <i class="bi bi-building"></i>
+            <select class="form-select" id="regDept" required>
+                <option value="">Select Department</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Oncology">Oncology</option>
+                <option value="Neurology">Neurology</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Orthopedics">Orthopedics</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="Endocrinology">Endocrinology</option>
+                <option value="Gastroenterology">Gastroenterology</option>
+                <option value="Nephrology">Nephrology</option>
+                <option value="Pulmonology">Pulmonology</option>
+                <option value="Rheumatology">Rheumatology</option>
+                <option value="Urology">Urology</option>
+                <option value="Gynecology">Gynecology</option>
+                <option value="Obstetrics">Obstetrics</option>
+                <option value="Emergency">Emergency</option>
+                <option value="ICU">ICU</option>
+                <option value="Operating Theatre">Operating Theatre</option>
+                <option value="Radiology">Radiology</option>
+                <option value="Laboratory">Laboratory</option>
+                <option value="Pharmacy">Pharmacy</option>
+                <option value="Physiotherapy">Physiotherapy</option>
+                <option value="Occupational Therapy">Occupational Therapy</option>
+                <option value="Speech Therapy">Speech Therapy</option>
+                <option value="Nutrition">Nutrition</option>
+                <option value="Dental">Dental</option>
+                <option value="Ophthalmology">Ophthalmology</option>
+                <option value="ENT">ENT</option>
+                <option value="Psychiatry">Psychiatry</option>
+                <option value="Administration">Administration</option>
+                <option value="Human Resources">Human Resources</option>
+                <option value="Finance">Finance</option>
+                <option value="Procurement">Procurement</option>
+                <option value="IT">IT</option>
+                <option value="Facilities">Facilities</option>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Housekeeping">Housekeeping</option>
+                <option value="Security">Security</option>
+                <option value="Catering">Catering</option>
+                <option value="Laundry">Laundry</option>
+            </select>
+        </div>
+        <div class="mb-3 input-icon">
+            <i class="bi bi-question-circle orange-icon"></i>
+            <select class="form-select" id="regSecurityQuestion" required>
+                <option value="">Select a security question</option>
+                <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                <option value="What village were you born in?">What village were you born in?</option>
+                <option value="What is your clan name?">What is your clan name?</option>
+                <option value="What was the name of your primary school?">What was the name of your primary school?</option>
+                <option value="Who is your favorite Ugandan musician?">Who is your favorite Ugandan musician?</option>
+                <option value="What is your favorite local dish?">What is your favorite local dish?</option>
+            </select>
+        </div>
+        <div class="mb-3 input-icon">
+            <i class="bi bi-shield-check"></i>
+            <input type="text" class="form-control" id="regSecurityAnswer" placeholder="Your answer" required>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>Register
+        </button>
+    </form>
+    <div class="auth-link">
+        Already have an account? <a href="index.html">Login here</a>
     </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- TOAST - FULLY RESPONSIVE -->
-<!-- ============================================================ -->
+<!-- Toast -->
 <div class="toast-container">
-    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
         <div class="d-flex">
             <div class="toast-body" id="toastMessage"></div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
@@ -365,252 +249,93 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ============================================================
-    // CONFIG
-    // ============================================================
     const USERS_KEY = 'lubaga_users';
     const SESSION_KEY = 'lubaga_session';
 
     function getUsers() {
-        try {
-            const raw = localStorage.getItem(USERS_KEY);
-            return raw ? JSON.parse(raw) : {};
-        } catch { return {}; }
+        try { const raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
     }
 
-    function saveUsers(users) {
-        localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    }
+    function saveUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
 
-    // ============================================================
-    // TOAST - FULLY RESPONSIVE
-    // ============================================================
     function showToast(message, type = 'success') {
         const toast = document.getElementById('liveToast');
         const body = document.getElementById('toastMessage');
-        
-        // Icons
-        const icons = {
-            success: ' ',
-            danger: '',
-            warning: '',
-            info: '',
-            primary: ' '
-        };
-        body.innerHTML = (icons[type] || '') + message;
-        
-        // Class
+        body.textContent = message;
         toast.className = 'toast align-items-center text-white border-0';
         if (type === 'success') toast.classList.add('bg-success');
         else if (type === 'danger') toast.classList.add('bg-danger');
         else if (type === 'warning') toast.classList.add('bg-warning');
-        else if (type === 'info') toast.classList.add('bg-info');
         else toast.classList.add('bg-primary');
-        
-        // Show
-        const bsToast = new bootstrap.Toast(toast, { delay: 4000 });
-        bsToast.show();
+        new bootstrap.Toast(toast, { delay: 4000 }).show();
     }
 
-    // ============================================================
-    // CHECK IF ADMIN EXISTS
-    // ============================================================
-    function hasAdmin(users) {
-        for (const [username, userData] of Object.entries(users)) {
-            if (userData.role === 'admin' && userData.active !== false) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // ============================================================
-    // UPDATE UI BASED ON ADMIN STATUS
-    // ============================================================
-    function updateUI() {
+    (function checkFirstUser() {
         const users = getUsers();
-        const adminExists = hasAdmin(users);
         const isFirstUser = Object.keys(users).length === 0;
-        
-        const banner = document.getElementById('infoBanner');
-        const bannerMsg = document.getElementById('bannerMessage');
-        const registerBtn = document.getElementById('registerBtn');
-        const btnText = document.getElementById('registerBtnText');
-        const roleInput = document.getElementById('registerRole');
+        const notice = document.getElementById('adminNotice');
+        notice.style.display = isFirstUser ? 'flex' : 'none';
+    })();
 
-        // Enable all form inputs first
-        document.querySelectorAll('#registerForm .form-control, #registerForm .form-select').forEach(el => {
-            el.disabled = false;
-        });
-        registerBtn.disabled = false;
-
-        if (isFirstUser) {
-            // First user - can register as admin
-            banner.className = 'info-banner';
-            banner.style.background = '#d1e7dd';
-            banner.style.borderColor = '#badbcc';
-            bannerMsg.innerHTML = 'You are the <span class="highlight">first user</span>! You will be the <span class="admin-badge">Admin</span>.';
-            roleInput.value = 'admin';
-            btnText.textContent = 'Create Account (Admin)';
-            registerBtn.className = 'btn btn-danger w-100';
-        } else if (adminExists) {
-            // Admin exists - registration is blocked
-            banner.className = 'info-banner';
-            banner.style.background = '#fff3cd';
-            banner.style.borderColor = '#ffc107';
-            bannerMsg.innerHTML = 'Only <span class="highlight">Admin</span> can add new users. Please contact IT Admin.';
-            roleInput.value = 'staff';
-            btnText.textContent = 'Registration Disabled';
-            registerBtn.disabled = true;
-            registerBtn.className = 'btn btn-secondary w-100';
-            // Disable all form inputs
-            document.querySelectorAll('#registerForm .form-control, #registerForm .form-select').forEach(el => {
-                el.disabled = true;
-            });
-        } else {
-            // No admin exists - allow registration as admin
-            banner.className = 'info-banner';
-            banner.style.background = '#cfe2ff';
-            banner.style.borderColor = '#9ec5fe';
-            bannerMsg.innerHTML = ' No <span class="highlight">Admin</span> found. You will be the <span class="admin-badge">Admin</span>.';
-            roleInput.value = 'admin';
-            btnText.textContent = 'Create Account (Admin)';
-            registerBtn.className = 'btn btn-danger w-100';
-        }
-    }
-
-    // ============================================================
-    // REGISTER
-    // ============================================================
-    function handleRegister(e) {
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        const errorEl = document.getElementById('registerError');
-        const successEl = document.getElementById('registerSuccess');
-        errorEl.style.display = 'none';
-        successEl.style.display = 'none';
-        errorEl.textContent = '';
-        successEl.textContent = '';
 
-        // Check if registration is disabled
-        const registerBtn = document.getElementById('registerBtn');
-        if (registerBtn.disabled) {
-            errorEl.textContent = 'Registration is disabled. Only Admin can add users.';
-            errorEl.style.display = 'block';
-            return;
-        }
+        const username = document.getElementById('regUsername').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const department = document.getElementById('regDept').value;
+        const securityQuestion = document.getElementById('regSecurityQuestion').value;
+        const securityAnswer = document.getElementById('regSecurityAnswer').value.trim().toLowerCase();
 
-        // Get form values
-        const username = document.getElementById('registerUser').value.trim();
-        const email = document.getElementById('registerEmail').value.trim();
-        const password = document.getElementById('registerPass').value;
-        const confirm = document.getElementById('registerPassConfirm').value;
-        const securityQuestion = document.getElementById('securityQuestion').value;
-        const securityAnswer = document.getElementById('securityAnswer').value.trim().toLowerCase();
-        const role = document.getElementById('registerRole').value;
+        if (!username || username.length < 3) { showToast('Username must be at least 3 characters.', 'danger'); return; }
+        if (!email || !email.includes('@')) { showToast('Valid email is required.', 'danger'); return; }
+        if (!password || password.length < 6) { showToast('Password must be at least 6 characters.', 'danger'); return; }
+        if (!department) { showToast('Please select a department.', 'danger'); return; }
+        if (!securityQuestion) { showToast('Please select a security question.', 'danger'); return; }
+        if (!securityAnswer || securityAnswer.length < 2) { showToast('Please provide a security answer.', 'danger'); return; }
 
-        // ===== VALIDATION =====
-        if (!username || username.length < 3) {
-            errorEl.textContent = 'Username must be at least 3 characters.';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (!email || !email.includes('@') || !email.includes('.')) {
-            errorEl.textContent = 'Please enter a valid email address.';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (!password || password.length < 6) {
-            errorEl.textContent = 'Password must be at least 6 characters.';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (password !== confirm) {
-            errorEl.textContent = 'Passwords do not match.';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (!securityQuestion) {
-            errorEl.textContent = 'Please select a security question.';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (!securityAnswer || securityAnswer.length < 2) {
-            errorEl.textContent = 'Please provide a security answer.';
-            errorEl.style.display = 'block';
-            return;
-        }
-
-        // ===== CHECK EXISTING USERS =====
         const users = getUsers();
-        
-        // Check if email already exists
-        for (const [existingUser, userData] of Object.entries(users)) {
-            if (userData.email && userData.email.toLowerCase() === email.toLowerCase()) {
-                errorEl.textContent = 'This email is already registered. Please login.';
-                errorEl.style.display = 'block';
+
+        if (users[username]) { showToast('Username already exists.', 'danger'); return; }
+        for (const [u, data] of Object.entries(users)) {
+            if (data.email && data.email.toLowerCase() === email.toLowerCase()) {
+                showToast('Email already registered.', 'danger');
                 return;
             }
         }
-        
-        // Check if username already exists
-        if (users[username]) {
-            errorEl.textContent = 'Username already exists. Please choose another.';
-            errorEl.style.display = 'block';
-            return;
-        }
 
-        // ===== SAVE USER =====
+        const isFirstUser = Object.keys(users).length === 0;
+        const role = isFirstUser ? 'general_admin' : 'staff';
+
         users[username] = {
             password: password,
             email: email,
+            department: department,
             role: role,
             active: true,
             securityQuestion: securityQuestion,
-            securityAnswer: securityAnswer.toLowerCase().trim(),
+            securityAnswer: securityAnswer,
             createdAt: new Date().toISOString().split('T')[0]
         };
+
         saveUsers(users);
 
-        // ===== SUCCESS MESSAGE =====
-        const roleText = role === 'admin' ? '  (Admin)' : ' (Staff)';
-        successEl.innerHTML = 'Account "' + username + '" created successfully!' + roleText;
-        successEl.style.display = 'block';
-        showToast('Account created! Please login.', 'success');
+        // Auto-login the user
+        localStorage.setItem(SESSION_KEY, username);
 
-        // ===== CLEAR FORM =====
-        document.getElementById('registerUser').value = '';
-        document.getElementById('registerEmail').value = '';
-        document.getElementById('registerPass').value = '';
-        document.getElementById('registerPassConfirm').value = '';
-        document.getElementById('securityQuestion').value = '';
-        document.getElementById('securityAnswer').value = '';
+        const roleText = role === 'general_admin' ?
+            '🎉 You are the General Admin! Redirecting to dashboard...' :
+            'Registration successful! Redirecting...';
 
-        // ===== UPDATE UI =====
-        updateUI();
+        showToast(roleText, 'success');
 
-        // ===== REDIRECT TO LOGIN =====
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 2000);
-    }
-
-    // ============================================================
-    // CHECK SESSION
-    // ============================================================
-    (function checkSession() {
-        const session = localStorage.getItem(SESSION_KEY);
-        const users = getUsers();
-        if (session && users[session] && users[session].active !== false) {
-            window.location.href = 'dashboard.html';
-        }
-    })();
-
-    // ============================================================
-    // INIT
-    // ============================================================
-    document.addEventListener('DOMContentLoaded', function() {
-        updateUI();
+        setTimeout(function() {
+            if (role === 'general_admin') {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'user-dashboard.html';
+            }
+        }, 1000);
     });
 </script>
 </body>

@@ -1,392 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - Lubaga IT Tracker</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Lubaga Hospital Asset Booking System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <style>
         * { box-sizing: border-box; }
-        body { 
-            background: linear-gradient(135deg, #e8edf5 0%, #d5dce6 100%);
+        body {
+            background: linear-gradient(135deg, #e8f0fe 0%, #f5f5f5 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 16px;
+            padding: 20px;
+            margin: 0;
         }
-        .login-container {
-            max-width: 420px;
+        .auth-container {
+            max-width: 440px;
             width: 100%;
-            margin: 0 auto;
-        }
-        .login-card {
             background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border-radius: 24px;
+            padding: 40px 35px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            position: relative;
             overflow: hidden;
-            transition: 0.3s;
         }
-        .login-card:hover {
-            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #0a58ca;
         }
-        .login-header {
-            background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
-            padding: 35px 30px 30px;
-            text-align: center;
-            color: #fff;
-        }
-        .login-header .logo {
-            width: 80px;
-            height: 80px;
+        .auth-container .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-container .auth-header .logo {
+            width: 80px; height: 80px;
+            background: #0a58ca;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            background: #fff;
+            margin: 0 auto 12px;
+            font-size: 40px;
+            color: #fff;
+            box-shadow: 0 8px 25px rgba(10, 88, 202, 0.3);
         }
-        .login-header .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 8px;
-        }
-        .login-header h3 { margin: 0; font-weight: 700; }
-        .login-header p { margin: 5px 0 0; opacity: 0.85; font-size: 14px; }
-        .login-header .badge-login {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            padding: 4px 16px;
-            border-radius: 20px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 10px;
-        }
-        .login-body { padding: 30px; }
-        .login-body .form-control {
+        .auth-container .auth-header h2 { font-weight: 700; color: #0a58ca; font-size: 24px; margin: 0; }
+        .auth-container .auth-header p { color: #6c757d; font-size: 14px; margin-top: 4px; }
+        .auth-container .auth-header .highlight { color: #fd7e14; font-weight: 700; }
+        .auth-container .form-control {
             border-radius: 10px;
             padding: 12px 16px;
             border: 2px solid #e9ecef;
-            transition: 0.3s;
+            transition: 0.2s;
+            font-size: 15px;
         }
-        .login-body .form-control:focus {
+        .auth-container .form-control:focus {
             border-color: #0a58ca;
-            box-shadow: 0 0 0 0.2rem rgba(10, 88, 202, 0.15);
+            box-shadow: 0 0 0 3px rgba(10, 88, 202, 0.12);
         }
-        .login-body .btn-primary {
-            border-radius: 10px;
+        .auth-container .btn-primary {
             padding: 12px;
+            border-radius: 10px;
             font-weight: 600;
+            width: 100%;
             font-size: 16px;
             background: #0a58ca;
             border: none;
+            transition: 0.3s;
+            color: #fff;
         }
-        .login-body .btn-primary:hover {
+        .auth-container .btn-primary:hover {
             background: #084298;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(10, 88, 202, 0.35);
         }
-        .login-footer {
-            text-align: center;
-            padding: 0 30px 30px;
-            color: #6c757d;
+        .auth-container .btn-primary i { color: #fd7e14; }
+        .auth-container .auth-link { text-align: center; margin-top: 20px; font-size: 14px; color: #6c757d; }
+        .auth-container .auth-link a { color: #0a58ca; text-decoration: none; font-weight: 600; cursor: pointer; }
+        .auth-container .auth-link a:hover { text-decoration: underline; color: #fd7e14; }
+        .input-icon { position: relative; }
+        .input-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            font-size: 18px;
         }
-        .login-footer a {
-            color: #0a58ca;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .login-footer a:hover { text-decoration: underline; }
-        .alert-danger { border-radius: 10px; }
-        
-        /* ===== TOAST - FULLY RESPONSIVE ===== */
+        .input-icon .form-control { padding-left: 45px; }
+        .forgot-password-link { text-align: right; margin-top: 4px; }
+        .forgot-password-link a { color: #6c757d; font-size: 13px; text-decoration: none; cursor: pointer; }
+        .forgot-password-link a:hover { color: #fd7e14; text-decoration: underline; }
         .toast-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 9999;
             max-width: 90%;
-            pointer-events: none;
         }
         .toast {
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            border: none;
             min-width: 200px;
             max-width: 420px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-            pointer-events: auto;
-            opacity: 1 !important;
-            border: none;
         }
-        .toast .toast-body {
-            font-size: 14px;
-            padding: 14px 18px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            line-height: 1.4;
-        }
-        .toast .btn-close {
-            padding: 10px;
-            filter: brightness(0) invert(1);
-            opacity: 0.8;
-        }
+        .toast .toast-body { font-size: 14px; padding: 14px 18px; font-weight: 500; }
+        .toast .btn-close { padding: 10px; filter: brightness(0) invert(1); opacity: 0.8; }
         .toast .btn-close:hover { opacity: 1; }
-        .toast.bg-success .toast-body { color: #fff; }
-        .toast.bg-danger .toast-body { color: #fff; }
-        .toast.bg-warning .toast-body { color: #333; }
-        .toast.bg-warning .btn-close { filter: brightness(0); }
-        .toast.bg-primary .toast-body { color: #fff; }
-        .toast.bg-info .toast-body { color: #fff; }
-
+        .modal-content { border-radius: 16px; border: none; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2); }
+        .modal-header { border-radius: 16px 16px 0 0; }
+        .modal-footer { border-radius: 0 0 16px 16px; }
+        .modal-header.bg-primary { background: #0a58ca !important; }
+        .no-users-notice {
+            background: #fff3e0;
+            border-left: 4px solid #fd7e14;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+        }
+        .no-users-notice .notice-icon { font-size: 22px; color: #fd7e14; flex-shrink: 0; }
+        .no-users-notice .notice-text { font-size: 13px; color: #495057; line-height: 1.4; }
+        .no-users-notice .notice-text a { color: #0a58ca; font-weight: 600; text-decoration: none; }
+        .no-users-notice .notice-text a:hover { text-decoration: underline; }
         @media (max-width: 576px) {
-            .toast-container {
-                bottom: 10px;
-                right: 10px;
-                left: 10px;
-                max-width: 100%;
-                padding: 0;
-            }
-            .toast {
-                max-width: 100%;
-                width: 100%;
-                border-radius: 10px;
-                margin-bottom: 8px;
-            }
-            .toast .toast-body {
-                font-size: 13px;
-                padding: 12px 16px;
-            }
-            .toast .btn-close {
-                padding: 8px 10px;
-                font-size: 14px;
-            }
-            .login-body {
-                padding: 20px;
-            }
-            .login-header {
-                padding: 25px 20px 20px;
-            }
-            .login-header .logo {
-                width: 60px;
-                height: 60px;
-            }
-            .login-header h3 {
-                font-size: 20px;
-            }
-            .login-header p {
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .toast .toast-body {
-                font-size: 12px;
-                padding: 10px 14px;
-            }
-            .toast .btn-close {
-                padding: 6px 8px;
-                font-size: 12px;
-            }
-            .login-body {
-                padding: 16px;
-            }
-            .login-body .form-control {
-                font-size: 14px;
-                padding: 10px 14px;
-            }
-            .login-body .btn-primary {
-                font-size: 14px;
-                padding: 10px;
-            }
-        }
-
-        /* ===== FORGOT PASSWORD LINK ===== */
-        .forgot-link {
-            color: #0a58ca;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .forgot-link:hover {
-            text-decoration: underline;
-        }
-        
-        /* ===== MODAL - RESPONSIVE ===== */
-        .modal-content {
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-        }
-        .modal-header {
-            border-radius: 16px 16px 0 0;
-            padding: 16px 20px;
-        }
-        .modal-header h5 {
-            font-size: 18px;
-        }
-        .modal-body {
-            padding: 20px;
-        }
-        .modal-footer {
-            border-radius: 0 0 16px 16px;
-            padding: 12px 20px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .modal-footer .btn {
-            min-width: 80px;
-        }
-
-        @media (max-width: 576px) {
-            .modal-dialog {
-                margin: 10px;
-            }
-            .modal-header {
-                padding: 12px 16px;
-            }
-            .modal-header h5 {
-                font-size: 16px;
-            }
-            .modal-body {
-                padding: 16px;
-            }
-            .modal-footer {
-                padding: 12px 16px;
-                flex-direction: column;
-            }
-            .modal-footer .btn {
-                width: 100%;
-                min-width: unset;
-            }
-            .modal .form-control {
-                font-size: 14px;
-                padding: 10px 14px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .modal-header {
-                padding: 10px 14px;
-            }
-            .modal-header h5 {
-                font-size: 14px;
-            }
-            .modal-body {
-                padding: 12px;
-            }
-            .modal .form-control {
-                font-size: 13px;
-                padding: 8px 12px;
-            }
-        }
-
-        .admin-info {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 4px;
+            .auth-container { padding: 30px 20px; margin: 0 10px; }
+            .auth-container .auth-header h2 { font-size: 20px; }
+            .auth-container .auth-header .logo { width: 60px; height: 60px; font-size: 30px; }
         }
     </style>
 </head>
 <body>
 
-<div class="login-container">
-    <div class="login-card">
-        <div class="login-header">
-            <div class="logo">
-                <img src="lubaga badge.webp" alt="Lubaga Hospital Logo">
-            </div>
-            <h3>Lubaga Hospital</h3>
-            <p>IT Department – Projector Tracker</p>
-            <span class="badge-login"><i class="bi bi-box-arrow-in-right"></i> Sign In</span>
+<div id="loginPage">
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="logo"><i class="bi bi-hospital"></i></div>
+            <h2>Lubaga Hospital</h2>
+            <p><span class="highlight">Asset Booking System</span></p>
         </div>
-        <div class="login-body">
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div id="loginError" class="alert alert-danger" style="display:none;"></div>
-                
-                <!-- ===== EMAIL + PASSWORD ===== -->
-                <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-envelope"></i> Email Address</label>
-                    <input type="email" id="loginEmail" class="form-control" placeholder="Enter your email" required autofocus>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold"><i class="bi bi-lock"></i> Password</label>
-                    <input type="password" id="loginPass" class="form-control" placeholder="Enter your password" required>
-                </div>
-                
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-box-arrow-in-right"></i> Sign In
-                </button>
-            </form>
-            
-            <!-- Forgot Password Link -->
-            <div class="text-center mt-3">
-                <span class="forgot-link" onclick="openForgotModal()">
-                    <i class="bi bi-key"></i> Forgot Password?
-                </span>
-            </div>
-            
-            <!-- Admin info -->
-            <div class="text-center mt-2 admin-info">
-                <i class="bi bi-shield-lock"></i> Admin users can manage staff accounts
+
+        <div class="no-users-notice" id="noUsersNotice">
+            <div class="notice-icon"><i class="bi bi-info-circle"></i></div>
+            <div class="notice-text">
+                <strong>No users found!</strong><br />
+                Please <a href="register.html">register here</a> to create the first admin account.
             </div>
         </div>
-        <div class="login-footer">
+
+        <form id="loginForm">
+            <div class="mb-3 input-icon">
+                <i class="bi bi-person"></i>
+                <input type="text" class="form-control" id="loginUsername" placeholder="Username" required>
+            </div>
+            <div class="mb-3 input-icon">
+                <i class="bi bi-lock"></i>
+                <input type="password" class="form-control" id="loginPassword" placeholder="Password" required>
+            </div>
+            <div class="forgot-password-link">
+                <a id="forgotPasswordLink">Forgot Password?</a>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login
+            </button>
+        </form>
+        <div class="auth-link">
             Don't have an account? <a href="register.html">Register here</a>
         </div>
     </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- FORGOT PASSWORD MODAL -->
-<!-- ============================================================ -->
-<div class="modal fade" id="forgotModal" tabindex="-1">
+<!-- Forgot Password Modal -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="bi bi-key"></i> Reset Password</h5>
+                <h5 class="modal-title"><i class="bi bi-shield-lock me-2"></i>Security Verification</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted">Enter your username to reset your password.</p>
-                <form id="forgotForm">
+                <p class="text-muted">Enter your username to verify your identity.</p>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Username</label>
+                    <input type="text" class="form-control" id="resetUsername" placeholder="Enter your username">
+                </div>
+                <div id="securityQuestionContainer" style="display:none;">
+                    <div class="alert" style="background:#fff3e0; border-left:4px solid #fd7e14; color:#333;">
+                        <i class="bi bi-question-circle me-2" style="color:#fd7e14;"></i>
+                        <span id="securityQuestionDisplay">What is your mother's maiden name?</span>
+                    </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Username</label>
-                        <input type="text" id="forgotUsername" class="form-control" placeholder="Enter your username" required>
+                        <label class="form-label fw-semibold">Your Answer</label>
+                        <input type="text" class="form-control" id="securityAnswer" placeholder="Enter your security answer">
                     </div>
-                    <div id="securityQuestionDiv" style="display:none;">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold" id="securityQuestionLabel">Security Question</label>
-                            <input type="text" id="forgotAnswer" class="form-control" placeholder="Enter your answer">
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" placeholder="Enter new password (min 6 characters)">
                     </div>
-                    <div id="newPasswordDiv" style="display:none;">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">New Password <span class="text-danger">*</span></label>
-                            <input type="password" id="forgotNewPass" class="form-control" placeholder="Min 6 characters">
-                        </div>
-                    </div>
-                    <div id="forgotMessage" class="alert" style="display:none;"></div>
-                </form>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary" id="forgotBtn" onclick="handleForgot()">Verify & Reset</button>
+                <button class="btn btn-primary" onclick="verifySecurity()">Verify & Reset</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- TOAST - FULLY RESPONSIVE -->
-<!-- ============================================================ -->
+<!-- Toast -->
 <div class="toast-container">
-    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
         <div class="d-flex">
             <div class="toast-body" id="toastMessage"></div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
@@ -396,9 +228,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ============================================================
-    // CONFIG
-    // ============================================================
     const USERS_KEY = 'lubaga_users';
     const SESSION_KEY = 'lubaga_session';
 
@@ -413,261 +242,143 @@
         localStorage.setItem(USERS_KEY, JSON.stringify(users));
     }
 
-    // ============================================================
-    // TOAST - FULLY RESPONSIVE
-    // ============================================================
     function showToast(message, type = 'success') {
         const toast = document.getElementById('liveToast');
         const body = document.getElementById('toastMessage');
-        
-        // Icons
-        const icons = {
-            success: '',
-            danger: ' ',
-            warning: '',
-            info: '',
-            primary: ''
-        };
-        body.innerHTML = (icons[type] || '') + message;
-        
-        // Class
+        body.textContent = message;
         toast.className = 'toast align-items-center text-white border-0';
         if (type === 'success') toast.classList.add('bg-success');
         else if (type === 'danger') toast.classList.add('bg-danger');
         else if (type === 'warning') toast.classList.add('bg-warning');
-        else if (type === 'info') toast.classList.add('bg-info');
         else toast.classList.add('bg-primary');
-        
-        // Show
-        const bsToast = new bootstrap.Toast(toast, { delay: 4000 });
-        bsToast.show();
+        new bootstrap.Toast(toast, { delay: 4000 }).show();
     }
 
-    // ============================================================
-    // LOGIN - WITH DISABLED USER CHECK
-    // ============================================================
-    function handleLogin(e) {
-        e.preventDefault();
-        
-        const errorEl = document.getElementById('loginError');
-        errorEl.style.display = 'none';
-        errorEl.textContent = '';
-
-        const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-        const password = document.getElementById('loginPass').value;
-
-        if (!email || !password) {
-            errorEl.textContent = 'Please enter email and password.';
-            errorEl.style.display = 'block';
-            return;
-        }
-
+    // Check if any users exist
+    (function checkUsers() {
         const users = getUsers();
-        
-        // Check if email exists
-        let foundUser = null;
-        let foundUsername = null;
-        
-        for (const [username, userData] of Object.entries(users)) {
-            if (userData.email && userData.email.toLowerCase() === email) {
-                foundUser = userData;
-                foundUsername = username;
-                break;
-            }
-        }
-        
-        if (!foundUser) {
-            errorEl.textContent = 'Email not found. Please register first.';
-            errorEl.style.display = 'block';
-            return;
-        }
-
-        // ===== CHECK IF USER IS DISABLED/RETIRED =====
-        if (foundUser.active === false) {
-            errorEl.textContent = 'Account disabled. Please contact IT Admin.';
-            errorEl.style.display = 'block';
-            return;
-        }
-
-        if (foundUser.password !== password) {
-            errorEl.textContent = 'Invalid password.';
-            errorEl.style.display = 'block';
-            return;
-        }
-
-        // Store session
-        localStorage.setItem(SESSION_KEY, foundUsername);
-        
-        // Check if user is admin (for informational purposes)
-        const isAdmin = foundUser.role === 'admin';
-        const roleMsg = isAdmin ? ' (Admin)' : '';
-        
-        showToast('Welcome back, ' + foundUsername + roleMsg + '!', 'success');
-        
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 500);
-    }
-
-    // ============================================================
-    // CHECK SESSION
-    // ============================================================
-    (function checkSession() {
-        const session = localStorage.getItem(SESSION_KEY);
-        const users = getUsers();
-        if (session && users[session]) {
-            // Also check if user is still active
-            if (users[session].active !== false) {
-                window.location.href = 'dashboard.html';
-            } else {
-                // User was disabled, clear session
-                localStorage.removeItem(SESSION_KEY);
-            }
+        const notice = document.getElementById('noUsersNotice');
+        if (Object.keys(users).length === 0) {
+            notice.style.display = 'flex';
         }
     })();
 
-    // ============================================================
-    // FORGOT PASSWORD
-    // ============================================================
-    let forgotStep = 0;
-    let forgotUsername = '';
-
-    function openForgotModal() {
-        forgotStep = 0;
-        forgotUsername = '';
-        document.getElementById('forgotUsername').value = '';
-        document.getElementById('forgotAnswer').value = '';
-        document.getElementById('forgotNewPass').value = '';
-        document.getElementById('securityQuestionDiv').style.display = 'none';
-        document.getElementById('newPasswordDiv').style.display = 'none';
-        document.getElementById('forgotMessage').style.display = 'none';
-        document.getElementById('forgotBtn').textContent = 'Verify User';
-        document.getElementById('forgotBtn').className = 'btn btn-primary';
-        document.getElementById('forgotBtn').disabled = false;
-        new bootstrap.Modal(document.getElementById('forgotModal')).show();
-    }
-
-    function handleForgot() {
-        const msgEl = document.getElementById('forgotMessage');
-        msgEl.style.display = 'none';
-
-        if (forgotStep === 0) {
-            // Step 1: Check username
-            const username = document.getElementById('forgotUsername').value.trim();
-            if (!username) {
-                msgEl.className = 'alert alert-danger';
-                msgEl.textContent = ' Please enter your username.';
-                msgEl.style.display = 'block';
-                return;
-            }
-
-            const users = getUsers();
-            if (!users[username]) {
-                msgEl.className = 'alert alert-danger';
-                msgEl.textContent = ' Username not found.';
-                msgEl.style.display = 'block';
-                return;
-            }
-
-            forgotUsername = username;
-            
-            // Check if user has security question
-            if (users[username].securityQuestion && users[username].securityAnswer) {
-                // Show security question
-                document.getElementById('securityQuestionDiv').style.display = 'block';
-                document.getElementById('securityQuestionLabel').textContent = ' ' + users[username].securityQuestion;
-                document.getElementById('forgotBtn').textContent = 'Verify Answer';
-                forgotStep = 1;
-                msgEl.className = 'alert alert-info';
-                msgEl.textContent = 'Answer your security question to reset password.';
-                msgEl.style.display = 'block';
-            } else {
-                // No security question set - redirect to admin
-                msgEl.className = 'alert alert-warning';
-                msgEl.textContent = 'No security question set. Contact IT Admin to reset your password.';
-                msgEl.style.display = 'block';
-                document.getElementById('forgotBtn').disabled = true;
-            }
-            return;
-        }
-
-        if (forgotStep === 1) {
-            // Step 2: Verify security answer
-            const answer = document.getElementById('forgotAnswer').value.toLowerCase().trim();
-            const users = getUsers();
-            
-            if (!users[forgotUsername]) {
-                msgEl.className = 'alert alert-danger';
-                msgEl.textContent = 'User not found.';
-                msgEl.style.display = 'block';
-                return;
-            }
-
-            if (!answer || answer !== users[forgotUsername].securityAnswer) {
-                msgEl.className = 'alert alert-danger';
-                msgEl.textContent = 'Incorrect answer. Please try again.';
-                msgEl.style.display = 'block';
-                return;
-            }
-
-            // Show new password field
-            document.getElementById('newPasswordDiv').style.display = 'block';
-            document.getElementById('forgotBtn').textContent = 'Reset Password';
-            forgotStep = 2;
-            msgEl.className = 'alert alert-success';
-            msgEl.textContent = 'Verified! Enter your new password.';
-            msgEl.style.display = 'block';
-            return;
-        }
-
-        if (forgotStep === 2) {
-            // Step 3: Reset password
-            const newPass = document.getElementById('forgotNewPass').value;
-            if (!newPass || newPass.length < 6) {
-                msgEl.className = 'alert alert-danger';
-                msgEl.textContent = 'Password must be at least 6 characters.';
-                msgEl.style.display = 'block';
-                return;
-            }
-
-            const users = getUsers();
-            if (users[forgotUsername]) {
-                users[forgotUsername].password = newPass;
-                saveUsers(users);
-                
-                msgEl.className = 'alert alert-success';
-                msgEl.textContent = 'Password reset successfully! Please login.';
-                msgEl.style.display = 'block';
-                document.getElementById('forgotBtn').disabled = true;
-                
-                // Auto-fill email on login form
-                if (users[forgotUsername].email) {
-                    document.getElementById('loginEmail').value = users[forgotUsername].email;
-                }
-                
-                setTimeout(() => {
-                    bootstrap.Modal.getInstance(document.getElementById('forgotModal')).hide();
-                    showToast('Password reset! Please login.', 'success');
-                    document.getElementById('loginPass').focus();
-                }, 1500);
-            }
-        }
-    }
-
-    // Reset forgot modal when closed
-    document.getElementById('forgotModal').addEventListener('hidden.bs.modal', function() {
-        forgotStep = 0;
-        forgotUsername = '';
-        document.getElementById('forgotUsername').value = '';
-        document.getElementById('forgotAnswer').value = '';
-        document.getElementById('forgotNewPass').value = '';
-        document.getElementById('securityQuestionDiv').style.display = 'none';
-        document.getElementById('newPasswordDiv').style.display = 'none';
-        document.getElementById('forgotMessage').style.display = 'none';
-        document.getElementById('forgotBtn').disabled = false;
-        document.getElementById('forgotBtn').textContent = 'Verify User';
-        document.getElementById('forgotBtn').className = 'btn btn-primary';
+    document.getElementById('showRegisterLink')?.addEventListener('click', function() {
+        window.location.href = 'register.html';
     });
+
+    let resetUsername = '';
+
+    document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        const users = getUsers();
+        if (Object.keys(users).length === 0) {
+            showToast('No users registered yet. Please register first.', 'warning');
+            return;
+        }
+        document.getElementById('resetUsername').value = '';
+        document.getElementById('securityQuestionContainer').style.display = 'none';
+        document.getElementById('securityAnswer').value = '';
+        document.getElementById('newPassword').value = '';
+        new bootstrap.Modal(document.getElementById('forgotPasswordModal')).show();
+    });
+
+    document.getElementById('resetUsername').addEventListener('input', function() {
+        const username = this.value.trim();
+        const users = getUsers();
+        if (username && users[username]) {
+            document.getElementById('securityQuestionDisplay').textContent = users[username].securityQuestion || 'What is your mother\'s maiden name?';
+            document.getElementById('securityQuestionContainer').style.display = 'block';
+            resetUsername = username;
+        } else {
+            document.getElementById('securityQuestionContainer').style.display = 'none';
+            resetUsername = '';
+        }
+    });
+
+    function verifySecurity() {
+        const username = resetUsername;
+        const answer = document.getElementById('securityAnswer').value.trim().toLowerCase();
+        const newPassword = document.getElementById('newPassword').value;
+
+        if (!username) {
+            showToast('Please enter a valid username.', 'danger');
+            return;
+        }
+
+        const users = getUsers();
+        if (!users[username]) {
+            showToast('User not found.', 'danger');
+            return;
+        }
+
+        if (users[username].securityAnswer !== answer) {
+            showToast('Incorrect security answer. Please try again.', 'danger');
+            return;
+        }
+
+        if (!newPassword || newPassword.length < 6) {
+            showToast('New password must be at least 6 characters.', 'danger');
+            return;
+        }
+
+        users[username].password = newPassword;
+        saveUsers(users);
+        bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).hide();
+        showToast('Password reset successfully! Please login.', 'success');
+        document.getElementById('resetUsername').value = '';
+        document.getElementById('securityAnswer').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('securityQuestionContainer').style.display = 'none';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        const users = getUsers();
+
+        if (Object.keys(users).length === 0) {
+            showToast('No users registered. Please register first.', 'warning');
+            return;
+        }
+
+        if (!users[username]) {
+            showToast('Invalid username or password.', 'danger');
+            return;
+        }
+        if (users[username].password !== password) {
+            showToast('Invalid username or password.', 'danger');
+            return;
+        }
+        if (users[username].active === false) {
+            showToast('Account is disabled. Contact admin.', 'danger');
+            return;
+        }
+
+        localStorage.setItem(SESSION_KEY, username);
+
+        if (users[username].role === 'general_admin' || users[username].role === 'admin') {
+            window.location.href = 'admin-dashboard.html';
+        } else {
+            window.location.href = 'user-dashboard.html';
+        }
+    });
+
+    // Check if already logged in - ONLY RUN ONCE
+    (function checkSession() {
+        const session = localStorage.getItem(SESSION_KEY);
+        const users = getUsers();
+        if (session && users[session] && users[session].active !== false) {
+            if (users[session].role === 'general_admin' || users[session].role === 'admin') {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'user-dashboard.html';
+            }
+        }
+    })();
 </script>
 </body>
 </html>

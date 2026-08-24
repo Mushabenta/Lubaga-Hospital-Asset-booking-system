@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Dashboard - Lubaga Hospital Asset Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #f0f4f8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 40px;
+        }
+        .navbar-custom {
+            background: #fd7e14;
+            box-shadow: 0 2px 16px rgba(253,126,20,0.3);
+            padding: 0;
+        }
+        .navbar-custom .container-fluid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+            width: 100%;
+        }
+
+        .header-logo-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #fd7e14;
+            padding: 12px 0 4px 0;
+        }
+        .header-logo-wrapper .logo-image-container {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            max-height: 120px;
+            background: transparent;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+        }
+        .header-logo-wrapper .logo-image-container img {
+            width: 100%;
+            height: auto;
+            max-height: 100px;
+            object-fit: contain;
+            object-position: center;
+            display: block;
+        }
+        .header-logo-wrapper .logo-image-container i {
+            font-size: 70px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .brand-text-wrapper {
+            text-align: center;
+            line-height: 1.3;
+            padding: 4px 0 2px 0;
+            width: 100%;
+            background: transparent;
+        }
+        .brand-text-wrapper .brand-title {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 6px 15px 7px 15px;
+            width: 100%;
+            background: #0a58ca;
+            flex-wrap: wrap;
+        }
+        .navbar-custom .navbar-text {
+            color: rgba(255,255,255,0.95) !important;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        .navbar-custom .btn-outline-light {
+            color: #fff !important;
+            border-color: rgba(255,255,255,0.3);
+            font-size: 0.75rem;
+            padding: 4px 14px;
+            border-radius: 8px;
+            transition: 0.3s;
+            white-space: nowrap;
+            width: auto;
+            flex-shrink: 0;
+        }
+        .navbar-custom .btn-outline-light:hover { background: rgba(255,255,255,0.15); }
+
+        @media (max-width: 576px) {
+            .header-logo-wrapper .logo-image-container {
+                max-height: 90px;
+                padding: 0 10px;
+            }
+            .header-logo-wrapper .logo-image-container img {
+                max-height: 75px;
+            }
+            .brand-text-wrapper .brand-title {
+                font-size: 0.85rem;
+            }
+            .nav-right {
+                gap: 6px;
+                padding: 5px 10px 6px 10px;
+            }
+            .navbar-custom .navbar-text {
+                font-size: 0.7rem;
+            }
+            .navbar-custom .btn-outline-light {
+                font-size: 0.65rem;
+                padding: 3px 10px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header-logo-wrapper .logo-image-container {
+                max-height: 75px;
+                padding: 0 8px;
+            }
+            .header-logo-wrapper .logo-image-container img {
+                max-height: 60px;
+            }
+            .brand-text-wrapper .brand-title {
+                font-size: 0.75rem;
+            }
+            .nav-right {
+                gap: 4px;
+                padding: 4px 8px 5px 8px;
+            }
+            .navbar-custom .btn-outline-light {
+                font-size: 0.6rem;
+                padding: 2px 8px;
+            }
+            .navbar-custom .navbar-text {
+                font-size: 0.65rem;
+            }
+        }
+
+        .tabs-wrapper {
+            background: #fff;
+            border-radius: 16px;
+            padding: 6px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            flex: 0 1 auto;
+            min-width: 80px;
+            padding: 12px 18px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 14px;
+            color: #6c757d;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { color: #0a58ca; background: rgba(13,110,253,0.06); }
+        .tab-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
+            box-shadow: 0 4px 20px rgba(13,110,253,0.35);
+        }
+        .tab-btn .badge-tab {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        .tab-btn:not(.active) .badge-tab { background: #e9ecef; color: #6c757d; }
+        @media (max-width: 576px) {
+            .tab-btn { font-size: 11px; padding: 8px 12px; min-width: 60px; }
+            .tab-btn i { font-size: 14px; }
+        }
+        @media (max-width: 400px) {
+            .tab-btn { font-size: 10px; padding: 6px 10px; min-width: 50px; gap: 4px; }
+            .tab-btn .badge-tab { font-size: 8px; padding: 1px 6px; }
+        }
+
+        .tab-panel { display: none; animation: fadeSlide 0.3s ease; }
+        .tab-panel.active { display: block; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .booking-form-container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .booking-form-container .form-section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0a58ca;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .booking-form-container .form-section-title i { color: #fd7e14; }
+        .booking-form-container .form-label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #495057;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* ============================================================
+           DROPDOWN STYLING - COMPACT, NO EXTRA CONTAINER
+           ============================================================ */
+        .booking-form-container .form-control,
+        .booking-form-container .form-select {
+            border-radius: 10px;
+            padding: 10px 14px;
+            border: 2px solid #e9ecef;
+            font-size: 14px;
+            width: 100%;
+            max-width: 100%;
+            background-color: #fff;
+            cursor: pointer;
+            display: block;
+            height: auto;
+            min-height: 44px;
+            line-height: 1.3;
+        }
+        .booking-form-container .form-select {
+            appearance: auto !important;
+            -webkit-appearance: auto !important;
+            -moz-appearance: auto !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236c757d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 14px center !important;
+            background-size: 12px 8px !important;
+            padding-right: 40px !important;
+            background-color: #fff !important;
+            font-size: 14px;
+        }
+        /* Hide default browser arrow */
+        .booking-form-container .form-select::-ms-expand {
+            display: none !important;
+        }
+        .booking-form-container .form-select::-webkit-calendar-picker-indicator {
+            display: none !important;
+            opacity: 0 !important;
+            background: transparent !important;
+        }
+        .booking-form-container .form-select::before,
+        .booking-form-container .form-select::after {
+            display: none !important;
+        }
+        .booking-form-container .form-select:focus {
+            border-color: #0a58ca;
+            box-shadow: 0 0 0 3px rgba(13,110,253,0.12);
+            outline: none;
+        }
+        .booking-form-container .form-control.is-invalid,
+        .booking-form-container .form-select.is-invalid {
+            border-color: #dc3545;
+        }
+
+        /* ============================================================
+           DROPDOWN OPTIONS - NO CONTAINER, JUST TEXT
+           No padding, no margins, just the words
+           ============================================================ */
+        .booking-form-container .form-select option {
+            padding: 0px !important;
+            margin: 0px !important;
+            font-size: 13px !important;
+            min-height: 0px !important;
+            height: auto !important;
+            line-height: 1.2 !important;
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            max-width: 100% !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        /* For very small screens - just text, no container */
+        @media (max-width: 576px) {
+            .booking-form-container .form-select {
+                font-size: 13px !important;
+                padding: 8px 10px !important;
+                padding-right: 36px !important;
+                min-height: 38px !important;
+            }
+            .booking-form-container .form-select option {
+                font-size: 12px !important;
+                padding: 0px !important;
+                line-height: 1.2 !important;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .booking-form-container .form-select {
+                font-size: 12px !important;
+                padding: 6px 8px !important;
+                padding-right: 32px !important;
+                min-height: 34px !important;
+            }
+            .booking-form-container .form-select option {
+                font-size: 11px !important;
+                padding: 0px !important;
+                line-height: 1.2 !important;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .booking-form-container .form-select {
+                font-size: 11px !important;
+                padding: 5px 6px !important;
+                padding-right: 28px !important;
+                min-height: 30px !important;
+            }
+            .booking-form-container .form-select option {
+                font-size: 10px !important;
+                padding: 0px !important;
+                line-height: 1.1 !important;
+            }
+        }
+
+        /* Force dropdown to open downward */
+        .booking-form-container .form-select:focus {
+            transform: none !important;
+        }
+        .booking-form-container .form-select:not([size]):not([multiple]) {
+            background-position: right 14px center !important;
+        }
+
+        /* iOS/Safari fix */
+        @supports (-webkit-touch-callout: none) {
+            select.form-select {
+                -webkit-appearance: auto !important;
+                appearance: auto !important;
+            }
+        }
+
+        .booking-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .booking-options .btn-option {
+            flex: 0 1 auto;
+            min-width: 120px;
+            padding: 10px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: #fff;
+            font-weight: 600;
+            color: #6c757d;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .booking-options .btn-option:hover { border-color: #0a58ca; color: #0a58ca; }
+        .booking-options .btn-option.active { border-color: #0a58ca; background: #e8f0fe; color: #0a58ca; }
+        .booking-options .btn-option i { font-size: 18px; display: block; margin-bottom: 4px; }
+        @media (max-width: 400px) {
+            .booking-options .btn-option { min-width: 80px; font-size: 12px; padding: 8px 14px; }
+            .booking-options .btn-option i { font-size: 14px; }
+        }
+        @media (max-width: 360px) {
+            .booking-options .btn-option { min-width: 70px; font-size: 11px; padding: 6px 10px; }
+            .booking-options .btn-option i { font-size: 12px; }
+        }
+
+        .btn-gradient-primary {
+            background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(13,110,253,0.3);
+            width: auto;
+            min-width: 150px;
+        }
+        .btn-gradient-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(13,110,253,0.4); color: #fff; }
+        .btn-gradient-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%);
+            color: #fff;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            transition: 0.3s;
+        }
+        .btn-gradient-danger:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(220,53,69,0.3); color: #fff; }
+        @media (max-width: 360px) {
+            .btn-gradient-primary {
+                font-size: 13px;
+                padding: 8px 14px;
+                min-width: 100px;
+            }
+        }
+
+        .table-container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .table-container .table-header {
+            padding: 14px 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            font-weight: 600;
+        }
+        .table-wrapper { overflow-x: auto; }
+        .table {
+            font-size: 13px;
+            min-width: 700px;
+            margin-bottom: 0;
+        }
+        .table thead th {
+            background: #f8f9fa;
+            padding: 10px 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #495057;
+            border: 1px solid #dee2e6;
+            white-space: nowrap;
+        }
+        .table tbody td {
+            padding: 8px 8px;
+            vertical-align: middle;
+            border: 1px solid #dee2e6;
+            font-size: 12px;
+        }
+        .table tbody tr:nth-child(even) { background: #f8f9fa; }
+        .table tbody tr:hover { background: #e9ecef !important; }
+
+        .status-badge {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-badge.pending { background: #fff3e0; color: #e65100; }
+        .status-badge.approved { background: #e8f5e9; color: #2e7d32; }
+        .status-badge.rejected { background: #ffebee; color: #c62828; }
+
+        .action-link {
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            padding: 0 8px;
+            transition: 0.2s;
+            display: inline-block;
+        }
+        .action-link:hover { opacity: 0.6; }
+        .action-link.text-danger { color: #c62828; }
+        @media (max-width: 360px) {
+            .action-link { font-size: 10px; padding: 0 4px; }
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 90%;
+        }
+        .toast {
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            border: none;
+            min-width: 200px;
+            max-width: 420px;
+        }
+        .toast .toast-body { font-size: 14px; padding: 14px 18px; font-weight: 500; }
+        .toast .btn-close { padding: 10px; filter: brightness(0) invert(1); opacity: 0.8; }
+        .toast .btn-close:hover { opacity: 1; }
+
+        .mobile-cards { display: none; padding: 16px; }
+        .mobile-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 14px;
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+        }
+        .mobile-card .card-header {
+            padding: 10px 14px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .mobile-card .card-body { padding: 0; }
+        .mobile-card .card-body .field-row {
+            display: flex;
+            padding: 8px 14px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+        .mobile-card .card-body .field-row:last-child { border-bottom: none; }
+        .mobile-card .card-body .field-row .field-label {
+            font-weight: 700;
+            color: #6c757d;
+            font-size: 11px;
+            text-transform: uppercase;
+            width: 100px;
+            flex-shrink: 0;
+        }
+        .mobile-card .card-body .field-row .field-value {
+            flex: 1;
+            padding-left: 8px;
+            word-break: break-word;
+        }
+        .mobile-card .card-footer {
+            padding: 10px 14px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        @media screen and (max-width: 767px) {
+            .table-wrapper { display: none; }
+            .mobile-cards { display: block; }
+        }
+
+        @media (max-width: 576px) {
+            .booking-form-container { padding: 16px; }
+            .booking-options .btn-option { font-size: 12px; padding: 8px 14px; min-width: 80px; }
+            .booking-options .btn-option i { font-size: 16px; }
+            .booking-form-container .form-section-title { font-size: 15px; }
+            .btn-gradient-primary { width: 100%; min-width: unset; }
+        }
+
+        @media (max-width: 400px) {
+            .container { padding-left: 10px; padding-right: 10px; }
+            .booking-form-container { padding: 12px; }
+            .booking-form-container .form-section-title { font-size: 14px; }
+            .mobile-card .card-body .field-row { font-size: 12px; padding: 6px 10px; }
+            .mobile-card .card-body .field-row .field-label { width: 80px; font-size: 10px; }
+            .mobile-card .card-header { font-size: 12px; padding: 8px 10px; }
+            .mobile-card .card-footer { padding: 8px 10px; }
+            .action-link { font-size: 11px; padding: 0 4px; }
+        }
+
+        @media (max-width: 360px) {
+            .booking-form-container { padding: 8px; }
+            .booking-form-container .form-section-title { font-size: 13px; }
+            .mobile-card .card-body .field-row { font-size: 11px; padding: 4px 8px; }
+            .mobile-card .card-body .field-row .field-label { width: 70px; font-size: 9px; }
+            .mobile-card .card-header { font-size: 11px; padding: 6px 8px; }
+            .mobile-card .card-footer { padding: 6px 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand navbar-custom">
+        <div class="container-fluid">
+            <div class="header-logo-wrapper">
+                <div class="logo-image-container">
+                    <img src="lubaga-logo.png" alt="Lubaga Hospital" id="hospitalLogo"
+                    onerror="this.style.display='none'; document.getElementById('logoIcon').style.display='flex'">
+                    <i id="logoIcon" class="bi bi-hospital" style="display:none;"></i>
+                </div>
+                <div class="brand-text-wrapper">
+                    <span class="brand-title">Asset Booking System</span>
+                </div>
+            </div>
+            <div class="nav-right">
+                <span class="navbar-text d-flex align-items-center">
+                    <i class="bi bi-person-circle me-1"></i>
+                    <span id="usernameDisplay">user</span>
+                </span>
+                <button class="btn btn-outline-light btn-sm" onclick="handleLogout()">
+                    <span class="d-none d-sm-inline">Logout</span>
+                    <span class="d-inline d-sm-none"><i class="bi bi-box-arrow-right"></i></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-3">
+        <div class="tabs-wrapper" id="mainTabs">
+            <button class="tab-btn active" data-tab="booking">
+                <i class="bi bi-calendar-plus"></i> Book Asset
+                <span class="badge-tab">New</span>
+            </button>
+            <button class="tab-btn" data-tab="myrequests">
+                <i class="bi bi-clipboard"></i> My Requests
+                <span class="badge-tab" id="myRequestBadge">0</span>
+            </button>
+        </div>
+
+        <div class="tab-content-wrapper">
+            <!-- BOOK ASSET -->
+            <div class="tab-panel active" id="panel-booking">
+                <div class="booking-form-container">
+                    <div class="form-section-title"><i class="bi bi-calendar-plus"></i> Book an Asset</div>
+                    <form id="bookingForm" novalidate>
+                        <div class="booking-options">
+                            <button type="button" class="btn-option active" id="bookNowBtn" onclick="setBookingMode('now')">
+                                <i class="bi bi-clock"></i> Book Now
+                            </button>
+                            <button type="button" class="btn-option" id="bookAdvanceBtn" onclick="setBookingMode('advance')">
+                                <i class="bi bi-calendar-event"></i> Book in Advance
+                            </button>
+                        </div>
+
+                        <div class="row g-2 g-sm-3">
+                            <div class="col-md-6">
+                                <div class="mb-2 mb-sm-3">
+                                    <label class="form-label">Booking Date & Time <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" id="bookingDateTime" required>
+                                    <div class="invalid-feedback" id="dateTimeFeedback">Please select a valid date and time.</div>
+                                </div>
+                                <div class="mb-2 mb-sm-3">
+                                    <label class="form-label">Contact <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="bookingContact" placeholder="Phone number (e.g., 0772-123456)" required>
+                                    <div class="invalid-feedback">Please enter a valid phone number.</div>
+                                </div>
+                                <div class="mb-2 mb-sm-3">
+                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="bookingEmail" placeholder="Your email" required>
+                                    <div class="invalid-feedback">Please enter a valid email address.</div>
+                                </div>
+                                <div class="mb-2 mb-sm-3">
+                                    <label class="form-label">Service Element <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="bookingServiceElement" onchange="updateDepartments()" required>
+                                        <option value="">-- Select Service Element --</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a service element.</div>
+                                </div>
+                                <div class="mb-2 mb-sm-3">
+                                    <label class="form-label">Department <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="bookingDepartment" required>
+                                        <option value="">-- Select Department --</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a department.</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-2 mb-sm-3">
+                                    <label class="form-label">Asset Item <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="bookingCategory" onchange="updateAssetItems()" required>
+                                        <option value="">-- Select Asset --</option>
+                                        <option value="Laptop">Laptop</option>
+                                        <option value="Desktop Computer">Desktop Computer</option>
+                                        <option value="Computer Webcam">Computer Webcam</option>
+                                        <option value="Computer Speakers">Computer Speakers</option>
+                                        <option value="External Hard Drive">External Hard Drive</option>
+                                        <option value="Printer">Printer</option>
+                                        <option value="Scanner">Scanner</option>
+                                        <option value="Monitor">Monitor</option>
+                                        <option value="Tablet">Tablet</option>
+                                        <option value="Keyboard">Keyboard</option>
+                                        <option value="Mouse">Mouse</option>
+                                        <option value="Stethoscope">Stethoscope</option>
+                                        <option value="Blood Pressure Monitor">Blood Pressure Monitor</option>
+                                        <option value="Thermometer">Thermometer</option>
+                                        <option value="ECG Machine">ECG Machine</option>
+                                        <option value="Ultrasound Machine">Ultrasound Machine</option>
+                                        <option value="X-Ray Machine">X-Ray Machine</option>
+                                        <option value="Oximeter">Oximeter</option>
+                                        <option value="Defibrillator">Defibrillator</option>
+                                        <option value="Patient Monitor">Patient Monitor</option>
+                                        <option value="Ventilator">Ventilator</option>
+                                        <option value="Infusion Pump">Infusion Pump</option>
+                                        <option value="Projector">Projector</option>
+                                        <option value="Public Address Speaker">Public Address Speaker</option>
+                                        <option value="TV">TV</option>
+                                        <option value="Sound System">Sound System</option>
+                                        <option value="Microphone">Microphone</option>
+                                        <option value="Video Camera">Video Camera</option>
+                                        <option value="Projector Screen">Projector Screen</option>
+                                        <option value="Conference Speaker">Conference Speaker</option>
+                                        <option value="Wireless Microphone">Wireless Microphone</option>
+                                        <option value="Desk">Desk</option>
+                                        <option value="Office Chair">Office Chair</option>
+                                        <option value="Filing Cabinet">Filing Cabinet</option>
+                                        <option value="Whiteboard">Whiteboard</option>
+                                        <option value="Document Shredder">Document Shredder</option>
+                                        <option value="Laminator">Laminator</option>
+                                        <option value="Sofa">Sofa</option>
+                                        <option value="Conference Table">Conference Table</option>
+                                        <option value="Bookshelf">Bookshelf</option>
+                                        <option value="Storage Cabinet">Storage Cabinet</option>
+                                        <option value="Bench">Bench</option>
+                                        <option value="Workstation Desk">Workstation Desk</option>
+                                        <option value="Waiting Chairs">Waiting Chairs</option>
+                                        <option value="Reception Desk">Reception Desk</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select an asset.</div>
+                                </div>
+                                <div class="mb-2 mb-sm-3">
+                                    <label class="form-label">Specification / Model <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="bookingAssetItem" required>
+                                        <option value="">-- Select Specification --</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a specification.</div>
+                                </div>
+                                <div class="mb-2 mb-sm-3">
+                                    <label class="form-label">Requested By <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="bookingRequestedBy" placeholder="Your name" required>
+                                    <div class="invalid-feedback">Please enter your name.</div>
+                                </div>
+                                <div class="mb-2 mb-sm-3">
+                                    <label class="form-label">Reason for Request (Optional)</label>
+                                    <textarea class="form-control" id="bookingReason" rows="2" placeholder="Brief reason for this request"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-12" id="componentSection" style="display:none;">
+                                <div class="component-group" style="background:#f8f9fa; border-radius:12px; padding:14px 18px; border:1px solid #e9ecef; margin-top:4px;">
+                                    <div class="component-title" style="font-weight:600; font-size:14px; color:#0a58ca; margin-bottom:8px;">
+                                        <i class="bi bi-puzzle"></i> Projector Accessories
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="comp_power_code" checked><label class="form-check-label" for="comp_power_code">Power Code</label></div></div>
+                                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="comp_power_ext" checked><label class="form-check-label" for="comp_power_ext">Power Extension</label></div></div>
+                                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="comp_vga_hdmi" checked><label class="form-check-label" for="comp_vga_hdmi">VGA/HDMI Cable</label></div></div>
+                                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="comp_adapter" checked><label class="form-check-label" for="comp_adapter">HDMI Adapter</label></div></div>
+                                    </div>
+                                    <div class="mt-2 small text-muted"><i class="bi bi-info-circle"></i> Check/uncheck accessories being requested</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 d-flex justify-content-center">
+                                <button type="submit" class="btn btn-gradient-primary">
+                                    <i class="bi bi-check2-circle me-2"></i> Submit Request
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MY REQUESTS -->
+            <div class="tab-panel" id="panel-myrequests">
+                <div class="table-container">
+                    <div class="table-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <span><i class="bi bi-clipboard"></i> My Requests</span>
+                        <span class="text-muted-small" id="myRequestCount">0 requests</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table" id="myRequestsTable">
+                            <thead>
+                                <tr>
+                                    <th>NO</th>
+                                    <th>Booking Date</th>
+                                    <th>Asset & Accessories</th>
+                                    <th>Specification</th>
+                                    <th>Service Element</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Approved By</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="myRequestsBody">
+                                <tr><td colspan="9" class="text-center py-4 text-muted">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mobile-cards" id="myRequestsMobile"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container">
+        <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ============================================================
+        // CONFIG
+        // ============================================================
+        var USERS_KEY = 'lubaga_users';
+        var SESSION_KEY = 'lubaga_session';
+        var REQUESTS_KEY = 'lubaga_requests';
+
+        // ============================================================
+        // SERVICE ELEMENTS AND DEPARTMENTS (From Excel Data)
+        // ============================================================
+        var serviceElements = {
+            'Leadership and Mgmt': ['Finance', "MD's Office", "ED's Office", "PNO's Office", 'Student Coordinators Office', 'Research', 'Internal Auditor', 'Pastoral'],
+            'Human Resource': ["HR Office", 'St Kizito Day Care'],
+            'Administrative Support': ["Hospital Admin's Office", 'Procurement', 'Central Store', 'Transport', 'Internal Security Office', 'Records Office'],
+            'Access to Care and Patients Rights': ['Access to Care and Patients Rights'],
+            'Risk Management': ['Risk Management'],
+            'Resuscitation': ['Resuscitation'],
+            'Information Mgmt, QA & QI': ['ICT Office', 'Quality Assurance'],
+            'Infection Prevention and Control': ['Infection Prevention and Control'],
+            'Inpatient Care': ['Medical Care', 'Surgical Care', 'Paediatric Care', 'Obstetrics and Maternity Care', 'IPD Specialist Center', 'ICU'],
+            'Ambulatory Care': ['Medical OPD', 'Specialist Center OPD', 'Public Health Dept', 'Emergency Care', 'Dialysis', 'Eye Clinic', 'Dental Clinic'],
+            'Operating Theatre and Anaesthetic Care': ['General Operating Theatre', 'Transplant Theatre', 'Specialist Center Theatre'],
+            'Laboratory': ['Laboratory'],
+            'Radiology and Diagnostic Imaging': ['Radiology and Diagnostic Imaging'],
+            'Pharmacy': ['Main Pharmacy', 'Maternity Pharmacy', 'IPD Pharmacy', 'OPD Pharmacy', 'PHD Pharmacy', 'Specialist Center Pharmacy'],
+            'Therapeutic Support': ['Physiotherapy', 'Social Worker', 'Psychiatry', 'Others'],
+            'Central Sterile Supply Dept': ['CSSD'],
+            'Food Service': ['Food Service'],
+            'Linen Management': ['Linen Management'],
+            'House keeping': ['House keeping'],
+            'Maintenance': ['Plumbing', 'Electrical', 'Estates/Building', 'Carpentry', 'Waste Collection'],
+            'Medical Equipment Management': ['Medical Equipment Management']
+        };
+
+        var serviceElementNames = Object.keys(serviceElements);
+
+        // Asset specifications
+        var assetSpecs = {
+            'Laptop': ['Dell Latitude 5420', 'HP EliteBook 840', 'Lenovo ThinkPad X1', 'MacBook Pro 14"', 'Acer Swift 3'],
+            'Desktop Computer': ['HP ProDesk 600', 'Dell OptiPlex 7080', 'Lenovo ThinkCentre', 'Apple iMac 24"'],
+            'Computer Webcam': ['Logitech C920', 'Logitech Brio 4K', 'Microsoft LifeCam HD', 'Razer Kiyo'],
+            'Computer Speakers': ['Logitech Z207', 'Bose Companion 2', 'Creative Pebble', 'JBL Pebbles'],
+            'External Hard Drive': ['WD 1TB', 'Seagate 2TB', 'Samsung T5 SSD', 'Sandisk Extreme SSD'],
+            'Printer': ['HP LaserJet M404', 'Canon Pixma G7020', 'Brother HL-L2350', 'Epson EcoTank'],
+            'Scanner': ['Fujitsu ScanSnap iX1600', 'Brother ADS-1700W', 'Canon CanoScan LiDE', 'Epson Workforce ES-500W'],
+            'Monitor': ['Dell 24" LED', 'HP 27" FHD', 'LG 27" 4K', 'Samsung 24" Curved'],
+            'Tablet': ['Samsung Galaxy Tab S7', 'iPad Pro 12.9"', 'Lenovo Tab P11', 'Microsoft Surface Go'],
+            'Keyboard': ['Logitech MX Keys', 'Dell Wireless Keyboard', 'HP Wireless Keyboard', 'Apple Magic Keyboard'],
+            'Mouse': ['Logitech MX Master 3', 'Dell Wireless Mouse', 'HP Wireless Mouse', 'Apple Magic Mouse'],
+            'Stethoscope': ['Littmann Cardiology IV', 'Littmann Classic III', 'MDF Acoustica', 'ADC Adscope'],
+            'Blood Pressure Monitor': ['Omron Platinum', 'A&D Medical UA-767', 'Beurer BM 85', 'Withings BPM Connect'],
+            'Thermometer': ['Braun ThermoScan 7', 'iProven DMT-489', 'Kinsa Smart Thermometer', 'Vicks ComfortFlex'],
+            'ECG Machine': ['GE MAC 2000', 'Philips PageWriter TC70', 'Burdick Atria 6100', 'Schiller Cardiovit AT-102'],
+            'Ultrasound Machine': ['GE Vivid T8', 'Philips ClearVue 350', 'Siemens ACUSON X300', 'Mindray DC-70'],
+            'X-Ray Machine': ['GE Definium 8000', 'Siemens Multix Fusion', 'Philips DigitalDiagnost', 'Carestream DRX-Revolution'],
+            'Oximeter': ['Nonin 9590', 'Masimo Rad-67', 'ChoiceMMed MD300C', 'Rossmax SB100'],
+            'Defibrillator': ['Zoll AED 3', 'Philips HeartStart FRx', 'Cardiac Science Powerheart G5', 'Mindray BeneHeart D1'],
+            'Patient Monitor': ['Philips IntelliVue MX400', 'GE CARESCAPE B650', 'Mindray BeneView T8', 'Nihon Kohden BSM-6701'],
+            'Ventilator': ['Hamilton C6', 'Draeger Oxylog 3000', 'Philips Respironics V60', 'Mindray SV350'],
+            'Infusion Pump': ['BD Alaris PCAM', 'Fresenius Kabi Agilia', 'Braun Space Pumps', 'Smiths Medfusion 4000'],
+            'Projector': ['Epson EB-2150W', 'BenQ MH550', 'Sony VPL-FHZ80', 'NEC NP-P502HL', 'Optoma EH461'],
+            'Public Address Speaker': ['Bose F1 Model 812', 'JBL PRX815W', 'Yamaha DZR15', 'QSC K12.2'],
+            'TV': ['Samsung 55" Smart TV', 'LG 65" OLED', 'Sony 50" 4K', 'TCL 43" Roku TV'],
+            'Sound System': ['Bose L1 Pro', 'JBL EON One', 'Yamaha Stagepas 1K', 'Harbinger MLS900'],
+            'Microphone': ['Shure SM58', 'Sennheiser E835', 'AKG D5', 'Audio-Technica AT2020'],
+            'Video Camera': ['Sony PXW-Z190', 'Canon XA55', 'Panasonic AG-UX180', 'JVC GY-HC500'],
+            'Projector Screen': ['Elite Screens 120"', 'Da-Lite 100"', 'Draper 90"', 'Stewart 110"'],
+            'Conference Speaker': ['Bose Videobar VB1', 'Jabra PanaCast 50', 'Poly Studio USB', 'Logitech Rally Bar'],
+            'Wireless Microphone': ['Shure QLXD', 'Sennheiser EW100 G4', 'AKG DMS800', 'Beyerdynamic TG 100'],
+            'Desk': ['Standard Office Desk 120cm', 'Executive Desk 150cm', 'Compact Desk 90cm', 'Adjustable Height Desk'],
+            'Office Chair': ['Ergonomic Mesh Chair', 'Executive Leather Chair', 'Task Chair', 'High Back Office Chair'],
+            'Filing Cabinet': ['4-Drawer File Cabinet', '2-Drawer Compact Cabinet', '5-Drawer Letter Cabinet', 'Legal Size Cabinet'],
+            'Whiteboard': ['120x90cm Board', '150x100cm Board', '90x60cm Board', 'Mobile Whiteboard'],
+            'Document Shredder': ['6-Sheet Shredder', '10-Sheet Shredder', '15-Sheet Shredder', 'Heavy Duty Shredder'],
+            'Laminator': ['A4 Laminator', 'A3 Laminator', 'Portable Laminator', 'Heavy Duty Laminator'],
+            'Sofa': ['3-Seater Sofa', '2-Seater Sofa', 'Sofa Set 3+2', 'Recliner Sofa'],
+            'Conference Table': ['Large Conference Table 8-Seater', 'Medium Conference Table 6-Seater', 'Small Conference Table 4-Seater'],
+            'Bookshelf': ['Wooden 5-Tier Bookshelf', 'Steel 4-Tier Bookshelf', 'Corner Bookshelf', 'Large Bookshelf'],
+            'Storage Cabinet': ['Steel Storage Cabinet', 'Wooden Storage Cabinet', 'Mobile Storage Cabinet', 'Lockable Cabinet'],
+            'Bench': ['Wooden Bench 3-Seater', 'Steel Bench 2-Seater', 'Garden Bench', 'Indoor Bench'],
+            'Workstation Desk': ['L-Shaped Workstation', 'U-Shaped Workstation', 'Standard Workstation', 'Height Adjustable Workstation'],
+            'Waiting Chairs': ['Set of 4 Waiting Chairs', 'Set of 6 Waiting Chairs', 'Single Waiting Chair', 'Lounge Chair'],
+            'Reception Desk': ['Standard Reception Desk', 'L-Shaped Reception Desk', 'Modern Reception Desk', 'Counter Style Desk']
+        };
+
+        function getUsers() {
+            try { var raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
+        }
+
+        function getRequests() {
+            try { var raw = localStorage.getItem(REQUESTS_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
+        }
+
+        function saveRequests(requests) { localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests)); }
+        
+        function saveUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
+
+        function getUgandanTime() {
+            var now = new Date();
+            return new Date(now.getTime() + (3 * 60 * 60 * 1000));
+        }
+
+        function formatUgandanDateTime() {
+            var date = getUgandanTime();
+            return date.toISOString().slice(0, 16);
+        }
+
+        function showToast(message, type) {
+            if (type === undefined) type = 'success';
+            var toast = document.getElementById('liveToast');
+            var body = document.getElementById('toastMessage');
+            body.textContent = message;
+            toast.className = 'toast align-items-center text-white border-0';
+            if (type === 'success') toast.classList.add('bg-success');
+            else if (type === 'danger') toast.classList.add('bg-danger');
+            else if (type === 'warning') toast.classList.add('bg-warning');
+            else toast.classList.add('bg-primary');
+            new bootstrap.Toast(toast, { delay: 4000 }).show();
+        }
+
+        // ============================================================
+        // POPULATE SERVICE ELEMENTS DROPDOWN
+        // ============================================================
+        function populateServiceElements() {
+            var select = document.getElementById('bookingServiceElement');
+            select.innerHTML = '<option value="">-- Select Service Element --</option>';
+            for (var i = 0; i < serviceElementNames.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = serviceElementNames[i];
+                opt.textContent = serviceElementNames[i];
+                select.appendChild(opt);
+            }
+        }
+
+        // ============================================================
+        // UPDATE DEPARTMENTS BASED ON SELECTED SERVICE ELEMENT
+        // ============================================================
+        function updateDepartments() {
+            var serviceElement = document.getElementById('bookingServiceElement').value;
+            var deptSelect = document.getElementById('bookingDepartment');
+            deptSelect.innerHTML = '<option value="">-- Select Department --</option>';
+            
+            if (serviceElement && serviceElements[serviceElement]) {
+                var depts = serviceElements[serviceElement];
+                for (var i = 0; i < depts.length; i++) {
+                    var opt = document.createElement('option');
+                    opt.value = depts[i];
+                    opt.textContent = depts[i];
+                    deptSelect.appendChild(opt);
+                }
+            }
+        }
+
+        // ============================================================
+        // BOOKING MODE
+        // ============================================================
+        var bookingMode = 'now';
+
+        function setBookingMode(mode) {
+            bookingMode = mode;
+            document.getElementById('bookNowBtn').classList.toggle('active', mode === 'now');
+            document.getElementById('bookAdvanceBtn').classList.toggle('active', mode === 'advance');
+
+            var dtInput = document.getElementById('bookingDateTime');
+            if (mode === 'now') {
+                dtInput.value = formatUgandanDateTime();
+                dtInput.disabled = true;
+                dtInput.style.opacity = '0.7';
+                dtInput.classList.remove('is-invalid');
+                document.getElementById('dateTimeFeedback').style.display = 'none';
+            } else {
+                dtInput.disabled = false;
+                dtInput.style.opacity = '1';
+                if (!dtInput.value) dtInput.value = formatUgandanDateTime();
+            }
+        }
+
+        // ============================================================
+        // SESSION CHECK
+        // ============================================================
+        var sessionChecked = false;
+
+        function checkSession() {
+            if (sessionChecked) return true;
+            sessionChecked = true;
+            
+            var session = localStorage.getItem(SESSION_KEY);
+            var users = getUsers();
+
+            if (!session || !users[session] || users[session].active === false) {
+                window.location.href = 'index.html';
+                return false;
+            }
+
+            var user = users[session];
+            if (user.role === 'general_admin' || user.role === 'admin') {
+                window.location.href = 'admin-dashboard.html';
+                return false;
+            }
+
+            document.getElementById('usernameDisplay').textContent = session;
+            document.getElementById('bookingEmail').value = user.email || '';
+            document.getElementById('bookingRequestedBy').value = session;
+
+            document.getElementById('bookingDateTime').value = formatUgandanDateTime();
+            document.getElementById('bookingDateTime').disabled = true;
+            document.getElementById('bookingDateTime').style.opacity = '0.7';
+
+            return true;
+        }
+
+        function handleLogout() {
+            localStorage.removeItem(SESSION_KEY);
+            window.location.href = 'index.html';
+        }
+
+        // ============================================================
+        // TAB SWITCHING
+        // ============================================================
+        var tabBtns = document.querySelectorAll('.tab-btn');
+        for (var i = 0; i < tabBtns.length; i++) {
+            tabBtns[i].addEventListener('click', function() {
+                var btns = document.querySelectorAll('.tab-btn');
+                for (var j = 0; j < btns.length; j++) {
+                    btns[j].classList.remove('active');
+                }
+                this.classList.add('active');
+                var tab = this.dataset.tab;
+                var panels = document.querySelectorAll('.tab-panel');
+                for (var k = 0; k < panels.length; k++) {
+                    panels[k].classList.remove('active');
+                }
+                document.getElementById('panel-' + tab).classList.add('active');
+                if (tab === 'myrequests') loadMyRequests();
+            });
+        }
+
+        // ============================================================
+        // ASSET HELPERS
+        // ============================================================
+        function updateAssetItems() {
+            var category = document.getElementById('bookingCategory').value;
+            var specSelect = document.getElementById('bookingAssetItem');
+            specSelect.innerHTML = '<option value="">-- Select Specification --</option>';
+            if (category && assetSpecs[category]) {
+                var specs = assetSpecs[category];
+                for (var i = 0; i < specs.length; i++) {
+                    var opt = document.createElement('option');
+                    opt.value = specs[i];
+                    opt.textContent = specs[i];
+                    specSelect.appendChild(opt);
+                }
+            }
+            var section = document.getElementById('componentSection');
+            section.style.display = (category === 'Projector') ? 'block' : 'none';
+        }
+
+        // ============================================================
+        // GET ACCESSORIES STRING - Appears in brackets next to Projector
+        // ============================================================
+        function getAccessoriesString(request) {
+            if (request.asset_item !== 'Projector') return '';
+            var parts = [];
+            if (request.power_code && request.power_code === 'Yes') parts.push('Power Code');
+            if (request.power_extension && request.power_extension === 'Yes') parts.push('Power Ext');
+            if (request.vga_hdmi && request.vga_hdmi !== 'N/A') parts.push(request.vga_hdmi);
+            if (request.hdmi_adapter && request.hdmi_adapter === 'Yes') parts.push('HDMI Adapter');
+            return parts.length > 0 ? ' (' + parts.join(', ') + ')' : '';
+        }
+
+        // ============================================================
+        // LOAD MY REQUESTS
+        // ============================================================
+        function loadMyRequests() {
+            var session = localStorage.getItem(SESSION_KEY);
+            var allRequests = getRequests();
+            var myRequests = [];
+            for (var i = 0; i < allRequests.length; i++) {
+                if (allRequests[i].requestor === session) {
+                    myRequests.push(allRequests[i]);
+                }
+            }
+
+            var tbody = document.getElementById('myRequestsBody');
+            var mobileContainer = document.getElementById('myRequestsMobile');
+            document.getElementById('myRequestCount').textContent = myRequests.length + ' requests';
+            document.getElementById('myRequestBadge').textContent = myRequests.length;
+
+            if (myRequests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>You have no requests.</td></tr>';
+                mobileContainer.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>You have no requests.</div>';
+                return;
+            }
+
+            var html = '';
+            var mobileHtml = '';
+            for (var i = 0; i < myRequests.length; i++) {
+                var r = myRequests[i];
+                var statusClass = r.status === 'Approved' ? 'approved' : r.status === 'Rejected' ? 'rejected' : 'pending';
+                var statusLabel = r.status || 'Pending';
+                var canCancel = r.status === 'Pending';
+                var accessories = getAccessoriesString(r);
+                var assetDisplay = r.asset_item + accessories;
+
+                html += '<tr>';
+                html += '<td>' + (i+1) + '</td>';
+                html += '<td>' + (r.booking_date || '') + '</td>';
+                html += '<td>' + assetDisplay + '</td>';
+                html += '<td>' + (r.specification || '') + '</td>';
+                html += '<td>' + (r.service_element || '') + '</td>';
+                html += '<td>' + (r.department || '') + '</td>';
+                html += '<td><span class="status-badge ' + statusClass + '">' + statusLabel + '</span></td>';
+                html += '<td>' + (r.approved_by || '—') + '</td>';
+                html += '<td>';
+                if (canCancel) {
+                    html += '<span class="action-link text-danger" onclick="cancelRequest(\'' + r.id + '\')"><i class="bi bi-x-circle"></i> Cancel</span>';
+                } else {
+                    html += '—';
+                }
+                html += '</td></tr>';
+
+                mobileHtml += '<div class="mobile-card">';
+                mobileHtml += '<div class="card-header"><span class="row-number">#' + (i+1) + '</span><span class="status-badge ' + statusClass + '">' + statusLabel + '</span></div>';
+                mobileHtml += '<div class="card-body">';
+                mobileHtml += '<div class="field-row"><span class="field-label">Booking Date</span><span class="field-value">' + (r.booking_date || '') + '</span></div>';
+                mobileHtml += '<div class="field-row"><span class="field-label">Asset</span><span class="field-value">' + assetDisplay + '</span></div>';
+                mobileHtml += '<div class="field-row"><span class="field-label">Specification</span><span class="field-value">' + (r.specification || '') + '</span></div>';
+                mobileHtml += '<div class="field-row"><span class="field-label">Service Element</span><span class="field-value">' + (r.service_element || '') + '</span></div>';
+                mobileHtml += '<div class="field-row"><span class="field-label">Department</span><span class="field-value">' + (r.department || '') + '</span></div>';
+                mobileHtml += '<div class="field-row"><span class="field-label">Approved By</span><span class="field-value">' + (r.approved_by || 'Pending') + '</span></div>';
+                mobileHtml += '</div>';
+                if (canCancel) {
+                    mobileHtml += '<div class="card-footer"><span class="action-link text-danger" onclick="cancelRequest(\'' + r.id + '\')"><i class="bi bi-x-circle"></i> Cancel Request</span></div>';
+                }
+                mobileHtml += '</div>';
+            }
+
+            tbody.innerHTML = html;
+            mobileContainer.innerHTML = mobileHtml;
+        }
+
+        // ============================================================
+        // CANCEL REQUEST
+        // ============================================================
+        function cancelRequest(id) {
+            if (!confirm('Are you sure you want to cancel this request?')) return;
+            var allRequests = getRequests();
+            var idx = -1;
+            for (var i = 0; i < allRequests.length; i++) {
+                if (allRequests[i].id === id) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx === -1) { showToast('Request not found.', 'danger'); return; }
+            if (allRequests[idx].status !== 'Pending') {
+                showToast('Only pending requests can be cancelled.', 'warning');
+                return;
+            }
+            allRequests.splice(idx, 1);
+            saveRequests(allRequests);
+            showToast('Request cancelled successfully.', 'warning');
+            loadMyRequests();
+        }
+
+        // ============================================================
+        // VALIDATE BOOKING DATE
+        // ============================================================
+        function validateBookingDate() {
+            var dtInput = document.getElementById('bookingDateTime');
+            var feedback = document.getElementById('dateTimeFeedback');
+
+            if (bookingMode === 'advance') {
+                var selectedDate = new Date(dtInput.value);
+                var now = new Date();
+                var ugandaNow = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+
+                dtInput.classList.remove('is-invalid');
+                feedback.style.display = 'none';
+
+                if (selectedDate <= ugandaNow) {
+                    dtInput.classList.add('is-invalid');
+                    feedback.textContent = 'Please select a future date and time for advance booking.';
+                    feedback.style.display = 'block';
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // ============================================================
+        // VALIDATE PHONE
+        // ============================================================
+        function validatePhone(phone) {
+            var ugandanPhoneRegex = /^(07[0-9]{2}-?[0-9]{6}|07[0-9]{8})$/;
+            return ugandanPhoneRegex.test(phone.replace(/\s/g, ''));
+        }
+
+        // ============================================================
+        // SUBMIT BOOKING REQUEST
+        // ============================================================
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!validateBookingDate()) return;
+
+            var session = localStorage.getItem(SESSION_KEY);
+            var users = getUsers();
+            var user = users[session];
+
+            var bookingDate = document.getElementById('bookingDateTime').value;
+            var contact = document.getElementById('bookingContact').value.trim();
+            var email = document.getElementById('bookingEmail').value.trim();
+            var serviceElement = document.getElementById('bookingServiceElement').value;
+            var department = document.getElementById('bookingDepartment').value;
+            var assetItem = document.getElementById('bookingCategory').value;
+            var specification = document.getElementById('bookingAssetItem').value;
+            var requestedBy = document.getElementById('bookingRequestedBy').value.trim();
+            var reason = document.getElementById('bookingReason').value.trim();
+
+            if (!validatePhone(contact)) {
+                document.getElementById('bookingContact').classList.add('is-invalid');
+                showToast('Please enter a valid Ugandan phone number (e.g., 0772-123456).', 'danger');
+                return;
+            } else {
+                document.getElementById('bookingContact').classList.remove('is-invalid');
+            }
+
+            if (!bookingDate || !contact || !email || !serviceElement || !department || !assetItem || !specification || !requestedBy) {
+                showToast('Please fill in all required fields.', 'danger');
+                var allInputs = document.querySelectorAll('#bookingForm .form-control, #bookingForm .form-select');
+                for (var i = 0; i < allInputs.length; i++) {
+                    if (!allInputs[i].value) {
+                        allInputs[i].classList.add('is-invalid');
+                    } else {
+                        allInputs[i].classList.remove('is-invalid');
+                    }
+                }
+                return;
+            }
+
+            var powerCode = 'No', powerExt = 'No', cable = 'N/A', adapter = 'No';
+            if (assetItem === 'Projector') {
+                powerCode = document.getElementById('comp_power_code').checked ? 'Yes' : 'No';
+                powerExt = document.getElementById('comp_power_ext').checked ? 'Yes' : 'No';
+                cable = document.getElementById('comp_vga_hdmi').checked ? 'HDMI' : 'N/A';
+                adapter = document.getElementById('comp_adapter').checked ? 'Yes' : 'No';
+            }
+
+            var request = {
+                id: 'REQ' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                booking_date: bookingDate,
+                requestor: session,
+                contact: contact,
+                email: email,
+                service_element: serviceElement,
+                department: department,
+                asset_item: assetItem,
+                specification: specification,
+                requested_by: requestedBy,
+                reason: reason,
+                power_code: powerCode,
+                power_extension: powerExt,
+                vga_hdmi: cable,
+                hdmi_adapter: adapter,
+                status: 'Pending',
+                approved_by: '',
+                date_approved: '',
+                submitted_at: new Date().toISOString()
+            };
+
+            var allRequests = getRequests();
+            allRequests.unshift(request);
+            saveRequests(allRequests);
+
+            document.getElementById('bookingForm').reset();
+            document.getElementById('bookingDateTime').value = formatUgandanDateTime();
+            document.getElementById('bookingDateTime').disabled = true;
+            document.getElementById('bookingDateTime').style.opacity = '0.7';
+            document.getElementById('bookingEmail').value = user.email || '';
+            document.getElementById('bookingRequestedBy').value = session;
+            document.getElementById('componentSection').style.display = 'none';
+            
+            var allInvalid = document.querySelectorAll('.is-invalid');
+            for (var i = 0; i < allInvalid.length; i++) {
+                allInvalid[i].classList.remove('is-invalid');
+            }
+
+            populateServiceElements();
+
+            showToast('Request submitted successfully!', 'success');
+            loadMyRequests();
+
+            var tabBtns2 = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < tabBtns2.length; i++) {
+                tabBtns2[i].classList.remove('active');
+            }
+            document.querySelector('.tab-btn[data-tab="myrequests"]').classList.add('active');
+            var panels = document.querySelectorAll('.tab-panel');
+            for (var i = 0; i < panels.length; i++) {
+                panels[i].classList.remove('active');
+            }
+            document.getElementById('panel-myrequests').classList.add('active');
+            loadMyRequests();
+        });
+
+        // Real-time validation
+        document.getElementById('bookingContact').addEventListener('input', function() {
+            if (this.value.length > 0 && !validatePhone(this.value)) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        document.getElementById('bookingDateTime').addEventListener('change', function() {
+            if (bookingMode === 'advance') validateBookingDate();
+        });
+
+        var allFormElements = document.querySelectorAll('#bookingForm .form-control, #bookingForm .form-select');
+        for (var i = 0; i < allFormElements.length; i++) {
+            allFormElements[i].addEventListener('focus', function() {
+                this.classList.remove('is-invalid');
+            });
+        }
+
+        // ============================================================
+        // SEED SAMPLE DATA
+        // ============================================================
+        function seedSampleData() {
+            var existing = getRequests();
+            if (existing.length > 0) return;
+            
+            var sampleRequests = [
+                {
+                    id: 'REQ' + Date.now() + '_1',
+                    booking_date: '2026-08-25T10:30',
+                    requestor: 'admin',
+                    contact: '0712345678',
+                    email: 'admin@lubaga.org',
+                    service_element: 'Inpatient Care',
+                    department: 'Medical Care',
+                    asset_item: 'ECG Machine',
+                    specification: 'GE MAC 2000',
+                    requested_by: 'Dr. Sarah',
+                    reason: 'For routine checkups',
+                    power_code: 'No',
+                    power_extension: 'No',
+                    vga_hdmi: 'N/A',
+                    hdmi_adapter: 'No',
+                    status: 'Pending',
+                    approved_by: '',
+                    date_approved: '',
+                    submitted_at: new Date().toISOString()
+                },
+                {
+                    id: 'REQ' + Date.now() + '_2',
+                    booking_date: '2026-08-24T09:00',
+                    requestor: 'admin',
+                    contact: '0723456789',
+                    email: 'admin@lubaga.org',
+                    service_element: 'Operating Theatre and Anaesthetic Care',
+                    department: 'General Operating Theatre',
+                    asset_item: 'Projector',
+                    specification: 'Epson EB-2150W',
+                    requested_by: 'Dr. Michael',
+                    reason: 'For surgery presentation',
+                    power_code: 'Yes',
+                    power_extension: 'Yes',
+                    vga_hdmi: 'HDMI',
+                    hdmi_adapter: 'Yes',
+                    status: 'Approved',
+                    approved_by: 'admin',
+                    date_approved: new Date(Date.now() - 86400000).toISOString(),
+                    submitted_at: new Date(Date.now() - 86400000).toISOString()
+                },
+                {
+                    id: 'REQ' + Date.now() + '_3',
+                    booking_date: '2026-08-23T14:00',
+                    requestor: 'admin',
+                    contact: '0734567890',
+                    email: 'admin@lubaga.org',
+                    service_element: 'Radiology and Diagnostic Imaging',
+                    department: 'Radiology and Diagnostic Imaging',
+                    asset_item: 'X-Ray Machine',
+                    specification: 'Siemens Multix Fusion',
+                    requested_by: 'Dr. Grace',
+                    reason: 'For diagnostic imaging',
+                    power_code: 'No',
+                    power_extension: 'No',
+                    vga_hdmi: 'N/A',
+                    hdmi_adapter: 'No',
+                    status: 'Rejected',
+                    approved_by: 'admin',
+                    date_approved: new Date(Date.now() - 172800000).toISOString(),
+                    submitted_at: new Date(Date.now() - 172800000).toISOString()
+                }
+            ];
+            
+            saveRequests(sampleRequests);
+        }
+
+        // ============================================================
+        // SEED ADMIN USER IF NONE
+        // ============================================================
+        function seedAdminUser() {
+            var users = getUsers();
+            if (Object.keys(users).length > 0) return;
+            
+            users['admin'] = {
+                password: 'admin123',
+                email: 'admin@lubaga.org',
+                department: 'Administration',
+                role: 'general_admin',
+                active: true,
+                securityQuestion: 'What is your mother\'s maiden name?',
+                securityAnswer: 'admin',
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+            saveUsers(users);
+            localStorage.setItem(SESSION_KEY, 'admin');
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        var initialized = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (initialized) return;
+            initialized = true;
+            
+            seedAdminUser();
+            seedSampleData();
+            
+            if (!checkSession()) return;
+
+            populateServiceElements();
+
+            document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+            document.getElementById('panel-booking').classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelector('.tab-btn[data-tab="booking"]').classList.add('active');
+
+            loadMyRequests();
+        });
+    </script>
+</body>
+</html>
