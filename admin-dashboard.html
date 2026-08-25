@@ -27,7 +27,6 @@
             width: 100%;
         }
 
-        /* HEADER - Clean, no borders */
         .header-logo-wrapper {
             width: 100%;
             display: flex;
@@ -61,7 +60,6 @@
             color: rgba(255,255,255,0.9);
         }
 
-        /* Brand text - only "Asset Booking System" */
         .brand-text-wrapper {
             text-align: center;
             line-height: 1.3;
@@ -76,7 +74,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* User controls - Blue background */
         .nav-right {
             display: flex;
             align-items: center;
@@ -287,40 +284,62 @@
         .table-wrapper { overflow-x: auto; }
         .table {
             font-size: 13px;
-            min-width: 1100px;
+            min-width: 700px;
             margin-bottom: 0;
         }
         .table thead th {
             background: #f8f9fa;
-            padding: 10px 8px;
-            font-size: 11px;
+            padding: 8px 6px;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             color: #495057;
             border: 1px solid #dee2e6;
             white-space: nowrap;
         }
         .table tbody td {
-            padding: 8px 8px;
+            padding: 6px 6px;
             vertical-align: middle;
             border: 1px solid #dee2e6;
+            font-size: 12px;
         }
         .table tbody tr:nth-child(even) { background: #f8f9fa; }
         .table tbody tr:hover { background: #e9ecef !important; }
+
+        @media (min-width: 992px) {
+            .table {
+                min-width: 100%;
+            }
+            .table thead th {
+                font-size: 11px;
+                padding: 10px 8px;
+            }
+            .table tbody td {
+                font-size: 13px;
+                padding: 8px 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .table {
+                min-width: 700px;
+            }
+        }
 
         .action-link {
             cursor: pointer;
             font-weight: 500;
             font-size: 12px;
-            padding: 0 8px;
+            padding: 0 6px;
             transition: 0.2s;
             display: inline-block;
         }
         .action-link:hover { opacity: 0.6; }
         .action-link.text-success { color: #2e7d32; }
         .action-link.text-danger { color: #c62828; }
+        .action-link.text-warning { color: #d39e00; }
         @media (max-width: 576px) {
-            .action-link { font-size: 11px; padding: 0 6px; }
+            .action-link { font-size: 11px; padding: 0 4px; }
         }
 
         .chart-container { height: 200px; position: relative; }
@@ -361,8 +380,8 @@
         }
         .admin-table thead th {
             background: #f8f9fa;
-            padding: 10px 12px;
-            font-size: 12px;
+            padding: 8px 10px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: #495057;
@@ -371,7 +390,7 @@
             white-space: nowrap;
         }
         .admin-table tbody td {
-            padding: 10px 12px;
+            padding: 8px 10px;
             vertical-align: middle;
             border-bottom: 1px solid #e9ecef;
         }
@@ -608,10 +627,22 @@
                     <div class="table-wrapper">
                         <table class="table" id="logsTable">
                             <thead>
-                                <tr><th>NO</th><th>Booking Date</th><th>Requestor</th><th>Contact</th><th>Asset</th><th>Department</th><th>Status</th><th>Approved By</th><th>Date Approved</th><th>Actions</th></tr>
+                                <tr>
+                                    <th>NO</th>
+                                    <th>Booking Date</th>
+                                    <th>Requestor</th>
+                                    <th>Contact</th>
+                                    <th>Asset</th>
+                                    <th>Service Element</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Approved By</th>
+                                    <th>Date Approved</th>
+                                    <th>Actions</th>
+                                </tr>
                             </thead>
                             <tbody id="logsBody">
-                                <tr><td colspan="10" class="text-center py-4 text-muted">Loading...</td></tr>
+                                <tr><td colspan="11" class="text-center py-4 text-muted">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -643,22 +674,18 @@
                             <div class="row g-2">
                                 <div class="col-md-4"><input type="text" id="adminNewUser" class="form-control form-control-sm" placeholder="Username *" required></div>
                                 <div class="col-md-4"><input type="email" id="adminNewEmail" class="form-control form-control-sm" placeholder="Email *" required></div>
-                                <div class="col-md-4"><input type="password" id="adminNewPass" class="form-control form-control-sm" placeholder="Password *" required></div>
+                                <div class="col-md-4"><input type="password" id="adminNewPass" class="form-control form-control-sm" placeholder="Password (min 4) *" required></div>
                                 <div class="col-md-4"><input type="password" id="adminNewPassConfirm" class="form-control form-control-sm" placeholder="Confirm Password *" required></div>
-                                <div class="col-md-6"><select class="form-select form-select-sm" id="adminNewDept" required><option value="">Department *</option><option value="Cardiology">Cardiology</option><option value="Oncology">Oncology</option><option value="Neurology">Neurology</option><option value="Pediatrics">Pediatrics</option><option value="Orthopedics">Orthopedics</option><option value="Dermatology">Dermatology</option><option value="Endocrinology">Endocrinology</option><option value="Gastroenterology">Gastroenterology</option><option value="Nephrology">Nephrology</option><option value="Pulmonology">Pulmonology</option><option value="Rheumatology">Rheumatology</option><option value="Urology">Urology</option><option value="Gynecology">Gynecology</option><option value="Obstetrics">Obstetrics</option><option value="Emergency">Emergency</option><option value="ICU">ICU</option><option value="Operating Theatre">Operating Theatre</option><option value="Radiology">Radiology</option><option value="Laboratory">Laboratory</option><option value="Pharmacy">Pharmacy</option><option value="Physiotherapy">Physiotherapy</option><option value="Administration">Administration</option><option value="HR">Human Resources</option><option value="Finance">Finance</option><option value="Procurement">Procurement</option><option value="IT">IT</option><option value="Facilities">Facilities</option><option value="Maintenance">Maintenance</option><option value="Security">Security</option></select></div>
                                 <div class="col-md-6">
-                                    <select class="form-select form-select-sm" id="adminNewSecurityQuestion" required>
-                                        <option value="">Select Security Question *</option>
-                                        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
-                                        <option value="What village were you born in?">What village were you born in?</option>
-                                        <option value="What is your clan name?">What is your clan name?</option>
-                                        <option value="What was the name of your primary school?">What was the name of your primary school?</option>
-                                        <option value="Who is your favorite Ugandan musician?">Who is your favorite Ugandan musician?</option>
-                                        <option value="What is your favorite local dish?">What is your favorite local dish?</option>
+                                    <select class="form-select form-select-sm" id="adminNewServiceElement" onchange="updateAdminDepartments()" required>
+                                        <option value="">Select Service Element *</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6"><input type="text" id="adminNewSecurityAnswer" class="form-control form-control-sm" placeholder="Security Answer *"></div>
-                                <div class="col-md-4"><select class="form-select form-select-sm" id="adminNewRole"><option value="admin">Admin</option></select></div>
+                                <div class="col-md-6">
+                                    <select class="form-select form-select-sm" id="adminNewDepartment" required>
+                                        <option value="">Select Department *</option>
+                                    </select>
+                                </div>
                                 <div class="col-md-4"><button class="btn btn-gradient-success w-100" onclick="adminAddUser()"><i class="bi bi-plus-circle"></i> Add Admin</button></div>
                                 <div class="col-md-4" id="adminLimitInfo" style="display:none;"><small class="text-warning">Max 20 admins reached</small></div>
                             </div>
@@ -693,6 +720,35 @@
         const SESSION_KEY = 'lubaga_session';
         const REQUESTS_KEY = 'lubaga_requests';
         const MAX_ADMINS = 20;
+
+        // ============================================================
+        // SERVICE ELEMENTS AND DEPARTMENTS (From Excel Data)
+        // ============================================================
+        const serviceElements = {
+            'Leadership and Mgmt': ['Finance', "MD's Office", "ED's Office", "PNO's Office", 'Student Coordinators Office', 'Research', 'Internal Auditor', 'Pastoral'],
+            'Human Resource': ["HR Office", 'St Kizito Day Care'],
+            'Administrative Support': ["Hospital Admin's Office", 'Procurement', 'Central Store', 'Transport', 'Internal Security Office', 'Records Office'],
+            'Access to Care and Patients Rights': ['Access to Care and Patients Rights'],
+            'Risk Management': ['Risk Management'],
+            'Resuscitation': ['Resuscitation'],
+            'Information Mgmt, QA & QI': ['ICT Office', 'Quality Assurance'],
+            'Infection Prevention and Control': ['Infection Prevention and Control'],
+            'Inpatient Care': ['Medical Care', 'Surgical Care', 'Paediatric Care', 'Obstetrics and Maternity Care', 'IPD Specialist Center', 'ICU'],
+            'Ambulatory Care': ['Medical OPD', 'Specialist Center OPD', 'Public Health Dept', 'Emergency Care', 'Dialysis', 'Eye Clinic', 'Dental Clinic'],
+            'Operating Theatre and Anaesthetic Care': ['General Operating Theatre', 'Transplant Theatre', 'Specialist Center Theatre'],
+            'Laboratory': ['Laboratory'],
+            'Radiology and Diagnostic Imaging': ['Radiology and Diagnostic Imaging'],
+            'Pharmacy': ['Main Pharmacy', 'Maternity Pharmacy', 'IPD Pharmacy', 'OPD Pharmacy', 'PHD Pharmacy', 'Specialist Center Pharmacy'],
+            'Therapeutic Support': ['Physiotherapy', 'Social Worker', 'Psychiatry', 'Others'],
+            'Central Sterile Supply Dept': ['CSSD'],
+            'Food Service': ['Food Service'],
+            'Linen Management': ['Linen Management'],
+            'House keeping': ['House keeping'],
+            'Maintenance': ['Plumbing', 'Electrical', 'Estates/Building', 'Carpentry', 'Waste Collection'],
+            'Medical Equipment Management': ['Medical Equipment Management']
+        };
+
+        const serviceElementNames = Object.keys(serviceElements);
 
         function getUsers() {
             try { const raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
@@ -729,6 +785,39 @@
         }
 
         // ============================================================
+        // POPULATE SERVICE ELEMENTS DROPDOWN
+        // ============================================================
+        function populateAdminServiceElements() {
+            const select = document.getElementById('adminNewServiceElement');
+            select.innerHTML = '<option value="">Select Service Element *</option>';
+            for (let i = 0; i < serviceElementNames.length; i++) {
+                const opt = document.createElement('option');
+                opt.value = serviceElementNames[i];
+                opt.textContent = serviceElementNames[i];
+                select.appendChild(opt);
+            }
+        }
+
+        // ============================================================
+        // UPDATE DEPARTMENTS BASED ON SELECTED SERVICE ELEMENT
+        // ============================================================
+        function updateAdminDepartments() {
+            const serviceElement = document.getElementById('adminNewServiceElement').value;
+            const deptSelect = document.getElementById('adminNewDepartment');
+            deptSelect.innerHTML = '<option value="">Select Department *</option>';
+            
+            if (serviceElement && serviceElements[serviceElement]) {
+                const depts = serviceElements[serviceElement];
+                for (let i = 0; i < depts.length; i++) {
+                    const opt = document.createElement('option');
+                    opt.value = depts[i];
+                    opt.textContent = depts[i];
+                    deptSelect.appendChild(opt);
+                }
+            }
+        }
+
+        // ============================================================
         // SEED ADMIN USER IF NONE
         // ============================================================
         function seedAdminUser() {
@@ -738,11 +827,10 @@
             users['admin'] = {
                 password: 'admin123',
                 email: 'admin@lubaga.org',
+                serviceElement: 'Administrative Support',
                 department: 'Administration',
                 role: 'general_admin',
                 active: true,
-                securityQuestion: 'What is your mother\'s maiden name?',
-                securityAnswer: 'admin',
                 createdAt: new Date().toISOString().split('T')[0]
             };
             saveUsers(users);
@@ -757,10 +845,66 @@
             if (existing.length > 0) return;
             
             const sampleRequests = [
-                { id: 'req_' + Date.now() + '_1', booking_date: '2026-08-25T10:30', requestor: 'Dr. Sarah Johnson', contact: '0712345678', email: 'sarah.j@lubaga.org', department: 'Cardiology', asset_item: 'ECG Machine', specification: 'GE MAC 2000', requested_by: 'sarahj', status: 'Pending', approved_by: '', date_approved: '' },
-                { id: 'req_' + Date.now() + '_2', booking_date: '2026-08-24T09:00', requestor: 'Dr. Michael Okello', contact: '0723456789', email: 'michael.o@lubaga.org', department: 'Operating Theatre', asset_item: 'Surgical Laser', specification: 'Lumenis Pulse', requested_by: 'michaelo', status: 'Approved', approved_by: 'admin', date_approved: new Date(Date.now() - 86400000).toISOString() },
-                { id: 'req_' + Date.now() + '_3', booking_date: '2026-08-23T14:00', requestor: 'Dr. Grace Nambi', contact: '0734567890', email: 'grace.n@lubaga.org', department: 'Radiology', asset_item: 'X-Ray Machine', specification: 'Siemens Multix Fusion', requested_by: 'gracen', status: 'Rejected', approved_by: 'admin', date_approved: new Date(Date.now() - 172800000).toISOString() },
-                { id: 'req_' + Date.now() + '_4', booking_date: '2026-08-22T11:15', requestor: 'Dr. Peter Wasswa', contact: '0745678901', email: 'peter.w@lubaga.org', department: 'Pediatrics', asset_item: 'Infant Incubator', specification: 'GE Giraffe Omnibed', requested_by: 'peterw', status: 'Pending', approved_by: '', date_approved: '' }
+                { 
+                    id: 'req_' + Date.now() + '_1', 
+                    booking_date: '2026-08-25T10:30', 
+                    requestor: 'Dr. Sarah Johnson', 
+                    contact: '0712345678', 
+                    email: 'sarah.j@lubaga.org', 
+                    service_element: 'Inpatient Care',
+                    department: 'Medical Care', 
+                    asset_item: 'ECG Machine', 
+                    specification: 'GE MAC 2000', 
+                    requested_by: 'sarahj', 
+                    status: 'Pending', 
+                    approved_by: '', 
+                    date_approved: '' 
+                },
+                { 
+                    id: 'req_' + Date.now() + '_2', 
+                    booking_date: '2026-08-24T09:00', 
+                    requestor: 'Dr. Michael Okello', 
+                    contact: '0723456789', 
+                    email: 'michael.o@lubaga.org', 
+                    service_element: 'Operating Theatre and Anaesthetic Care',
+                    department: 'General Operating Theatre', 
+                    asset_item: 'Surgical Laser', 
+                    specification: 'Lumenis Pulse', 
+                    requested_by: 'michaelo', 
+                    status: 'Approved', 
+                    approved_by: 'admin', 
+                    date_approved: new Date(Date.now() - 86400000).toISOString() 
+                },
+                { 
+                    id: 'req_' + Date.now() + '_3', 
+                    booking_date: '2026-08-23T14:00', 
+                    requestor: 'Dr. Grace Nambi', 
+                    contact: '0734567890', 
+                    email: 'grace.n@lubaga.org', 
+                    service_element: 'Radiology and Diagnostic Imaging',
+                    department: 'Radiology and Diagnostic Imaging', 
+                    asset_item: 'X-Ray Machine', 
+                    specification: 'Siemens Multix Fusion', 
+                    requested_by: 'gracen', 
+                    status: 'Rejected', 
+                    approved_by: 'admin', 
+                    date_approved: new Date(Date.now() - 172800000).toISOString() 
+                },
+                { 
+                    id: 'req_' + Date.now() + '_4', 
+                    booking_date: '2026-08-22T11:15', 
+                    requestor: 'Dr. Peter Wasswa', 
+                    contact: '0745678901', 
+                    email: 'peter.w@lubaga.org', 
+                    service_element: 'Pharmacy',
+                    department: 'Main Pharmacy', 
+                    asset_item: 'Infant Incubator', 
+                    specification: 'GE Giraffe Omnibed', 
+                    requested_by: 'peterw', 
+                    status: 'Pending', 
+                    approved_by: '', 
+                    date_approved: '' 
+                }
             ];
             saveRequests(sampleRequests);
         }
@@ -823,6 +967,7 @@
                 all = all.filter(r =>
                     (r.requestor || '').toLowerCase().includes(search) ||
                     (r.asset_item || '').toLowerCase().includes(search) ||
+                    (r.service_element || '').toLowerCase().includes(search) ||
                     (r.department || '').toLowerCase().includes(search) ||
                     (r.status || '').toLowerCase().includes(search)
                 );
@@ -834,7 +979,7 @@
             document.getElementById('logBadge').textContent = all.length;
 
             if (all.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No transactions found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No transactions found.</td></tr>';
                 mobileContainer.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No transactions found.</div>';
                 return;
             }
@@ -863,6 +1008,7 @@
                     <td><strong>${r.requestor || ''}</strong></td>
                     <td>${r.contact || '—'}</td>
                     <td>${assetDisplay}</td>
+                    <td>${r.service_element || ''}</td>
                     <td>${r.department || ''}</td>
                     <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
                     <td>${r.approved_by || '—'}</td>
@@ -876,6 +1022,7 @@
                         <div class="field-row"><span class="field-label">Requestor</span><span class="field-value"><strong>${r.requestor || ''}</strong></span></div>
                         <div class="field-row"><span class="field-label">Contact</span><span class="field-value">${r.contact || '—'}</span></div>
                         <div class="field-row"><span class="field-label">Asset</span><span class="field-value">${assetDisplay}</span></div>
+                        <div class="field-row"><span class="field-label">Service Element</span><span class="field-value">${r.service_element || ''}</span></div>
                         <div class="field-row"><span class="field-label">Department</span><span class="field-value">${r.department || ''}</span></div>
                         <div class="field-row"><span class="field-label">Booking Date</span><span class="field-value">${r.booking_date || ''}</span></div>
                         <div class="field-row"><span class="field-label">Approved By</span><span class="field-value">${r.approved_by || '—'}</span></div>
@@ -979,12 +1126,13 @@
         function exportCSV() {
             const all = getRequests();
             if (all.length === 0) { showToast('No data to export.', 'warning'); return; }
-            const headers = ['Booking Date','Requestor','Contact','Email','Department','Asset Item','Specification','Requested By','Status','Approved By','Date Approved'];
+            const headers = ['Booking Date','Requestor','Contact','Email','Service Element','Department','Asset Item','Specification','Requested By','Status','Approved By','Date Approved'];
             let csv = '\uFEFF' + headers.join(',') + '\n';
             all.forEach(r => {
                 const row = [
                     r.booking_date || '', r.requestor || '', r.contact || '', r.email || '',
-                    r.department || '', r.asset_item || '', r.specification || '',
+                    r.service_element || '', r.department || '',
+                    r.asset_item || '', r.specification || '',
                     r.requested_by || '', r.status || 'Pending', r.approved_by || '', r.date_approved || ''
                 ];
                 csv += row.map(f => `"${(f || '').replace(/"/g, '""')}"`).join(',') + '\n';
@@ -1020,18 +1168,16 @@
             const email = document.getElementById('adminNewEmail').value.trim();
             const password = document.getElementById('adminNewPass').value;
             const confirm = document.getElementById('adminNewPassConfirm').value;
-            const department = document.getElementById('adminNewDept').value;
-            const securityQuestion = document.getElementById('adminNewSecurityQuestion').value;
-            const securityAnswer = document.getElementById('adminNewSecurityAnswer').value.trim().toLowerCase();
-            const role = document.getElementById('adminNewRole').value;
+            const serviceElement = document.getElementById('adminNewServiceElement').value;
+            const department = document.getElementById('adminNewDepartment').value;
 
+            // Validation
             if (!username || username.length < 3) { showToast('Username must be at least 3 characters.', 'danger'); return; }
             if (!email || !email.includes('@')) { showToast('Valid email is required.', 'danger'); return; }
-            if (!password || password.length < 6) { showToast('Password must be at least 6 characters.', 'danger'); return; }
+            if (!password || password.length < 4) { showToast('Password must be at least 4 characters.', 'danger'); return; }
             if (password !== confirm) { showToast('Passwords do not match.', 'danger'); return; }
+            if (!serviceElement) { showToast('Please select a service element.', 'danger'); return; }
             if (!department) { showToast('Please select a department.', 'danger'); return; }
-            if (!securityQuestion) { showToast('Please select a security question.', 'danger'); return; }
-            if (!securityAnswer || securityAnswer.length < 2) { showToast('Please provide a security answer.', 'danger'); return; }
 
             const users = getUsers();
             if (users[username]) { showToast('Username already exists.', 'danger'); return; }
@@ -1051,11 +1197,10 @@
             users[username] = {
                 password: password,
                 email: email,
+                serviceElement: serviceElement,
                 department: department,
-                role: role,
+                role: 'admin',
                 active: true,
-                securityQuestion: securityQuestion,
-                securityAnswer: securityAnswer,
                 createdAt: new Date().toISOString().split('T')[0]
             };
             saveUsers(users);
@@ -1065,22 +1210,9 @@
             document.getElementById('adminNewEmail').value = '';
             document.getElementById('adminNewPass').value = '';
             document.getElementById('adminNewPassConfirm').value = '';
-            document.getElementById('adminNewDept').value = '';
-            document.getElementById('adminNewSecurityQuestion').value = '';
-            document.getElementById('adminNewSecurityAnswer').value = '';
+            document.getElementById('adminNewServiceElement').value = '';
+            document.getElementById('adminNewDepartment').innerHTML = '<option value="">Select Department *</option>';
             renderAdminUsers();
-        }
-
-        function adminResetPassword(username) {
-            const newPassword = prompt('Enter new password for "' + username + '":');
-            if (!newPassword || newPassword.length < 6) { showToast('Password must be at least 6 characters.', 'danger'); return; }
-            const users = getUsers();
-            if (users[username]) {
-                users[username].password = newPassword;
-                saveUsers(users);
-                showToast('Password reset for "' + username + '"', 'success');
-                renderAdminUsers();
-            }
         }
 
         function adminToggleUser(username) {
@@ -1094,18 +1226,6 @@
             users[username].active = !newStatus;
             saveUsers(users);
             showToast('User "' + username + '" ' + (newStatus ? 'disabled' : 'enabled'), 'success');
-            renderAdminUsers();
-        }
-
-        function adminDeleteUser(username) {
-            if (!confirm('Delete user "' + username + '"? This cannot be undone.')) return;
-            if (!confirm('Are you absolutely sure?')) return;
-            const users = getUsers();
-            const session = localStorage.getItem(SESSION_KEY);
-            if (username === session) { showToast('You cannot delete yourself.', 'danger'); return; }
-            delete users[username];
-            saveUsers(users);
-            showToast('User "' + username + '" deleted.', 'warning');
             renderAdminUsers();
         }
 
@@ -1132,11 +1252,18 @@
             }
 
             const sessionUser = localStorage.getItem(SESSION_KEY);
-            let html = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Department</th><th style="text-align:center; width:200px;">Actions</th></tr></thead><tbody>`;
+            let html = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Service Element</th>
+                <th>Department</th>
+                <th style="text-align:center; width:150px;">Actions</th>
+            </tr></thead><tbody>`;
 
             for (const [username, userData] of Object.entries(users)) {
                 if (userData.role !== 'general_admin' && userData.role !== 'admin') continue;
                 const email = userData.email || '—';
+                const serviceElement = userData.serviceElement || '—';
                 const dept = userData.department || '—';
                 const isActive = userData.active !== false;
                 const isCurrentUser = username === sessionUser;
@@ -1146,12 +1273,11 @@
                 html += `<tr>
                     <td><strong>${username}</strong> ${isCurrentUser ? '<span class="badge bg-info">You</span>' : ''}</td>
                     <td>${email}</td>
+                    <td>${serviceElement}</td>
                     <td>${dept}</td>
                     <td style="text-align:center;">
                         ${!isCurrentUser ? `
-                            <span class="action-link text-warning" onclick="adminResetPassword('${username}')">Reset</span>
                             <span class="action-link ${toggleColor}" onclick="adminToggleUser('${username}')">${toggleText}</span>
-                            <span class="action-link text-danger" onclick="adminDeleteUser('${username}')">Delete</span>
                         ` : '<span class="text-muted">—</span>'}
                     </td>
                 </tr>`;
@@ -1170,20 +1296,18 @@
             if (initialized) return;
             initialized = true;
             
-            // Seed admin and sample data
             seedAdminUser();
             seedSampleData();
             
-            // Check session
             if (!checkSession()) return;
             
-            // Setup tabs
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             document.getElementById('panel-dashboard').classList.add('active');
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelector('.tab-btn[data-tab="dashboard"]').classList.add('active');
             
-            // Load data
+            populateAdminServiceElements();
+            
             loadLogs();
             loadDashboard();
         });
