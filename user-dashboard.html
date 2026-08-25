@@ -230,7 +230,7 @@
         }
 
         /* ============================================================
-           DROPDOWN STYLING - COMPACT, NO EXTRA CONTAINER
+           DROPDOWN STYLING - NO DOUBLE ARROWS
            ============================================================ */
         .booking-form-container .form-control,
         .booking-form-container .form-select {
@@ -248,9 +248,9 @@
             line-height: 1.3;
         }
         .booking-form-container .form-select {
-            appearance: auto !important;
-            -webkit-appearance: auto !important;
-            -moz-appearance: auto !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236c757d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
             background-repeat: no-repeat !important;
             background-position: right 14px center !important;
@@ -259,17 +259,7 @@
             background-color: #fff !important;
             font-size: 14px;
         }
-        /* Hide default browser arrow */
         .booking-form-container .form-select::-ms-expand {
-            display: none !important;
-        }
-        .booking-form-container .form-select::-webkit-calendar-picker-indicator {
-            display: none !important;
-            opacity: 0 !important;
-            background: transparent !important;
-        }
-        .booking-form-container .form-select::before,
-        .booking-form-container .form-select::after {
             display: none !important;
         }
         .booking-form-container .form-select:focus {
@@ -282,17 +272,14 @@
             border-color: #dc3545;
         }
 
-        /* ============================================================
-           DROPDOWN OPTIONS - NO CONTAINER, JUST TEXT
-           No padding, no margins, just the words
-           ============================================================ */
+        /* Dropdown options - clean and compact */
         .booking-form-container .form-select option {
-            padding: 0px !important;
+            padding: 6px 12px !important;
             margin: 0px !important;
             font-size: 13px !important;
             min-height: 0px !important;
             height: auto !important;
-            line-height: 1.2 !important;
+            line-height: 1.3 !important;
             white-space: normal !important;
             word-wrap: break-word !important;
             overflow-wrap: break-word !important;
@@ -301,7 +288,6 @@
             background: transparent !important;
         }
 
-        /* For very small screens - just text, no container */
         @media (max-width: 576px) {
             .booking-form-container .form-select {
                 font-size: 13px !important;
@@ -311,8 +297,8 @@
             }
             .booking-form-container .form-select option {
                 font-size: 12px !important;
-                padding: 0px !important;
-                line-height: 1.2 !important;
+                padding: 4px 10px !important;
+                line-height: 1.3 !important;
             }
         }
 
@@ -325,38 +311,8 @@
             }
             .booking-form-container .form-select option {
                 font-size: 11px !important;
-                padding: 0px !important;
-                line-height: 1.2 !important;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .booking-form-container .form-select {
-                font-size: 11px !important;
-                padding: 5px 6px !important;
-                padding-right: 28px !important;
-                min-height: 30px !important;
-            }
-            .booking-form-container .form-select option {
-                font-size: 10px !important;
-                padding: 0px !important;
-                line-height: 1.1 !important;
-            }
-        }
-
-        /* Force dropdown to open downward */
-        .booking-form-container .form-select:focus {
-            transform: none !important;
-        }
-        .booking-form-container .form-select:not([size]):not([multiple]) {
-            background-position: right 14px center !important;
-        }
-
-        /* iOS/Safari fix */
-        @supports (-webkit-touch-callout: none) {
-            select.form-select {
-                -webkit-appearance: auto !important;
-                appearance: auto !important;
+                padding: 3px 8px !important;
+                line-height: 1.3 !important;
             }
         }
 
@@ -678,6 +634,7 @@
                                     <label class="form-label">Asset Item <span class="text-danger">*</span></label>
                                     <select class="form-select" id="bookingCategory" onchange="updateAssetItems()" required>
                                         <option value="">-- Select Asset --</option>
+                                        <!-- IT Equipment Only -->
                                         <option value="Laptop">Laptop</option>
                                         <option value="Desktop Computer">Desktop Computer</option>
                                         <option value="Computer Webcam">Computer Webcam</option>
@@ -689,17 +646,7 @@
                                         <option value="Tablet">Tablet</option>
                                         <option value="Keyboard">Keyboard</option>
                                         <option value="Mouse">Mouse</option>
-                                        <option value="Stethoscope">Stethoscope</option>
-                                        <option value="Blood Pressure Monitor">Blood Pressure Monitor</option>
-                                        <option value="Thermometer">Thermometer</option>
-                                        <option value="ECG Machine">ECG Machine</option>
-                                        <option value="Ultrasound Machine">Ultrasound Machine</option>
-                                        <option value="X-Ray Machine">X-Ray Machine</option>
-                                        <option value="Oximeter">Oximeter</option>
-                                        <option value="Defibrillator">Defibrillator</option>
-                                        <option value="Patient Monitor">Patient Monitor</option>
-                                        <option value="Ventilator">Ventilator</option>
-                                        <option value="Infusion Pump">Infusion Pump</option>
+                                        <!-- Audio Visual (IT Related) -->
                                         <option value="Projector">Projector</option>
                                         <option value="Public Address Speaker">Public Address Speaker</option>
                                         <option value="TV">TV</option>
@@ -709,20 +656,6 @@
                                         <option value="Projector Screen">Projector Screen</option>
                                         <option value="Conference Speaker">Conference Speaker</option>
                                         <option value="Wireless Microphone">Wireless Microphone</option>
-                                        <option value="Desk">Desk</option>
-                                        <option value="Office Chair">Office Chair</option>
-                                        <option value="Filing Cabinet">Filing Cabinet</option>
-                                        <option value="Whiteboard">Whiteboard</option>
-                                        <option value="Document Shredder">Document Shredder</option>
-                                        <option value="Laminator">Laminator</option>
-                                        <option value="Sofa">Sofa</option>
-                                        <option value="Conference Table">Conference Table</option>
-                                        <option value="Bookshelf">Bookshelf</option>
-                                        <option value="Storage Cabinet">Storage Cabinet</option>
-                                        <option value="Bench">Bench</option>
-                                        <option value="Workstation Desk">Workstation Desk</option>
-                                        <option value="Waiting Chairs">Waiting Chairs</option>
-                                        <option value="Reception Desk">Reception Desk</option>
                                     </select>
                                     <div class="invalid-feedback">Please select an asset.</div>
                                 </div>
@@ -850,7 +783,9 @@
 
         var serviceElementNames = Object.keys(serviceElements);
 
-        // Asset specifications
+        // ============================================================
+        // ASSET SPECIFICATIONS - ONLY IT RELATED
+        // ============================================================
         var assetSpecs = {
             'Laptop': ['Dell Latitude 5420', 'HP EliteBook 840', 'Lenovo ThinkPad X1', 'MacBook Pro 14"', 'Acer Swift 3'],
             'Desktop Computer': ['HP ProDesk 600', 'Dell OptiPlex 7080', 'Lenovo ThinkCentre', 'Apple iMac 24"'],
@@ -863,17 +798,6 @@
             'Tablet': ['Samsung Galaxy Tab S7', 'iPad Pro 12.9"', 'Lenovo Tab P11', 'Microsoft Surface Go'],
             'Keyboard': ['Logitech MX Keys', 'Dell Wireless Keyboard', 'HP Wireless Keyboard', 'Apple Magic Keyboard'],
             'Mouse': ['Logitech MX Master 3', 'Dell Wireless Mouse', 'HP Wireless Mouse', 'Apple Magic Mouse'],
-            'Stethoscope': ['Littmann Cardiology IV', 'Littmann Classic III', 'MDF Acoustica', 'ADC Adscope'],
-            'Blood Pressure Monitor': ['Omron Platinum', 'A&D Medical UA-767', 'Beurer BM 85', 'Withings BPM Connect'],
-            'Thermometer': ['Braun ThermoScan 7', 'iProven DMT-489', 'Kinsa Smart Thermometer', 'Vicks ComfortFlex'],
-            'ECG Machine': ['GE MAC 2000', 'Philips PageWriter TC70', 'Burdick Atria 6100', 'Schiller Cardiovit AT-102'],
-            'Ultrasound Machine': ['GE Vivid T8', 'Philips ClearVue 350', 'Siemens ACUSON X300', 'Mindray DC-70'],
-            'X-Ray Machine': ['GE Definium 8000', 'Siemens Multix Fusion', 'Philips DigitalDiagnost', 'Carestream DRX-Revolution'],
-            'Oximeter': ['Nonin 9590', 'Masimo Rad-67', 'ChoiceMMed MD300C', 'Rossmax SB100'],
-            'Defibrillator': ['Zoll AED 3', 'Philips HeartStart FRx', 'Cardiac Science Powerheart G5', 'Mindray BeneHeart D1'],
-            'Patient Monitor': ['Philips IntelliVue MX400', 'GE CARESCAPE B650', 'Mindray BeneView T8', 'Nihon Kohden BSM-6701'],
-            'Ventilator': ['Hamilton C6', 'Draeger Oxylog 3000', 'Philips Respironics V60', 'Mindray SV350'],
-            'Infusion Pump': ['BD Alaris PCAM', 'Fresenius Kabi Agilia', 'Braun Space Pumps', 'Smiths Medfusion 4000'],
             'Projector': ['Epson EB-2150W', 'BenQ MH550', 'Sony VPL-FHZ80', 'NEC NP-P502HL', 'Optoma EH461'],
             'Public Address Speaker': ['Bose F1 Model 812', 'JBL PRX815W', 'Yamaha DZR15', 'QSC K12.2'],
             'TV': ['Samsung 55" Smart TV', 'LG 65" OLED', 'Sony 50" 4K', 'TCL 43" Roku TV'],
@@ -882,21 +806,7 @@
             'Video Camera': ['Sony PXW-Z190', 'Canon XA55', 'Panasonic AG-UX180', 'JVC GY-HC500'],
             'Projector Screen': ['Elite Screens 120"', 'Da-Lite 100"', 'Draper 90"', 'Stewart 110"'],
             'Conference Speaker': ['Bose Videobar VB1', 'Jabra PanaCast 50', 'Poly Studio USB', 'Logitech Rally Bar'],
-            'Wireless Microphone': ['Shure QLXD', 'Sennheiser EW100 G4', 'AKG DMS800', 'Beyerdynamic TG 100'],
-            'Desk': ['Standard Office Desk 120cm', 'Executive Desk 150cm', 'Compact Desk 90cm', 'Adjustable Height Desk'],
-            'Office Chair': ['Ergonomic Mesh Chair', 'Executive Leather Chair', 'Task Chair', 'High Back Office Chair'],
-            'Filing Cabinet': ['4-Drawer File Cabinet', '2-Drawer Compact Cabinet', '5-Drawer Letter Cabinet', 'Legal Size Cabinet'],
-            'Whiteboard': ['120x90cm Board', '150x100cm Board', '90x60cm Board', 'Mobile Whiteboard'],
-            'Document Shredder': ['6-Sheet Shredder', '10-Sheet Shredder', '15-Sheet Shredder', 'Heavy Duty Shredder'],
-            'Laminator': ['A4 Laminator', 'A3 Laminator', 'Portable Laminator', 'Heavy Duty Laminator'],
-            'Sofa': ['3-Seater Sofa', '2-Seater Sofa', 'Sofa Set 3+2', 'Recliner Sofa'],
-            'Conference Table': ['Large Conference Table 8-Seater', 'Medium Conference Table 6-Seater', 'Small Conference Table 4-Seater'],
-            'Bookshelf': ['Wooden 5-Tier Bookshelf', 'Steel 4-Tier Bookshelf', 'Corner Bookshelf', 'Large Bookshelf'],
-            'Storage Cabinet': ['Steel Storage Cabinet', 'Wooden Storage Cabinet', 'Mobile Storage Cabinet', 'Lockable Cabinet'],
-            'Bench': ['Wooden Bench 3-Seater', 'Steel Bench 2-Seater', 'Garden Bench', 'Indoor Bench'],
-            'Workstation Desk': ['L-Shaped Workstation', 'U-Shaped Workstation', 'Standard Workstation', 'Height Adjustable Workstation'],
-            'Waiting Chairs': ['Set of 4 Waiting Chairs', 'Set of 6 Waiting Chairs', 'Single Waiting Chair', 'Lounge Chair'],
-            'Reception Desk': ['Standard Reception Desk', 'L-Shaped Reception Desk', 'Modern Reception Desk', 'Counter Style Desk']
+            'Wireless Microphone': ['Shure QLXD', 'Sennheiser EW100 G4', 'AKG DMS800', 'Beyerdynamic TG 100']
         };
 
         function getUsers() {
@@ -1072,7 +982,7 @@
         }
 
         // ============================================================
-        // GET ACCESSORIES STRING - Appears in brackets next to Projector
+        // GET ACCESSORIES STRING
         // ============================================================
         function getAccessoriesString(request) {
             if (request.asset_item !== 'Projector') return '';
@@ -1350,14 +1260,14 @@
             var sampleRequests = [
                 {
                     id: 'REQ' + Date.now() + '_1',
-                    booking_date: '2026-08-25T10:30',
+                    booking_date: formatUgandanDateTime(),
                     requestor: 'admin',
                     contact: '0712345678',
                     email: 'admin@lubaga.org',
-                    service_element: 'Inpatient Care',
-                    department: 'Medical Care',
-                    asset_item: 'ECG Machine',
-                    specification: 'GE MAC 2000',
+                    service_element: 'Information Mgmt, QA & QI',
+                    department: 'ICT Office',
+                    asset_item: 'Laptop',
+                    specification: 'Dell Latitude 5420',
                     requested_by: 'Dr. Sarah',
                     reason: 'For routine checkups',
                     power_code: 'No',
@@ -1371,12 +1281,12 @@
                 },
                 {
                     id: 'REQ' + Date.now() + '_2',
-                    booking_date: '2026-08-24T09:00',
+                    booking_date: formatUgandanDateTime(),
                     requestor: 'admin',
                     contact: '0723456789',
                     email: 'admin@lubaga.org',
-                    service_element: 'Operating Theatre and Anaesthetic Care',
-                    department: 'General Operating Theatre',
+                    service_element: 'Information Mgmt, QA & QI',
+                    department: 'ICT Office',
                     asset_item: 'Projector',
                     specification: 'Epson EB-2150W',
                     requested_by: 'Dr. Michael',
@@ -1389,27 +1299,6 @@
                     approved_by: 'admin',
                     date_approved: new Date(Date.now() - 86400000).toISOString(),
                     submitted_at: new Date(Date.now() - 86400000).toISOString()
-                },
-                {
-                    id: 'REQ' + Date.now() + '_3',
-                    booking_date: '2026-08-23T14:00',
-                    requestor: 'admin',
-                    contact: '0734567890',
-                    email: 'admin@lubaga.org',
-                    service_element: 'Radiology and Diagnostic Imaging',
-                    department: 'Radiology and Diagnostic Imaging',
-                    asset_item: 'X-Ray Machine',
-                    specification: 'Siemens Multix Fusion',
-                    requested_by: 'Dr. Grace',
-                    reason: 'For diagnostic imaging',
-                    power_code: 'No',
-                    power_extension: 'No',
-                    vga_hdmi: 'N/A',
-                    hdmi_adapter: 'No',
-                    status: 'Rejected',
-                    approved_by: 'admin',
-                    date_approved: new Date(Date.now() - 172800000).toISOString(),
-                    submitted_at: new Date(Date.now() - 172800000).toISOString()
                 }
             ];
             
