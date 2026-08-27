@@ -7,237 +7,70 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        (function() {
+            emailjs.init("CVEY11pwvsGebhprz");
+        })();
+
+        var EMAILJS_SERVICE_ID = "service_jcfjyuk";
+        var EMAILJS_TEMPLATE_ID = "template_e3t0zea";
+    </script>
     <style>
         * { box-sizing: border-box; }
-        body {
-            background: #f0f4f8;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-bottom: 40px;
-        }
-        .navbar-custom {
-            background: #fd7e14;
-            box-shadow: 0 2px 16px rgba(253,126,20,0.3);
-            padding: 0;
-        }
-        .navbar-custom .container-fluid {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0;
-            width: 100%;
-        }
-
-        .header-logo-wrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #fd7e14;
-            padding: 12px 0 4px 0;
-        }
-        .header-logo-wrapper .logo-image-container {
-            width: 100%;
-            max-width: 500px;
-            height: auto;
-            max-height: 120px;
-            background: transparent;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 15px;
-        }
-        .header-logo-wrapper .logo-image-container img {
-            width: 100%;
-            height: auto;
-            max-height: 100px;
-            object-fit: contain;
-            object-position: center;
-            display: block;
-        }
-        .header-logo-wrapper .logo-image-container i {
-            font-size: 70px;
-            color: rgba(255,255,255,0.9);
-        }
-
-        .brand-text-wrapper {
-            text-align: center;
-            line-height: 1.3;
-            padding: 4px 0 2px 0;
-            width: 100%;
-            background: transparent;
-        }
-        .brand-text-wrapper .brand-title {
-            color: #fff;
-            font-weight: 600;
-            font-size: 1rem;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 6px 15px 7px 15px;
-            width: 100%;
-            background: #0a58ca;
-            flex-wrap: wrap;
-        }
-        .navbar-custom .navbar-text {
-            color: rgba(255,255,255,0.95) !important;
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
-        .navbar-custom .btn-outline-light {
-            color: #fff !important;
-            border-color: rgba(255,255,255,0.3);
-            font-size: 0.75rem;
-            padding: 4px 14px;
-            border-radius: 8px;
-            transition: 0.3s;
-            white-space: nowrap;
-            width: auto;
-            flex-shrink: 0;
-        }
+        body { background: #f0f4f8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 40px; }
+        .navbar-custom { background: #fd7e14; box-shadow: 0 2px 16px rgba(253,126,20,0.3); padding: 0; }
+        .navbar-custom .container-fluid { display: flex; flex-direction: column; align-items: center; padding: 0; width: 100%; }
+        .header-logo-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; background: #fd7e14; padding: 12px 0 4px 0; }
+        .header-logo-wrapper .logo-image-container { width: 100%; max-width: 500px; height: auto; max-height: 120px; background: transparent; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 0 15px; }
+        .header-logo-wrapper .logo-image-container img { width: 100%; height: auto; max-height: 100px; object-fit: contain; object-position: center; display: block; }
+        .header-logo-wrapper .logo-image-container i { font-size: 70px; color: rgba(255,255,255,0.9); }
+        .brand-text-wrapper { text-align: center; line-height: 1.3; padding: 4px 0 2px 0; width: 100%; background: transparent; }
+        .brand-text-wrapper .brand-title { color: #fff; font-weight: 600; font-size: 1rem; letter-spacing: 0.5px; }
+        .nav-right { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 6px 15px 7px 15px; width: 100%; background: #0a58ca; flex-wrap: wrap; }
+        .navbar-custom .navbar-text { color: rgba(255,255,255,0.95) !important; font-size: 0.8rem; white-space: nowrap; }
+        .navbar-custom .btn-outline-light { color: #fff !important; border-color: rgba(255,255,255,0.3); font-size: 0.75rem; padding: 4px 12px; border-radius: 8px; transition: 0.3s; white-space: nowrap; width: auto; flex-shrink: 0; }
         .navbar-custom .btn-outline-light:hover { background: rgba(255,255,255,0.15); }
-        .btn-users {
-            color: #fff !important;
-            border-color: rgba(255,255,255,0.3);
-            font-size: 0.75rem;
-            padding: 4px 14px;
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            white-space: nowrap;
-            width: auto;
-            flex-shrink: 0;
-        }
+        .btn-users { color: #fff !important; border-color: rgba(255,255,255,0.3); font-size: 0.75rem; padding: 4px 12px; background: transparent; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; transition: 0.3s; white-space: nowrap; width: auto; flex-shrink: 0; }
         .btn-users:hover { background: rgba(255,255,255,0.15); }
+        .btn-assets { color: #fff !important; border-color: rgba(255,255,255,0.3); font-size: 0.75rem; padding: 4px 12px; background: transparent; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; transition: 0.3s; white-space: nowrap; width: auto; flex-shrink: 0; }
+        .btn-assets:hover { background: rgba(255,255,255,0.15); }
 
         @media (max-width: 576px) {
-            .header-logo-wrapper .logo-image-container {
-                max-height: 90px;
-                padding: 0 10px;
-            }
-            .header-logo-wrapper .logo-image-container img {
-                max-height: 75px;
-            }
-            .brand-text-wrapper .brand-title {
-                font-size: 0.85rem;
-            }
-            .nav-right {
-                gap: 6px;
-                padding: 5px 10px 6px 10px;
-            }
-            .navbar-custom .navbar-text {
-                font-size: 0.7rem;
-            }
-            .btn-users {
-                font-size: 0.65rem;
-                padding: 3px 10px;
-            }
-            .navbar-custom .btn-outline-light {
-                font-size: 0.65rem;
-                padding: 3px 10px;
-            }
+            .header-logo-wrapper .logo-image-container { max-height: 90px; padding: 0 10px; }
+            .header-logo-wrapper .logo-image-container img { max-height: 75px; }
+            .brand-text-wrapper .brand-title { font-size: 0.85rem; }
+            .nav-right { gap: 5px; padding: 5px 10px 6px 10px; }
+            .navbar-custom .navbar-text { font-size: 0.7rem; }
+            .btn-users, .btn-assets { font-size: 0.65rem; padding: 3px 8px; }
+            .navbar-custom .btn-outline-light { font-size: 0.65rem; padding: 3px 8px; }
         }
 
         @media (max-width: 400px) {
-            .header-logo-wrapper .logo-image-container {
-                max-height: 75px;
-                padding: 0 8px;
-            }
-            .header-logo-wrapper .logo-image-container img {
-                max-height: 60px;
-            }
-            .brand-text-wrapper .brand-title {
-                font-size: 0.75rem;
-            }
-            .nav-right {
-                gap: 4px;
-                padding: 4px 8px 5px 8px;
-            }
-            .navbar-custom .btn-outline-light {
-                font-size: 0.6rem;
-                padding: 2px 8px;
-            }
-            .btn-users {
-                font-size: 0.6rem;
-                padding: 2px 8px;
-            }
-            .navbar-custom .navbar-text {
-                font-size: 0.65rem;
-            }
+            .header-logo-wrapper .logo-image-container { max-height: 75px; padding: 0 8px; }
+            .header-logo-wrapper .logo-image-container img { max-height: 60px; }
+            .brand-text-wrapper .brand-title { font-size: 0.75rem; }
+            .nav-right { gap: 4px; padding: 4px 8px 5px 8px; }
+            .navbar-custom .btn-outline-light { font-size: 0.6rem; padding: 2px 6px; }
+            .btn-users, .btn-assets { font-size: 0.6rem; padding: 2px 6px; }
+            .navbar-custom .navbar-text { font-size: 0.65rem; }
         }
 
-        .tabs-wrapper {
-            background: #fff;
-            border-radius: 16px;
-            padding: 6px;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-            margin-bottom: 24px;
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-        .tab-btn {
-            flex: 1;
-            min-width: 80px;
-            padding: 12px 18px;
-            border: none;
-            background: transparent;
-            font-weight: 600;
-            font-size: 14px;
-            color: #6c757d;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
+        .tabs-wrapper { background: #fff; border-radius: 16px; padding: 6px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); margin-bottom: 24px; display: flex; gap: 4px; flex-wrap: wrap; }
+        .tab-btn { flex: 1; min-width: 80px; padding: 12px 18px; border: none; background: transparent; font-weight: 600; font-size: 14px; color: #6c757d; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; }
         .tab-btn:hover { color: #0a58ca; background: rgba(13,110,253,0.06); }
-        .tab-btn.active {
-            color: #fff;
-            background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%);
-            box-shadow: 0 4px 20px rgba(13,110,253,0.35);
-        }
-        .tab-btn .badge-tab {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-weight: 600;
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-        }
+        .tab-btn.active { color: #fff; background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%); box-shadow: 0 4px 20px rgba(13,110,253,0.35); }
+        .tab-btn .badge-tab { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; background: rgba(255,255,255,0.2); color: #fff; }
         .tab-btn:not(.active) .badge-tab { background: #e9ecef; color: #6c757d; }
-        @media (max-width: 576px) {
-            .tab-btn { font-size: 11px; padding: 8px 12px; min-width: 60px; }
-            .tab-btn i { font-size: 14px; }
-        }
-        @media (max-width: 400px) {
-            .tab-btn { font-size: 10px; padding: 6px 10px; min-width: 50px; gap: 4px; }
-            .tab-btn .badge-tab { font-size: 8px; padding: 1px 6px; }
-        }
+        @media (max-width: 576px) { .tab-btn { font-size: 11px; padding: 8px 12px; min-width: 60px; } .tab-btn i { font-size: 14px; } }
+        @media (max-width: 400px) { .tab-btn { font-size: 10px; padding: 6px 10px; min-width: 50px; gap: 4px; } .tab-btn .badge-tab { font-size: 8px; padding: 1px 6px; } }
 
         .tab-panel { display: none; animation: fadeSlide 0.3s ease; }
         .tab-panel.active { display: block; }
         @keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-        .stat-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 18px 14px;
-            text-align: center;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            transition: 0.3s;
-            border-left: 5px solid #0a58ca;
-            position: relative;
-        }
+        .stat-card { background: #fff; border-radius: 16px; padding: 18px 14px; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: 0.3s; border-left: 5px solid #0a58ca; position: relative; }
         .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
         .stat-card .number { font-size: 32px; font-weight: 700; color: #0a58ca; line-height: 1.2; }
         .stat-card .label { font-size: 12px; color: #6c757d; margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -248,293 +81,191 @@
         .stat-card.success .number { color: #28a745; }
         .stat-card.danger { border-left-color: #dc3545; }
         .stat-card.danger .number { color: #dc3545; }
-        @media (max-width: 576px) {
-            .stat-card .number { font-size: 24px; }
-            .stat-card .label { font-size: 10px; }
-            .stat-card { padding: 12px 8px; }
-        }
-        @media (max-width: 400px) {
-            .stat-card .number { font-size: 20px; }
-            .stat-card .label { font-size: 9px; }
-            .stat-card { padding: 10px 6px; }
-        }
+        .stat-card.overdue { border-left-color: #dc3545; }
+        .stat-card.overdue .number { color: #b71c1c; }
+        .stat-card.returned { border-left-color: #0d6efd; }
+        .stat-card.returned .number { color: #0d47a1; }
+        @media (max-width: 576px) { .stat-card .number { font-size: 24px; } .stat-card .label { font-size: 10px; } .stat-card { padding: 12px 8px; } }
+        @media (max-width: 400px) { .stat-card .number { font-size: 20px; } .stat-card .label { font-size: 9px; } .stat-card { padding: 10px 6px; } }
 
-        .status-badge {
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
+        .status-badge { padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
         .status-badge.pending { background: #fff3e0; color: #e65100; }
-        .status-badge.approved { background: #e8f5e9; color: #2e7d32; }
+        .status-badge.approved { background: #28a745; color: #ffffff; }
         .status-badge.rejected { background: #ffebee; color: #c62828; }
+        .status-badge.overdue { background: #b71c1c; color: #ffffff; }
+        .status-badge.returned { background: #e3f2fd; color: #0d47a1; }
 
-        .table-container {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            overflow: hidden;
-        }
-        .table-container .table-header {
-            padding: 14px 20px;
-            background: #f8f9fa;
-            border-bottom: 2px solid #e9ecef;
-            font-weight: 600;
-        }
+        .condition-badge { padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; display: inline-block; }
+        .condition-badge.good { background: #e8f5e9; color: #2e7d32; }
+        .condition-badge.fair { background: #fff3e0; color: #e65100; }
+        .condition-badge.needs-repair { background: #ffebee; color: #c62828; }
+        .condition-badge.damaged { background: #b71c1c; color: #ffffff; }
+
+        .table-container { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+        .table-container .table-header { padding: 14px 20px; background: #f8f9fa; border-bottom: 2px solid #e9ecef; font-weight: 600; }
         .table-wrapper { overflow-x: auto; }
-        .table {
-            font-size: 13px;
-            min-width: 700px;
-            margin-bottom: 0;
-        }
-        .table thead th {
-            background: #f8f9fa;
-            padding: 8px 6px;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            color: #495057;
-            border: 1px solid #dee2e6;
-            white-space: nowrap;
-        }
-        .table tbody td {
-            padding: 6px 6px;
-            vertical-align: middle;
-            border: 1px solid #dee2e6;
-            font-size: 12px;
-        }
+        .table { font-size: 13px; width: 100%; margin-bottom: 0; table-layout: fixed; }
+        .table thead th { background: #f8f9fa; padding: 10px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: #495057; border: 1px solid #dee2e6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .table tbody td { padding: 8px 8px; vertical-align: middle; border: 1px solid #dee2e6; font-size: 12px; word-wrap: break-word; overflow-wrap: break-word; }
         .table tbody tr:nth-child(even) { background: #f8f9fa; }
         .table tbody tr:hover { background: #e9ecef !important; }
 
-        @media (min-width: 992px) {
-            .table {
-                min-width: 100%;
-            }
-            .table thead th {
-                font-size: 11px;
-                padding: 10px 8px;
-            }
-            .table tbody td {
-                font-size: 13px;
-                padding: 8px 8px;
-            }
+        /* Column widths */
+        .table .col-no { width: 45px; }
+        .table .col-booking { width: 140px; }
+        .table .col-requestor { width: 120px; }
+        .table .col-contact { width: 100px; }
+        .table .col-asset { width: 110px; }
+        .table .col-service { width: 120px; }
+        .table .col-dept { width: 120px; }
+        .table .col-status { width: 85px; }
+        .table .col-approved { width: 90px; }
+        .table .col-returned-by { width: 90px; }
+        .table .col-date-returned { width: 130px; }
+        .table .col-condition { width: 85px; }
+        .table .col-actions { width: 110px; }
+
+        @media (min-width: 992px) { 
+            .table { font-size: 13px; }
+            .table thead th { font-size: 11px; padding: 10px 8px; }
+            .table tbody td { font-size: 12px; padding: 8px 8px; }
+            .table .col-no { width: 40px; }
+            .table .col-booking { width: 130px; }
+            .table .col-requestor { width: 130px; }
+            .table .col-contact { width: 100px; }
+            .table .col-asset { width: 120px; }
+            .table .col-service { width: 130px; }
+            .table .col-dept { width: 130px; }
+            .table .col-status { width: 80px; }
+            .table .col-approved { width: 100px; }
+            .table .col-returned-by { width: 100px; }
+            .table .col-date-returned { width: 130px; }
+            .table .col-condition { width: 80px; }
+            .table .col-actions { width: 120px; }
         }
 
-        @media (max-width: 768px) {
-            .table {
-                min-width: 700px;
-            }
+        @media (max-width: 768px) { 
+            .table { font-size: 11px; }
+            .table thead th { font-size: 9px; padding: 6px 4px; }
+            .table tbody td { font-size: 10px; padding: 4px 4px; }
+            .table .col-no { width: 30px; }
+            .table .col-booking { width: 90px; }
+            .table .col-requestor { width: 80px; }
+            .table .col-contact { width: 70px; }
+            .table .col-asset { width: 80px; }
+            .table .col-service { width: 80px; }
+            .table .col-dept { width: 80px; }
+            .table .col-status { width: 60px; }
+            .table .col-approved { width: 70px; }
+            .table .col-returned-by { width: 70px; }
+            .table .col-date-returned { width: 90px; }
+            .table .col-condition { width: 60px; }
+            .table .col-actions { width: 80px; }
         }
 
-        .action-link {
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 12px;
-            padding: 0 6px;
-            transition: 0.2s;
-            display: inline-block;
-        }
+        .action-link { cursor: pointer; font-weight: 500; font-size: 11px; padding: 0 4px; transition: 0.2s; display: inline-block; }
         .action-link:hover { opacity: 0.6; }
         .action-link.text-success { color: #2e7d32; }
         .action-link.text-danger { color: #c62828; }
         .action-link.text-warning { color: #d39e00; }
-        @media (max-width: 576px) {
-            .action-link { font-size: 11px; padding: 0 4px; }
-        }
+        .action-link.text-primary { color: #0d6efd; }
 
         .chart-container { height: 200px; position: relative; }
-        .chart-card {
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            border: none;
-        }
-        .chart-card .card-header {
-            background: #fff;
-            border-bottom: 1px solid #e9ecef;
-            font-weight: 600;
-            padding: 12px 18px;
-            border-radius: 16px 16px 0 0;
-        }
+        .chart-card { border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: none; }
+        .chart-card .card-header { background: #fff; border-bottom: 1px solid #e9ecef; font-weight: 600; padding: 12px 18px; border-radius: 16px 16px 0 0; }
         .chart-card .card-body { padding: 16px 18px; }
 
-        .admin-stat-box {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-        }
+        .admin-stat-box { background: #f8f9fa; padding: 10px; border-radius: 10px; text-align: center; }
         .admin-stat-box .number { font-size: 26px; font-weight: 700; }
         .admin-stat-box small { font-size: 11px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.3px; }
-        @media (max-width: 576px) {
-            .admin-stat-box .number { font-size: 20px; }
-            .admin-stat-box small { font-size: 9px; }
-            .admin-stat-box { padding: 6px; }
-        }
+        @media (max-width: 576px) { .admin-stat-box .number { font-size: 20px; } .admin-stat-box small { font-size: 9px; } .admin-stat-box { padding: 6px; } }
 
         .admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .admin-table {
-            width: 100%;
-            font-size: 13px;
-            margin-bottom: 0;
-            border-collapse: collapse;
-        }
-        .admin-table thead th {
-            background: #f8f9fa;
-            padding: 8px 10px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #495057;
-            border-bottom: 2px solid #dee2e6;
-            text-align: left;
-            white-space: nowrap;
-        }
-        .admin-table tbody td {
-            padding: 8px 10px;
-            vertical-align: middle;
-            border-bottom: 1px solid #e9ecef;
-        }
+        .admin-table { width: 100%; font-size: 13px; margin-bottom: 0; border-collapse: collapse; }
+        .admin-table thead th { background: #f8f9fa; padding: 8px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #495057; border-bottom: 2px solid #dee2e6; text-align: left; white-space: nowrap; }
+        .admin-table tbody td { padding: 8px 10px; vertical-align: middle; border-bottom: 1px solid #e9ecef; }
         .admin-table tbody tr:hover { background: #f8f9fa; }
-        @media (max-width: 576px) {
-            .admin-table thead th { font-size: 10px; padding: 6px 8px; }
-            .admin-table tbody td { font-size: 12px; padding: 6px 8px; }
-        }
+        @media (max-width: 576px) { .admin-table thead th { font-size: 10px; padding: 6px 8px; } .admin-table tbody td { font-size: 12px; padding: 6px 8px; } }
 
-        .btn-gradient-success {
-            background: linear-gradient(135deg, #198754 0%, #28a745 100%);
-            color: #fff;
-            border: none;
-            padding: 6px 18px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(25,135,84,0.3);
-            width: auto;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-        .btn-gradient-success:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(25,135,84,0.4); color: #fff; }
-        .btn-gradient-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%);
-            color: #fff;
-            border: none;
-            padding: 6px 18px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: 0.3s;
-            width: auto;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-        .btn-gradient-danger:hover { transform: translateY(-2px); color: #fff; }
-        .btn-gradient-info {
-            background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%);
-            color: #fff;
-            border: none;
-            padding: 6px 18px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: 0.3s;
-            width: auto;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-        .btn-gradient-info:hover { transform: translateY(-2px); color: #fff; }
-        @media (max-width: 576px) {
-            .btn-gradient-success, .btn-gradient-danger, .btn-gradient-info {
-                font-size: 12px;
-                padding: 4px 12px;
-            }
-        }
+        .btn-gradient-success { background: linear-gradient(135deg, #198754 0%, #28a745 100%); color: #fff; border: none; padding: 5px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; transition: 0.3s; box-shadow: 0 3px 12px rgba(25,135,84,0.3); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .btn-gradient-success:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(25,135,84,0.4); color: #fff; }
+        .btn-gradient-danger { background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%); color: #fff; border: none; padding: 5px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .btn-gradient-danger:hover { transform: translateY(-1px); color: #fff; }
+        .btn-gradient-info { background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%); color: #fff; border: none; padding: 5px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .btn-gradient-info:hover { transform: translateY(-1px); color: #fff; }
+        .btn-gradient-primary { background: linear-gradient(135deg, #0a58ca 0%, #0d6efd 100%); color: #fff; border: none; padding: 6px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; transition: 0.3s; box-shadow: 0 3px 12px rgba(13,110,253,0.3); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .btn-gradient-primary:hover { transform: translateY(-1px); color: #fff; }
+        @media (max-width: 576px) { .btn-gradient-success, .btn-gradient-danger, .btn-gradient-info, .btn-gradient-primary { font-size: 11px; padding: 4px 12px; } }
 
         .modal-content { border-radius: 16px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
         .modal-header { border-radius: 16px 16px 0 0; }
         .modal-footer { border-radius: 0 0 16px 16px; }
 
-        .toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            max-width: 90%;
-        }
-        .toast {
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-            border: none;
-            min-width: 200px;
-            max-width: 420px;
-        }
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; max-width: 90%; }
+        .toast { border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); border: none; min-width: 200px; max-width: 420px; }
         .toast .toast-body { font-size: 14px; padding: 14px 18px; font-weight: 500; }
         .toast .btn-close { padding: 10px; filter: brightness(0) invert(1); opacity: 0.8; }
         .toast .btn-close:hover { opacity: 1; }
 
         .mobile-cards { display: none; padding: 16px; }
-        .mobile-card {
+        .mobile-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 14px; border: 1px solid #e9ecef; overflow: hidden; }
+        .mobile-card .card-header { padding: 10px 14px; background: #f8f9fa; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .mobile-card .card-body { padding: 0; }
+        .mobile-card .card-body .field-row { display: flex; padding: 8px 14px; border-bottom: 1px solid #f0f0f0; font-size: 13px; flex-wrap: wrap; }
+        .mobile-card .card-body .field-row:last-child { border-bottom: none; }
+        .mobile-card .card-body .field-row .field-label { font-weight: 700; color: #6c757d; font-size: 11px; text-transform: uppercase; width: 100px; flex-shrink: 0; }
+        .mobile-card .card-body .field-row .field-value { flex: 1; padding-left: 8px; word-break: break-word; }
+        .mobile-card .card-footer { padding: 10px 14px; background: #f8f9fa; border-top: 1px solid #e9ecef; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+        @media screen and (max-width: 767px) { .table-wrapper { display: none; } .mobile-cards { display: block; } }
+        @media (max-width: 400px) { .mobile-card .card-body .field-row { font-size: 12px; padding: 6px 10px; } .mobile-card .card-body .field-row .field-label { width: 80px; font-size: 10px; } .mobile-card .card-header { font-size: 12px; padding: 8px 10px; } .mobile-card .card-footer { padding: 8px 10px; } }
+
+        .overdue-highlight { background-color: #fce4ec !important; border-left: 4px solid #b71c1c !important; }
+        .overdue-highlight:hover { background-color: #f8d7da !important; }
+        .returned-highlight { background-color: #e3f2fd !important; border-left: 4px solid #0d47a1 !important; }
+        .returned-highlight:hover { background-color: #bbdefb !important; }
+
+        .btn-sm-custom { font-size: 12px; padding: 4px 14px; border-radius: 6px; }
+        .w-auto { width: auto !important; }
+        .email-sent-badge { background: #e8f5e9; color: #2e7d32; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; display: inline-block; }
+
+        .status-filter-btn {
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 2px solid #e9ecef;
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 14px;
-            border: 1px solid #e9ecef;
-            overflow: hidden;
-        }
-        .mobile-card .card-header {
-            padding: 10px 14px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
+            font-weight: 600;
+            font-size: 13px;
+            color: #6c757d;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
             align-items: center;
-            flex-wrap: wrap;
             gap: 6px;
         }
-        .mobile-card .card-body { padding: 0; }
-        .mobile-card .card-body .field-row {
-            display: flex;
-            padding: 8px 14px;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
-            flex-wrap: wrap;
-        }
-        .mobile-card .card-body .field-row:last-child { border-bottom: none; }
-        .mobile-card .card-body .field-row .field-label {
-            font-weight: 700;
-            color: #6c757d;
-            font-size: 11px;
-            text-transform: uppercase;
-            width: 100px;
-            flex-shrink: 0;
-        }
-        .mobile-card .card-body .field-row .field-value {
-            flex: 1;
-            padding-left: 8px;
-            word-break: break-word;
-        }
-        .mobile-card .card-footer {
-            padding: 10px 14px;
+        .status-filter-btn:hover { border-color: #0a58ca; color: #0a58ca; }
+        .status-filter-btn.active { border-color: #0a58ca; background: #0a58ca; color: #fff; }
+        .status-filter-btn .count { background: #e9ecef; color: #6c757d; border-radius: 50%; padding: 0 8px; font-size: 11px; }
+        .status-filter-btn.active .count { background: rgba(255,255,255,0.3); color: #fff; }
+        .status-filter-btn.pending-btn { border-color: #fd7e14; }
+        .status-filter-btn.pending-btn.active { background: #fd7e14; border-color: #fd7e14; }
+        .status-filter-btn.approved-btn { border-color: #28a745; }
+        .status-filter-btn.approved-btn.active { background: #28a745; border-color: #28a745; }
+        .status-filter-btn.returned-btn { border-color: #0d47a1; }
+        .status-filter-btn.returned-btn.active { background: #0d47a1; border-color: #0d47a1; }
+        .status-filter-btn.rejected-btn { border-color: #dc3545; }
+        .status-filter-btn.rejected-btn.active { background: #dc3545; border-color: #dc3545; }
+        .status-filter-btn.overdue-btn { border-color: #b71c1c; }
+        .status-filter-btn.overdue-btn.active { background: #b71c1c; border-color: #b71c1c; }
+
+        .return-modal-item {
             background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            flex-wrap: wrap;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
         }
-        @media screen and (max-width: 767px) {
-            .table-wrapper { display: none; }
-            .mobile-cards { display: block; }
-        }
-        @media (max-width: 400px) {
-            .mobile-card .card-body .field-row { font-size: 12px; padding: 6px 10px; }
-            .mobile-card .card-body .field-row .field-label { width: 80px; font-size: 10px; }
-            .mobile-card .card-header { font-size: 12px; padding: 8px 10px; }
-            .mobile-card .card-footer { padding: 8px 10px; }
-        }
+        .return-modal-item .label { font-weight: 600; color: #495057; font-size: 13px; }
+        .return-modal-item .value { font-size: 14px; }
     </style>
 </head>
 <body>
@@ -558,6 +289,9 @@
                 </span>
                 <button class="btn-users" onclick="openAdminPanel()">
                     <i class="bi bi-people"></i> Users
+                </button>
+                <button class="btn-assets" onclick="openAssetManager()">
+                    <i class="bi bi-boxes"></i> Assets
                 </button>
                 <button class="btn btn-outline-light btn-sm" onclick="handleLogout()">
                     <span class="d-none d-sm-inline">Logout</span>
@@ -585,6 +319,8 @@
                     <div class="col-3 col-md-3"><div class="stat-card primary"><div class="number" id="dTotal">0</div><div class="label">Total Requests</div><i class="bi bi-boxes icon"></i></div></div>
                     <div class="col-3 col-md-3"><div class="stat-card warning"><div class="number" id="dPending">0</div><div class="label">Pending</div><i class="bi bi-clock icon"></i></div></div>
                     <div class="col-3 col-md-3"><div class="stat-card success"><div class="number" id="dApproved">0</div><div class="label">Approved</div><i class="bi bi-check-circle icon"></i></div></div>
+                    <div class="col-3 col-md-3"><div class="stat-card overdue"><div class="number" id="dOverdue">0</div><div class="label">Overdue (3+ days)</div><i class="bi bi-exclamation-triangle icon"></i></div></div>
+                    <div class="col-3 col-md-3"><div class="stat-card returned"><div class="number" id="dReturned">0</div><div class="label">Returned</div><i class="bi bi-check2-all icon"></i></div></div>
                     <div class="col-3 col-md-3"><div class="stat-card danger"><div class="number" id="dRejected">0</div><div class="label">Rejected</div><i class="bi bi-x-circle icon"></i></div></div>
                 </div>
                 <div class="row g-3">
@@ -607,14 +343,14 @@
                 <div class="row mb-3 g-2">
                     <div class="col-12 col-md-9">
                         <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                            <button class="btn-gradient-success" onclick="exportCSV()"><i class="bi bi-download"></i> CSV</button>
-                            <button class="btn-gradient-info" onclick="refreshData()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                            <button class="btn-gradient-success" onclick="exportCSV()">CSV</button>
+                            <button class="btn-gradient-info" onclick="refreshData()">Refresh</button>
                         </div>
                     </div>
                     <div class="col-12 col-md-3">
                         <div class="input-group">
                             <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search..." oninput="loadLogs()">
+                            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search..." oninput="loadLogs(currentFilter)">
                         </div>
                     </div>
                 </div>
@@ -624,29 +360,105 @@
                         <span><i class="bi bi-clock-history"></i> Transaction Logs</span>
                         <span class="text-muted-small" id="logCount">0 records</span>
                     </div>
+                    <!-- Status Filter Buttons -->
+                    <div class="table-header" style="background:#fff; border-bottom:1px solid #e9ecef; padding:10px 20px;">
+                        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                            <button class="status-filter-btn pending-btn active" onclick="filterRequests('all')">
+                                All <span class="count" id="countAll">0</span>
+                            </button>
+                            <button class="status-filter-btn pending-btn" onclick="filterRequests('Pending')">
+                                Pending <span class="count" id="countPending">0</span>
+                            </button>
+                            <button class="status-filter-btn approved-btn" onclick="filterRequests('Approved')">
+                                Approved <span class="count" id="countApproved">0</span>
+                            </button>
+                            <button class="status-filter-btn returned-btn" onclick="filterRequests('Returned')">
+                                Returned <span class="count" id="countReturned">0</span>
+                            </button>
+                            <button class="status-filter-btn rejected-btn" onclick="filterRequests('Rejected')">
+                                Rejected <span class="count" id="countRejected">0</span>
+                            </button>
+                            <button class="status-filter-btn overdue-btn" onclick="filterRequests('Overdue')">
+                                Overdue <span class="count" id="countOverdue">0</span>
+                            </button>
+                        </div>
+                    </div>
                     <div class="table-wrapper">
                         <table class="table" id="logsTable">
                             <thead>
                                 <tr>
-                                    <th>NO</th>
-                                    <th>Booking Date</th>
-                                    <th>Requestor</th>
-                                    <th>Contact</th>
-                                    <th>Asset</th>
-                                    <th>Service Element</th>
-                                    <th>Department</th>
-                                    <th>Status</th>
-                                    <th>Approved By</th>
-                                    <th>Date Approved</th>
-                                    <th>Actions</th>
+                                    <th class="col-no">NO</th>
+                                    <th class="col-booking">Booking Date</th>
+                                    <th class="col-requestor">Requestor</th>
+                                    <th class="col-contact">Contact</th>
+                                    <th class="col-asset">Asset</th>
+                                    <th class="col-service">Service Element</th>
+                                    <th class="col-dept">Department</th>
+                                    <th class="col-status">Status</th>
+                                    <th class="col-approved">Approved By</th>
+                                    <th class="col-returned-by">Returned By</th>
+                                    <th class="col-date-returned">Date Returned</th>
+                                    <th class="col-condition">Condition</th>
+                                    <th class="col-actions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="logsBody">
-                                <tr><td colspan="11" class="text-center py-4 text-muted">Loading...</td></tr>
+                                <tr><td colspan="13" class="text-center py-4 text-muted">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
                     <div class="mobile-cards" id="logsMobile"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Modal -->
+    <div class="modal fade" id="returnModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-arrow-return-left"></i> Return Asset</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="return-modal-item">
+                        <div class="row">
+                            <div class="col-6"><span class="label">Request ID:</span></div>
+                            <div class="col-6"><span class="value" id="returnRequestId">-</span></div>
+                            <div class="col-6"><span class="label">Asset:</span></div>
+                            <div class="col-6"><span class="value" id="returnAsset">-</span></div>
+                            <div class="col-6"><span class="label">Requestor:</span></div>
+                            <div class="col-6"><span class="value" id="returnRequestor">-</span></div>
+                            <div class="col-6"><span class="label">Booking Date:</span></div>
+                            <div class="col-6"><span class="value" id="returnBookingDate">-</span></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Returned By <span class="text-danger">*</span></label>
+                        <input type="text" id="returnedBy" class="form-control" placeholder="Enter name of person returning" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Return Date & Time <span class="text-danger">*</span></label>
+                        <input type="datetime-local" id="returnDateTime" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Condition of Asset <span class="text-danger">*</span></label>
+                        <select id="returnCondition" class="form-select" required>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                            <option value="Needs Repair">Needs Repair</option>
+                            <option value="Damaged">Damaged</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea id="returnNotes" class="form-control" rows="2" placeholder="Any additional notes about the return..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-gradient-primary btn-sm" onclick="confirmReturn()"><i class="bi bi-check2"></i> Confirm Return</button>
                 </div>
             </div>
         </div>
@@ -686,7 +498,9 @@
                                         <option value="">Select Department *</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4"><button class="btn btn-gradient-success w-100" onclick="adminAddUser()"><i class="bi bi-plus-circle"></i> Add Admin</button></div>
+                                <div class="col-md-4">
+                                    <button class="btn-gradient-success btn-sm-custom" onclick="adminAddUser()"><i class="bi bi-plus-circle"></i> Add Admin</button>
+                                </div>
                                 <div class="col-md-4" id="adminLimitInfo" style="display:none;"><small class="text-warning">Max 20 admins reached</small></div>
                             </div>
                         </div>
@@ -695,7 +509,108 @@
                     <div id="adminUsersList"><div class="text-center text-muted py-3">Loading users...</div></div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset Manager Modal -->
+    <div class="modal fade" id="assetModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-boxes"></i> Asset Manager</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">Add New Asset</div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <label class="form-label">Asset Name</label>
+                                        <input type="text" id="newAssetName" class="form-control form-control-sm" placeholder="e.g., Scanner">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Specifications (comma separated)</label>
+                                        <input type="text" id="newAssetSpecs" class="form-control form-control-sm" placeholder="e.g., Canon CanoScan, Epson Workforce">
+                                    </div>
+                                    <button class="btn-gradient-success btn-sm-custom" onclick="addNewAsset()"><i class="bi bi-plus-circle"></i> Add Asset</button>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header bg-info text-white">Add Specification to Existing Asset</div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <label class="form-label">Select Asset</label>
+                                        <select id="addSpecAssetSelect" class="form-select form-select-sm">
+                                            <option value="">-- Select Asset --</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">New Specification / Model</label>
+                                        <input type="text" id="addSpecInput" class="form-control form-control-sm" placeholder="e.g., Dell XPS 15">
+                                    </div>
+                                    <button class="btn-gradient-info btn-sm-custom" onclick="addSpecificationToAsset()"><i class="bi bi-plus-circle"></i> Add Specification</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7">
+                            <div class="card">
+                                <div class="card-header bg-warning text-dark">Remove Specification from Asset</div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Select Asset</label>
+                                            <select id="removeSpecAssetSelect" class="form-select form-select-sm" onchange="populateRemoveSpecDropdown()">
+                                                <option value="">-- Select Asset --</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Select Specification to Remove</label>
+                                            <select id="removeSpecSelect" class="form-select form-select-sm">
+                                                <option value="">-- Select Specification --</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 mt-2">
+                                            <button class="btn-gradient-danger btn-sm-custom" onclick="removeSpecificationFromAsset()"><i class="bi bi-trash"></i> Remove Specification</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header bg-danger text-white">Remove Entire Asset</div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-md-8">
+                                            <label class="form-label">Select Asset to Remove</label>
+                                            <select id="removeAssetSelect" class="form-select form-select-sm">
+                                                <option value="">-- Select Asset --</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-end">
+                                            <button class="btn-gradient-danger btn-sm-custom w-100" onclick="removeAssetFromDropdown()"><i class="bi bi-trash"></i> Remove Asset</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header bg-secondary text-white">Current Assets & Specifications</div>
+                                <div class="card-body" style="max-height:200px; overflow-y:auto;">
+                                    <div id="assetListContainer"><p class="text-center text-muted">Loading assets...</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -714,15 +629,48 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ============================================================
-        // CONFIG & HELPERS
+        // CONFIG
         // ============================================================
         const USERS_KEY = 'lubaga_users';
         const SESSION_KEY = 'lubaga_session';
         const REQUESTS_KEY = 'lubaga_requests';
+        const ASSETS_KEY = 'lubaga_assets';
         const MAX_ADMINS = 20;
 
         // ============================================================
-        // SERVICE ELEMENTS AND DEPARTMENTS (From Excel Data)
+        // EMAILJS CONFIG
+        // ============================================================
+        var EMAILJS_SERVICE_ID = "service_jcfjyuk";
+        var EMAILJS_TEMPLATE_ID = "template_e3t0zea";
+
+        // ============================================================
+        // DEFAULT ASSETS
+        // ============================================================
+        const defaultAssets = {
+            'Laptop': ['Dell Latitude 5420', 'HP EliteBook 840', 'Lenovo ThinkPad X1', 'MacBook Pro 14"', 'Acer Swift 3'],
+            'Desktop Computer': ['HP ProDesk 600', 'Dell OptiPlex 7080', 'Lenovo ThinkCentre', 'Apple iMac 24"'],
+            'Computer Webcam': ['Logitech C920', 'Logitech Brio 4K', 'Microsoft LifeCam HD', 'Razer Kiyo'],
+            'Computer Speakers': ['Logitech Z207', 'Bose Companion 2', 'Creative Pebble', 'JBL Pebbles'],
+            'External Hard Drive': ['WD 1TB', 'Seagate 2TB', 'Samsung T5 SSD', 'Sandisk Extreme SSD'],
+            'Printer': ['HP LaserJet M404', 'Canon Pixma G7020', 'Brother HL-L2350', 'Epson EcoTank'],
+            'Scanner': ['Fujitsu ScanSnap iX1600', 'Brother ADS-1700W', 'Canon CanoScan LiDE', 'Epson Workforce ES-500W'],
+            'Monitor': ['Dell 24" LED', 'HP 27" FHD', 'LG 27" 4K', 'Samsung 24" Curved'],
+            'Tablet': ['Samsung Galaxy Tab S7', 'iPad Pro 12.9"', 'Lenovo Tab P11', 'Microsoft Surface Go'],
+            'Keyboard': ['Logitech MX Keys', 'Dell Wireless Keyboard', 'HP Wireless Keyboard', 'Apple Magic Keyboard'],
+            'Mouse': ['Logitech MX Master 3', 'Dell Wireless Mouse', 'HP Wireless Mouse', 'Apple Magic Mouse'],
+            'Projector': ['Epson EB-2150W', 'BenQ MH550', 'Sony VPL-FHZ80', 'NEC NP-P502HL', 'Optoma EH461'],
+            'Public Address Speaker': ['Bose F1 Model 812', 'JBL PRX815W', 'Yamaha DZR15', 'QSC K12.2'],
+            'TV': ['Samsung 55" Smart TV', 'LG 65" OLED', 'Sony 50" 4K', 'TCL 43" Roku TV'],
+            'Sound System': ['Bose L1 Pro', 'JBL EON One', 'Yamaha Stagepas 1K', 'Harbinger MLS900'],
+            'Microphone': ['Shure SM58', 'Sennheiser E835', 'AKG D5', 'Audio-Technica AT2020'],
+            'Video Camera': ['Sony PXW-Z190', 'Canon XA55', 'Panasonic AG-UX180', 'JVC GY-HC500'],
+            'Projector Screen': ['Elite Screens 120"', 'Da-Lite 100"', 'Draper 90"', 'Stewart 110"'],
+            'Conference Speaker': ['Bose Videobar VB1', 'Jabra PanaCast 50', 'Poly Studio USB', 'Logitech Rally Bar'],
+            'Wireless Microphone': ['Shure QLXD', 'Sennheiser EW100 G4', 'AKG DMS800', 'Beyerdynamic TG 100']
+        };
+
+        // ============================================================
+        // SERVICE ELEMENTS AND DEPARTMENTS
         // ============================================================
         const serviceElements = {
             'Leadership and Mgmt': ['Finance', "MD's Office", "ED's Office", "PNO's Office", 'Student Coordinators Office', 'Research', 'Internal Auditor', 'Pastoral'],
@@ -750,6 +698,51 @@
 
         const serviceElementNames = Object.keys(serviceElements);
 
+        // ============================================================
+        // FILTER STATUS
+        // ============================================================
+        var currentFilter = 'all';
+
+        function filterRequests(status) {
+            currentFilter = status;
+            document.querySelectorAll('.status-filter-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            var btns = document.querySelectorAll('.status-filter-btn');
+            var statusMap = {
+                'all': 0,
+                'Pending': 1,
+                'Approved': 2,
+                'Returned': 3,
+                'Rejected': 4,
+                'Overdue': 5
+            };
+            var idx = statusMap[status] || 0;
+            if (btns[idx]) btns[idx].classList.add('active');
+            
+            loadLogs(status);
+        }
+
+        // ============================================================
+        // OVERDUE CHECK
+        // ============================================================
+        function isOverdue(request) {
+            if (!request || !request.booking_date) return false;
+            if (request.status === 'Returned') return false;
+            if (request.status === 'Rejected') return false;
+            if (request.status === 'Pending') return false;
+            
+            const now = new Date();
+            const booked = new Date(request.booking_date);
+            const diffMs = now - booked;
+            const diffDays = diffMs / (1000 * 60 * 60 * 24);
+            return diffDays > 3 && request.status === 'Approved';
+        }
+
+        function getOverdueRequests(requests) {
+            return requests.filter(r => isOverdue(r));
+        }
+
         function getUsers() {
             try { const raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
         }
@@ -762,6 +755,40 @@
 
         function saveRequests(requests) { localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests)); }
 
+        function getAssets() {
+            try {
+                const raw = localStorage.getItem(ASSETS_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Object.keys(parsed).length > 0) {
+                        return parsed;
+                    }
+                }
+                saveAssets(defaultAssets);
+                return defaultAssets;
+            } catch {
+                saveAssets(defaultAssets);
+                return defaultAssets;
+            }
+        }
+
+        function saveAssets(assets) {
+            localStorage.setItem(ASSETS_KEY, JSON.stringify(assets));
+        }
+
+        function getAllAssetNames() {
+            const assets = getAssets();
+            return Object.keys(assets);
+        }
+
+        function getAssetSpecs(assetName) {
+            const assets = getAssets();
+            if (assets && assets[assetName]) {
+                return assets[assetName];
+            }
+            return [];
+        }
+
         function isAdmin(user) { return user && (user.role === 'admin' || user.role === 'general_admin'); }
 
         function getAdminCount(users) {
@@ -770,6 +797,17 @@
                 if (data.role === 'admin' || data.role === 'general_admin') count++;
             }
             return count;
+        }
+
+        function getAllAdminEmails() {
+            const users = getUsers();
+            const emails = [];
+            for (const [u, data] of Object.entries(users)) {
+                if ((data.role === 'admin' || data.role === 'general_admin') && data.email) {
+                    emails.push(data.email);
+                }
+            }
+            return emails;
         }
 
         function showToast(message, type = 'success') {
@@ -782,6 +820,54 @@
             else if (type === 'warning') toast.classList.add('bg-warning');
             else toast.classList.add('bg-primary');
             new bootstrap.Toast(toast, { delay: 4000 }).show();
+        }
+
+        // ============================================================
+        // SEND EMAIL
+        // ============================================================
+        function sendEmailWithEmailJS(request, status, adminName, returnDetails) {
+            if (!request.email) {
+                showToast('User has no email address.', 'warning');
+                return;
+            }
+
+            var messageText = '';
+            if (status === 'approved') {
+                messageText = 'Your asset booking request has been approved. You may now collect the asset.';
+            } else if (status === 'returned') {
+                messageText = 'Your asset has been marked as returned. Thank you for using our service.\n\n' +
+                              'Returned By: ' + (returnDetails?.returnedBy || 'Admin') + '\n' +
+                              'Returned On: ' + (returnDetails?.returnDateTime || new Date().toLocaleString()) + '\n' +
+                              'Condition: ' + (returnDetails?.condition || 'Good') + '\n' +
+                              'Notes: ' + (returnDetails?.notes || 'None');
+            } else if (status === 'rejected') {
+                messageText = 'We regret to inform you that your request has been rejected.';
+            }
+
+            var templateParams = {
+                to_email: request.email,
+                to_name: request.requested_by || 'User',
+                from_name: 'Lubaga Hospital Admin',
+                from_email: 'admin@lubaga.org',
+                request_id: request.id,
+                asset: request.asset_item,
+                specification: request.specification,
+                service_element: request.service_element,
+                department: request.department,
+                booking_date: request.booking_date,
+                contact: request.contact,
+                reason: request.reason || 'No reason provided',
+                status: status,
+                message: messageText,
+                approved_by: adminName || 'Admin'
+            };
+
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+                .then(function(response) {
+                    showToast('Email notification sent to user!', 'success');
+                }, function(error) {
+                    showToast('Failed to send email: ' + (error.text || 'Please try again.'), 'danger');
+                });
         }
 
         // ============================================================
@@ -798,9 +884,6 @@
             }
         }
 
-        // ============================================================
-        // UPDATE DEPARTMENTS BASED ON SELECTED SERVICE ELEMENT
-        // ============================================================
         function updateAdminDepartments() {
             const serviceElement = document.getElementById('adminNewServiceElement').value;
             const deptSelect = document.getElementById('adminNewDepartment');
@@ -818,7 +901,7 @@
         }
 
         // ============================================================
-        // SEED ADMIN USER IF NONE
+        // SEED DATA
         // ============================================================
         function seedAdminUser() {
             const users = getUsers();
@@ -837,80 +920,114 @@
             localStorage.setItem(SESSION_KEY, 'admin');
         }
 
-        // ============================================================
-        // SEED SAMPLE DATA
-        // ============================================================
         function seedSampleData() {
             const existing = getRequests();
             if (existing.length > 0) return;
             
+            const now = new Date();
+            const fourDaysAgo = new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000);
+            const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
+            const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+            
             const sampleRequests = [
                 { 
                     id: 'req_' + Date.now() + '_1', 
-                    booking_date: '2026-08-25T10:30', 
+                    booking_date: fourDaysAgo.toISOString().slice(0, 16), 
                     requestor: 'Dr. Sarah Johnson', 
                     contact: '0712345678', 
                     email: 'sarah.j@lubaga.org', 
                     service_element: 'Inpatient Care',
                     department: 'Medical Care', 
-                    asset_item: 'ECG Machine', 
-                    specification: 'GE MAC 2000', 
+                    asset_item: 'Laptop', 
+                    specification: 'Dell Latitude 5420', 
                     requested_by: 'sarahj', 
                     status: 'Pending', 
                     approved_by: '', 
-                    date_approved: '' 
+                    date_approved: '',
+                    returned_by: '',
+                    date_returned: null,
+                    return_condition: '',
+                    return_notes: '',
+                    power_code: 'No',
+                    power_extension: 'No',
+                    vga_hdmi: 'N/A',
+                    hdmi_adapter: 'No'
                 },
                 { 
                     id: 'req_' + Date.now() + '_2', 
-                    booking_date: '2026-08-24T09:00', 
+                    booking_date: fiveDaysAgo.toISOString().slice(0, 16), 
                     requestor: 'Dr. Michael Okello', 
                     contact: '0723456789', 
                     email: 'michael.o@lubaga.org', 
                     service_element: 'Operating Theatre and Anaesthetic Care',
                     department: 'General Operating Theatre', 
-                    asset_item: 'Surgical Laser', 
-                    specification: 'Lumenis Pulse', 
+                    asset_item: 'Projector', 
+                    specification: 'Epson EB-2150W', 
                     requested_by: 'michaelo', 
                     status: 'Approved', 
                     approved_by: 'admin', 
-                    date_approved: new Date(Date.now() - 86400000).toISOString() 
+                    date_approved: new Date(Date.now() - 86400000).toISOString(),
+                    returned_by: '',
+                    date_returned: null,
+                    return_condition: '',
+                    return_notes: '',
+                    power_code: 'Yes',
+                    power_extension: 'Yes',
+                    vga_hdmi: 'HDMI',
+                    hdmi_adapter: 'Yes'
                 },
                 { 
                     id: 'req_' + Date.now() + '_3', 
-                    booking_date: '2026-08-23T14:00', 
+                    booking_date: twoDaysAgo.toISOString().slice(0, 16), 
                     requestor: 'Dr. Grace Nambi', 
                     contact: '0734567890', 
                     email: 'grace.n@lubaga.org', 
                     service_element: 'Radiology and Diagnostic Imaging',
                     department: 'Radiology and Diagnostic Imaging', 
-                    asset_item: 'X-Ray Machine', 
-                    specification: 'Siemens Multix Fusion', 
+                    asset_item: 'Monitor', 
+                    specification: 'Dell 24" LED', 
                     requested_by: 'gracen', 
-                    status: 'Rejected', 
+                    status: 'Returned', 
                     approved_by: 'admin', 
-                    date_approved: new Date(Date.now() - 172800000).toISOString() 
+                    date_approved: new Date(Date.now() - 86400000).toISOString(),
+                    returned_by: 'Grace Nambi',
+                    date_returned: new Date(Date.now() - 3600000).toISOString(),
+                    return_condition: 'Good',
+                    return_notes: 'Returned in good condition',
+                    power_code: 'No',
+                    power_extension: 'No',
+                    vga_hdmi: 'N/A',
+                    hdmi_adapter: 'No'
                 },
                 { 
                     id: 'req_' + Date.now() + '_4', 
-                    booking_date: '2026-08-22T11:15', 
+                    booking_date: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16), 
                     requestor: 'Dr. Peter Wasswa', 
                     contact: '0745678901', 
                     email: 'peter.w@lubaga.org', 
                     service_element: 'Pharmacy',
                     department: 'Main Pharmacy', 
-                    asset_item: 'Infant Incubator', 
-                    specification: 'GE Giraffe Omnibed', 
+                    asset_item: 'Tablet', 
+                    specification: 'iPad Pro 12.9"', 
                     requested_by: 'peterw', 
-                    status: 'Pending', 
-                    approved_by: '', 
-                    date_approved: '' 
+                    status: 'Rejected', 
+                    approved_by: 'admin', 
+                    date_approved: new Date(Date.now() - 3600000).toISOString(),
+                    returned_by: '',
+                    date_returned: null,
+                    return_condition: '',
+                    return_notes: '',
+                    power_code: 'No',
+                    power_extension: 'No',
+                    vga_hdmi: 'N/A',
+                    hdmi_adapter: 'No'
                 }
             ];
             saveRequests(sampleRequests);
         }
 
         // ============================================================
-        // SESSION CHECK - RUNS ONCE
+        // SESSION CHECK
         // ============================================================
         let sessionChecked = false;
 
@@ -951,15 +1068,95 @@
                 const tab = this.dataset.tab;
                 document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
                 document.getElementById('panel-' + tab).classList.add('active');
-                if (tab === 'logs') loadLogs();
+                if (tab === 'logs') loadLogs(currentFilter);
                 if (tab === 'dashboard') loadDashboard();
             });
         });
 
         // ============================================================
-        // LOAD TRANSACTION LOGS
+        // RETURN MODAL FUNCTIONS
         // ============================================================
-        function loadLogs() {
+        var returnRequestId = null;
+
+        function openReturnModal(id) {
+            const all = getRequests();
+            const request = all.find(r => r.id === id);
+            if (!request) {
+                showToast('Request not found.', 'danger');
+                return;
+            }
+
+            returnRequestId = id;
+            
+            document.getElementById('returnRequestId').textContent = request.id;
+            document.getElementById('returnAsset').textContent = request.asset_item + ' (' + request.specification + ')';
+            document.getElementById('returnRequestor').textContent = request.requested_by || request.requestor;
+            document.getElementById('returnBookingDate').textContent = request.booking_date || 'N/A';
+            
+            const now = new Date();
+            const localDateTime = now.toISOString().slice(0, 16);
+            document.getElementById('returnDateTime').value = localDateTime;
+            
+            document.getElementById('returnedBy').value = '';
+            document.getElementById('returnNotes').value = '';
+            document.getElementById('returnCondition').value = 'Good';
+            
+            new bootstrap.Modal(document.getElementById('returnModal')).show();
+        }
+
+        function confirmReturn() {
+            const returnedBy = document.getElementById('returnedBy').value.trim();
+            const returnDateTime = document.getElementById('returnDateTime').value;
+            const condition = document.getElementById('returnCondition').value;
+            const notes = document.getElementById('returnNotes').value.trim();
+
+            if (!returnedBy) {
+                showToast('Please enter who is returning the asset.', 'danger');
+                return;
+            }
+            if (!returnDateTime) {
+                showToast('Please select the return date and time.', 'danger');
+                return;
+            }
+
+            const all = getRequests();
+            const idx = all.findIndex(r => r.id === returnRequestId);
+            if (idx === -1) {
+                showToast('Request not found.', 'danger');
+                return;
+            }
+
+            const session = localStorage.getItem(SESSION_KEY);
+            
+            all[idx].status = 'Returned';
+            all[idx].returned_by = returnedBy;
+            all[idx].date_returned = returnDateTime;
+            all[idx].return_condition = condition;
+            all[idx].return_notes = notes;
+            
+            saveRequests(all);
+            
+            bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
+            
+            showToast('Asset returned successfully!', 'success');
+            
+            sendEmailWithEmailJS(all[idx], 'returned', session, {
+                returnedBy: returnedBy,
+                returnDateTime: returnDateTime,
+                condition: condition,
+                notes: notes || 'None'
+            });
+            
+            loadLogs(currentFilter);
+            loadDashboard();
+        }
+
+        // ============================================================
+        // LOAD TRANSACTION LOGS with filter
+        // ============================================================
+        function loadLogs(filter) {
+            if (!filter) filter = currentFilter || 'all';
+            
             const search = document.getElementById('searchInput').value.toLowerCase();
             let all = getRequests();
 
@@ -973,24 +1170,80 @@
                 );
             }
 
+            // Apply filter
+            let filtered = [];
+            if (filter === 'all') {
+                filtered = all;
+            } else if (filter === 'Overdue') {
+                filtered = all.filter(function(r) { return isOverdue(r); });
+            } else {
+                filtered = all.filter(function(r) { 
+                    return r.status === filter;
+                });
+            }
+
             const tbody = document.getElementById('logsBody');
             const mobileContainer = document.getElementById('logsMobile');
-            document.getElementById('logCount').textContent = all.length + ' records';
-            document.getElementById('logBadge').textContent = all.length;
+            document.getElementById('logCount').textContent = filtered.length + ' records';
+            document.getElementById('logBadge').textContent = filtered.length;
 
-            if (all.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No transactions found.</td></tr>';
-                mobileContainer.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No transactions found.</div>';
+            // Update counts
+            var countAll = all.length;
+            var countPending = all.filter(function(r) { return r.status === 'Pending'; }).length;
+            var countApproved = all.filter(function(r) { return r.status === 'Approved' && r.date_returned === null; }).length;
+            var countReturned = all.filter(function(r) { return r.status === 'Returned'; }).length;
+            var countRejected = all.filter(function(r) { return r.status === 'Rejected'; }).length;
+            var countOverdue = getOverdueRequests(all).length;
+
+            document.getElementById('countAll').textContent = countAll;
+            document.getElementById('countPending').textContent = countPending;
+            document.getElementById('countApproved').textContent = countApproved;
+            document.getElementById('countReturned').textContent = countReturned;
+            document.getElementById('countRejected').textContent = countRejected;
+            document.getElementById('countOverdue').textContent = countOverdue;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="13" class="text-center py-4 text-muted">No transactions found.</td></tr>';
+                mobileContainer.innerHTML = '<div class="text-center py-4 text-muted">No transactions found.</div>';
                 return;
             }
 
             let html = '', mobileHtml = '';
-            all.forEach((r, i) => {
-                const statusClass = r.status === 'Approved' ? 'approved' : r.status === 'Rejected' ? 'rejected' : 'pending';
+            filtered.forEach((r, i) => {
                 const statusLabel = r.status || 'Pending';
-                const canAct = r.status === 'Pending';
+                const overdue = isOverdue(r);
+                const isReturned = r.status === 'Returned';
+                const isRejected = r.status === 'Rejected';
+                const isPending = r.status === 'Pending';
+                const isApproved = r.status === 'Approved' && !r.date_returned;
+                
+                let statusClass = 'pending';
+                let statusDisplay = statusLabel;
+                
+                if (isReturned) {
+                    statusClass = 'returned';
+                } else if (isRejected) {
+                    statusClass = 'rejected';
+                } else if (overdue) {
+                    statusClass = 'overdue';
+                    statusDisplay = 'Overdue';
+                } else if (isApproved) {
+                    statusClass = 'approved';
+                } else if (isPending) {
+                    statusClass = 'pending';
+                }
+                
+                const rowClass = overdue ? 'overdue-highlight' : isReturned ? 'returned-highlight' : '';
+                const canAct = isPending;
+                const canReturn = isApproved;
 
-                // Get accessories if Projector
+                let conditionClass = '';
+                let conditionDisplay = r.return_condition || '—';
+                if (conditionDisplay === 'Good') conditionClass = 'good';
+                else if (conditionDisplay === 'Fair') conditionClass = 'fair';
+                else if (conditionDisplay === 'Needs Repair') conditionClass = 'needs-repair';
+                else if (conditionDisplay === 'Damaged') conditionClass = 'damaged';
+
                 let accessories = '';
                 if (r.asset_item === 'Projector') {
                     let parts = [];
@@ -1002,22 +1255,28 @@
                 }
                 const assetDisplay = r.asset_item + accessories;
 
-                html += `<tr>
-                    <td>${i+1}</td>
-                    <td>${r.booking_date || ''}</td>
-                    <td><strong>${r.requestor || ''}</strong></td>
-                    <td>${r.contact || '—'}</td>
-                    <td>${assetDisplay}</td>
-                    <td>${r.service_element || ''}</td>
-                    <td>${r.department || ''}</td>
-                    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-                    <td>${r.approved_by || '—'}</td>
-                    <td>${r.date_approved ? new Date(r.date_approved).toLocaleString() : '—'}</td>
-                    <td>${canAct ? `<span class="action-link text-success" onclick="approveRequest('${r.id}')">Approve</span><span class="action-link text-danger" onclick="rejectRequest('${r.id}')">Reject</span>` : '<span class="text-muted">—</span>'}</td>
+                html += `<tr class="${rowClass}">
+                    <td class="col-no">${i+1}</td>
+                    <td class="col-booking">${r.booking_date || ''}</td>
+                    <td class="col-requestor"><strong>${r.requestor || ''}</strong></td>
+                    <td class="col-contact">${r.contact || '—'}</td>
+                    <td class="col-asset">${assetDisplay}</td>
+                    <td class="col-service">${r.service_element || ''}</td>
+                    <td class="col-dept">${r.department || ''}</td>
+                    <td class="col-status"><span class="status-badge ${statusClass}">${statusDisplay}</span></td>
+                    <td class="col-approved">${r.approved_by || '—'}</td>
+                    <td class="col-returned-by">${r.returned_by || '—'}</td>
+                    <td class="col-date-returned">${r.date_returned ? new Date(r.date_returned).toLocaleString() : (r.status === 'Returned' ? 'Returned' : '—')}</td>
+                    <td class="col-condition">${r.return_condition ? `<span class="condition-badge ${conditionClass}">${r.return_condition}</span>` : '—'}</td>
+                    <td class="col-actions">
+                        ${canAct ? `<span class="action-link text-success" onclick="approveRequest('${r.id}')">Approve</span><span class="action-link text-danger" onclick="rejectRequest('${r.id}')">Reject</span>` : ''}
+                        ${canReturn ? `<span class="action-link text-primary" onclick="openReturnModal('${r.id}')">Return</span>` : ''}
+                        ${(!canAct && !canReturn) ? '<span class="text-muted">—</span>' : ''}
+                    </td>
                 </tr>`;
 
-                mobileHtml += `<div class="mobile-card">
-                    <div class="card-header"><span class="row-number">#${i+1}</span><span class="status-badge ${statusClass}">${statusLabel}</span></div>
+                mobileHtml += `<div class="mobile-card ${rowClass}">
+                    <div class="card-header"><span class="row-number">#${i+1}</span><span class="status-badge ${statusClass}">${statusDisplay}</span></div>
                     <div class="card-body">
                         <div class="field-row"><span class="field-label">Requestor</span><span class="field-value"><strong>${r.requestor || ''}</strong></span></div>
                         <div class="field-row"><span class="field-label">Contact</span><span class="field-value">${r.contact || '—'}</span></div>
@@ -1025,10 +1284,17 @@
                         <div class="field-row"><span class="field-label">Service Element</span><span class="field-value">${r.service_element || ''}</span></div>
                         <div class="field-row"><span class="field-label">Department</span><span class="field-value">${r.department || ''}</span></div>
                         <div class="field-row"><span class="field-label">Booking Date</span><span class="field-value">${r.booking_date || ''}</span></div>
+                        <div class="field-row"><span class="field-label">Status</span><span class="field-value"><span class="status-badge ${statusClass}">${statusDisplay}</span></span></div>
                         <div class="field-row"><span class="field-label">Approved By</span><span class="field-value">${r.approved_by || '—'}</span></div>
-                        <div class="field-row"><span class="field-label">Date Approved</span><span class="field-value">${r.date_approved ? new Date(r.date_approved).toLocaleString() : '—'}</span></div>
+                        <div class="field-row"><span class="field-label">Returned By</span><span class="field-value">${r.returned_by || '—'}</span></div>
+                        <div class="field-row"><span class="field-label">Date Returned</span><span class="field-value">${r.date_returned ? new Date(r.date_returned).toLocaleString() : (r.status === 'Returned' ? 'Returned' : '—')}</span></div>
+                        <div class="field-row"><span class="field-label">Condition</span><span class="field-value">${r.return_condition ? `<span class="condition-badge ${conditionClass}">${r.return_condition}</span>` : '—'}</span></div>
                     </div>
-                    ${canAct ? `<div class="card-footer"><span class="action-link text-success" onclick="approveRequest('${r.id}')">Approve</span><span class="action-link text-danger" onclick="rejectRequest('${r.id}')">Reject</span></div>` : ''}
+                    <div class="card-footer">
+                        ${canAct ? `<span class="action-link text-success" onclick="approveRequest('${r.id}')">Approve</span><span class="action-link text-danger" onclick="rejectRequest('${r.id}')">Reject</span>` : ''}
+                        ${canReturn ? `<span class="action-link text-primary" onclick="openReturnModal('${r.id}')">Return</span>` : ''}
+                        ${(!canAct && !canReturn) ? '<span class="text-muted">—</span>' : ''}
+                    </div>
                 </div>`;
             });
 
@@ -1037,10 +1303,17 @@
         }
 
         // ============================================================
-        // APPROVE / REJECT
+        // APPROVE / REJECT with email notifications
         // ============================================================
-        function approveRequest(id) { if (!confirm('Approve this request?')) return; processRequest(id, 'Approved'); }
-        function rejectRequest(id) { if (!confirm('Reject this request?')) return; processRequest(id, 'Rejected'); }
+        function approveRequest(id) { 
+            if (!confirm('Approve this request? An email will be sent to the user.')) return; 
+            processRequest(id, 'Approved'); 
+        }
+        
+        function rejectRequest(id) { 
+            if (!confirm('Reject this request? An email will be sent to the user.')) return; 
+            processRequest(id, 'Rejected'); 
+        }
 
         function processRequest(id, status) {
             const all = getRequests();
@@ -1051,8 +1324,12 @@
             all[idx].approved_by = session;
             all[idx].date_approved = new Date().toISOString();
             saveRequests(all);
+            
             showToast('Request ' + status.toLowerCase() + ' successfully!', status === 'Approved' ? 'success' : 'warning');
-            loadLogs();
+            
+            sendEmailWithEmailJS(all[idx], status.toLowerCase(), session);
+            
+            loadLogs(currentFilter);
             loadDashboard();
         }
 
@@ -1065,12 +1342,16 @@
             const all = getRequests();
             const total = all.length;
             const pending = all.filter(r => r.status === 'Pending' || !r.status).length;
-            const approved = all.filter(r => r.status === 'Approved').length;
+            const approved = all.filter(r => r.status === 'Approved' && r.date_returned === null).length;
             const rejected = all.filter(r => r.status === 'Rejected').length;
+            const overdue = getOverdueRequests(all).length;
+            const returned = all.filter(r => r.status === 'Returned').length;
 
             document.getElementById('dTotal').textContent = total;
             document.getElementById('dPending').textContent = pending;
             document.getElementById('dApproved').textContent = approved;
+            document.getElementById('dOverdue').textContent = overdue;
+            document.getElementById('dReturned').textContent = returned;
             document.getElementById('dRejected').textContent = rejected;
 
             if (typeof Chart === 'undefined') return;
@@ -1080,8 +1361,13 @@
             pieChartInstance = new Chart(ctxPie, {
                 type: 'pie',
                 data: {
-                    labels: ['Pending', 'Approved', 'Rejected'],
-                    datasets: [{ data: [pending, approved, rejected], backgroundColor: ['#fd7e14', '#28a745', '#dc3545'], borderWidth: 2, borderColor: '#fff' }]
+                    labels: ['Pending', 'Approved', 'Rejected', 'Overdue', 'Returned'],
+                    datasets: [{ 
+                        data: [pending, approved, rejected, overdue, returned], 
+                        backgroundColor: ['#fd7e14', '#28a745', '#dc3545', '#b71c1c', '#0d47a1'], 
+                        borderWidth: 2, 
+                        borderColor: '#fff' 
+                    }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 12 } } } } }
             });
@@ -1115,7 +1401,7 @@
 
         function refreshData() {
             showToast('Refreshing data...', 'info');
-            loadLogs();
+            loadLogs(currentFilter);
             loadDashboard();
             setTimeout(() => showToast('Data refreshed', 'success'), 500);
         }
@@ -1126,14 +1412,15 @@
         function exportCSV() {
             const all = getRequests();
             if (all.length === 0) { showToast('No data to export.', 'warning'); return; }
-            const headers = ['Booking Date','Requestor','Contact','Email','Service Element','Department','Asset Item','Specification','Requested By','Status','Approved By','Date Approved'];
+            const headers = ['Booking Date','Requestor','Contact','Email','Service Element','Department','Asset Item','Specification','Requested By','Status','Approved By','Returned By','Date Returned','Return Condition','Return Notes'];
             let csv = '\uFEFF' + headers.join(',') + '\n';
             all.forEach(r => {
                 const row = [
                     r.booking_date || '', r.requestor || '', r.contact || '', r.email || '',
                     r.service_element || '', r.department || '',
                     r.asset_item || '', r.specification || '',
-                    r.requested_by || '', r.status || 'Pending', r.approved_by || '', r.date_approved || ''
+                    r.requested_by || '', r.status || 'Pending', r.approved_by || '',
+                    r.returned_by || '', r.date_returned || '', r.return_condition || '', r.return_notes || ''
                 ];
                 csv += row.map(f => `"${(f || '').replace(/"/g, '""')}"`).join(',') + '\n';
             });
@@ -1171,7 +1458,6 @@
             const serviceElement = document.getElementById('adminNewServiceElement').value;
             const department = document.getElementById('adminNewDepartment').value;
 
-            // Validation
             if (!username || username.length < 3) { showToast('Username must be at least 3 characters.', 'danger'); return; }
             if (!email || !email.includes('@')) { showToast('Valid email is required.', 'danger'); return; }
             if (!password || password.length < 4) { showToast('Password must be at least 4 characters.', 'danger'); return; }
@@ -1190,7 +1476,7 @@
 
             const adminCount = getAdminCount(users);
             if (adminCount >= MAX_ADMINS) {
-                showToast('Maximum number of admins (' + MAX_ADMINS + ') reached.', 'danger');
+                showToast('Maximum number of admins (20) reached.', 'danger');
                 return;
             }
 
@@ -1288,13 +1574,222 @@
         }
 
         // ============================================================
-        // INIT - RUNS ONCE
+        // ASSET MANAGER
+        // ============================================================
+        function openAssetManager() {
+            populateAllAssetDropdowns();
+            renderAssetList();
+            new bootstrap.Modal(document.getElementById('assetModal')).show();
+        }
+
+        function populateAllAssetDropdowns() {
+            const assets = getAssets();
+            const assetNames = Object.keys(assets).sort();
+            
+            const addSelect = document.getElementById('addSpecAssetSelect');
+            addSelect.innerHTML = '<option value="">-- Select Asset --</option>';
+            assetNames.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                addSelect.appendChild(opt);
+            });
+
+            const removeSelect = document.getElementById('removeSpecAssetSelect');
+            removeSelect.innerHTML = '<option value="">-- Select Asset --</option>';
+            assetNames.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                removeSelect.appendChild(opt);
+            });
+            populateRemoveSpecDropdown();
+
+            const removeAssetSelect = document.getElementById('removeAssetSelect');
+            removeAssetSelect.innerHTML = '<option value="">-- Select Asset --</option>';
+            assetNames.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                removeAssetSelect.appendChild(opt);
+            });
+        }
+
+        function populateRemoveSpecDropdown() {
+            const assetName = document.getElementById('removeSpecAssetSelect').value;
+            const specSelect = document.getElementById('removeSpecSelect');
+            specSelect.innerHTML = '<option value="">-- Select Specification --</option>';
+            
+            if (assetName) {
+                const specs = getAssetSpecs(assetName);
+                specs.forEach(spec => {
+                    const opt = document.createElement('option');
+                    opt.value = spec;
+                    opt.textContent = spec;
+                    specSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function renderAssetList() {
+            const container = document.getElementById('assetListContainer');
+            const assets = getAssets();
+            let html = '';
+
+            const assetNames = Object.keys(assets).sort();
+            if (assetNames.length === 0) {
+                html = '<p class="text-center text-muted">No assets available.</p>';
+            } else {
+                html = '<div class="table-wrapper"><table class="table table-sm table-striped"><thead><tr><th>Asset Name</th><th>Specifications / Models</th></tr></thead><tbody>';
+                assetNames.forEach(name => {
+                    const specs = assets[name] || [];
+                    let specsHtml = specs.length > 0 ? specs.map(s => `<span class="badge bg-secondary me-1">${s}</span>`).join(' ') : '<span class="text-muted">No specifications</span>';
+                    html += `<tr><td><strong>${name}</strong></td><td>${specsHtml}</td></tr>`;
+                });
+                html += '</tbody></table></div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ============================================================
+        // ASSET MANAGEMENT FUNCTIONS
+        // ============================================================
+        function addNewAsset() {
+            const name = document.getElementById('newAssetName').value.trim();
+            const specsInput = document.getElementById('newAssetSpecs').value.trim();
+
+            if (!name) {
+                showToast('Please enter an asset name.', 'danger');
+                return;
+            }
+
+            const assets = getAssets();
+            if (assets[name]) {
+                showToast('Asset "' + name + '" already exists.', 'warning');
+                return;
+            }
+
+            const specs = specsInput ? specsInput.split(',').map(s => s.trim()).filter(s => s) : [];
+            assets[name] = specs;
+            saveAssets(assets);
+
+            document.getElementById('newAssetName').value = '';
+            document.getElementById('newAssetSpecs').value = '';
+            showToast('Asset "' + name + '" added successfully!', 'success');
+            populateAllAssetDropdowns();
+            renderAssetList();
+        }
+
+        function addSpecificationToAsset() {
+            const assetName = document.getElementById('addSpecAssetSelect').value;
+            const newSpec = document.getElementById('addSpecInput').value.trim();
+
+            if (!assetName) {
+                showToast('Please select an asset.', 'danger');
+                return;
+            }
+            if (!newSpec) {
+                showToast('Please enter a specification.', 'danger');
+                return;
+            }
+
+            const assets = getAssets();
+            if (!assets[assetName]) {
+                showToast('Asset not found.', 'danger');
+                return;
+            }
+
+            if (assets[assetName].includes(newSpec)) {
+                showToast('Specification already exists for this asset.', 'warning');
+                return;
+            }
+
+            assets[assetName].push(newSpec);
+            saveAssets(assets);
+            document.getElementById('addSpecInput').value = '';
+            showToast('Specification added to "' + assetName + '".', 'success');
+            populateAllAssetDropdowns();
+            renderAssetList();
+        }
+
+        function removeSpecificationFromAsset() {
+            const assetName = document.getElementById('removeSpecAssetSelect').value;
+            const specToRemove = document.getElementById('removeSpecSelect').value;
+
+            if (!assetName) {
+                showToast('Please select an asset.', 'danger');
+                return;
+            }
+            if (!specToRemove) {
+                showToast('Please select a specification to remove.', 'danger');
+                return;
+            }
+
+            if (!confirm('Remove specification "' + specToRemove + '" from "' + assetName + '"?')) return;
+
+            const assets = getAssets();
+            if (!assets[assetName]) {
+                showToast('Asset not found.', 'danger');
+                return;
+            }
+
+            const idx = assets[assetName].indexOf(specToRemove);
+            if (idx === -1) {
+                showToast('Specification not found.', 'danger');
+                return;
+            }
+
+            assets[assetName].splice(idx, 1);
+            saveAssets(assets);
+            showToast('Specification removed from "' + assetName + '".', 'warning');
+            populateAllAssetDropdowns();
+            renderAssetList();
+        }
+
+        function removeAssetFromDropdown() {
+            const assetName = document.getElementById('removeAssetSelect').value;
+
+            if (!assetName) {
+                showToast('Please select an asset to remove.', 'danger');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to remove asset "' + assetName + '" and all its specifications?')) return;
+
+            const assets = getAssets();
+            if (!assets[assetName]) {
+                showToast('Asset not found.', 'danger');
+                return;
+            }
+
+            const requests = getRequests();
+            const inUse = requests.some(r => r.asset_item === assetName);
+            if (inUse) {
+                showToast('Cannot remove "' + assetName + '" - it is used in existing requests.', 'danger');
+                return;
+            }
+
+            delete assets[assetName];
+            saveAssets(assets);
+            showToast('Asset "' + assetName + '" removed.', 'success');
+            document.getElementById('removeAssetSelect').value = '';
+            populateAllAssetDropdowns();
+            renderAssetList();
+        }
+
+        // ============================================================
+        // INIT
         // ============================================================
         let initialized = false;
 
         document.addEventListener('DOMContentLoaded', function() {
             if (initialized) return;
             initialized = true;
+            
+            if (!localStorage.getItem(ASSETS_KEY)) {
+                saveAssets(defaultAssets);
+            }
             
             seedAdminUser();
             seedSampleData();
@@ -1308,7 +1803,7 @@
             
             populateAdminServiceElements();
             
-            loadLogs();
+            loadLogs('all');
             loadDashboard();
         });
     </script>
