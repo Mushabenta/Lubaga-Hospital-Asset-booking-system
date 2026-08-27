@@ -106,7 +106,9 @@
         .table-wrapper { overflow-x: auto; }
         .table { font-size: 13px; width: 100%; margin-bottom: 0; table-layout: fixed; }
         .table thead th { background: #f8f9fa; padding: 10px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: #495057; border: 1px solid #dee2e6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .table thead th.hidden-col { display: none; }
         .table tbody td { padding: 8px 8px; vertical-align: middle; border: 1px solid #dee2e6; font-size: 12px; word-wrap: break-word; overflow-wrap: break-word; }
+        .table tbody td.hidden-col { display: none; }
         .table tbody tr:nth-child(even) { background: #f8f9fa; }
         .table tbody tr:hover { background: #e9ecef !important; }
 
@@ -386,20 +388,20 @@
                     <div class="table-wrapper">
                         <table class="table" id="logsTable">
                             <thead>
-                                <tr>
-                                    <th class="col-no">NO</th>
-                                    <th class="col-booking">Booking Date</th>
-                                    <th class="col-requestor">Requestor</th>
-                                    <th class="col-contact">Contact</th>
-                                    <th class="col-asset">Asset</th>
-                                    <th class="col-service">Service Element</th>
-                                    <th class="col-dept">Department</th>
-                                    <th class="col-status">Status</th>
-                                    <th class="col-approved">Approved By</th>
-                                    <th class="col-returned-by">Returned By</th>
-                                    <th class="col-date-returned">Date Returned</th>
-                                    <th class="col-condition">Condition</th>
-                                    <th class="col-actions">Actions</th>
+                                <tr id="headerRow">
+                                    <th class="col-no" id="colNo">NO</th>
+                                    <th class="col-booking" id="colBooking">Booking Date</th>
+                                    <th class="col-requestor" id="colRequestor">Requestor</th>
+                                    <th class="col-contact" id="colContact">Contact</th>
+                                    <th class="col-asset" id="colAsset">Asset</th>
+                                    <th class="col-service" id="colService">Service Element</th>
+                                    <th class="col-dept" id="colDept">Department</th>
+                                    <th class="col-status" id="colStatus">Status</th>
+                                    <th class="col-approved" id="colApproved">Approved By</th>
+                                    <th class="col-returned-by" id="colReturnedBy">Returned By</th>
+                                    <th class="col-date-returned" id="colDateReturned">Date Returned</th>
+                                    <th class="col-condition" id="colCondition">Condition</th>
+                                    <th class="col-actions" id="colActions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="logsBody">
@@ -1208,6 +1210,69 @@
                 return;
             }
 
+            // Determine which columns to show based on filter
+            var showApprovedBy = false;
+            var showReturnedBy = false;
+            var showDateReturned = false;
+            var showCondition = false;
+            var showContact = true;
+            var showService = true;
+            var showDept = true;
+            var showActions = true;
+
+            if (filter === 'all' || filter === 'Approved' || filter === 'Returned' || filter === 'Rejected' || filter === 'Overdue') {
+                showApprovedBy = true;
+            }
+            if (filter === 'all' || filter === 'Returned' || filter === 'Overdue') {
+                showReturnedBy = true;
+                showDateReturned = true;
+                showCondition = true;
+            }
+            if (filter === 'all' || filter === 'Returned') {
+                showCondition = true;
+            }
+            if (filter === 'Pending') {
+                showApprovedBy = false;
+                showReturnedBy = false;
+                showDateReturned = false;
+                showCondition = false;
+                showActions = true;
+            }
+            if (filter === 'Approved') {
+                showApprovedBy = true;
+                showReturnedBy = false;
+                showDateReturned = false;
+                showCondition = false;
+                showActions = true;
+            }
+            if (filter === 'Rejected') {
+                showApprovedBy = true;
+                showReturnedBy = false;
+                showDateReturned = false;
+                showCondition = false;
+                showActions = false;
+            }
+            if (filter === 'Returned') {
+                showApprovedBy = true;
+                showReturnedBy = true;
+                showDateReturned = true;
+                showCondition = true;
+                showActions = false;
+            }
+            if (filter === 'Overdue') {
+                showApprovedBy = true;
+                showReturnedBy = false;
+                showDateReturned = false;
+                showCondition = false;
+                showActions = true;
+            }
+
+            // Hide/show header columns
+            document.getElementById('colApproved').style.display = showApprovedBy ? '' : 'none';
+            document.getElementById('colReturnedBy').style.display = showReturnedBy ? '' : 'none';
+            document.getElementById('colDateReturned').style.display = showDateReturned ? '' : 'none';
+            document.getElementById('colCondition').style.display = showCondition ? '' : 'none';
+
             let html = '', mobileHtml = '';
             filtered.forEach((r, i) => {
                 const statusLabel = r.status || 'Pending';
@@ -1264,10 +1329,10 @@
                     <td class="col-service">${r.service_element || ''}</td>
                     <td class="col-dept">${r.department || ''}</td>
                     <td class="col-status"><span class="status-badge ${statusClass}">${statusDisplay}</span></td>
-                    <td class="col-approved">${r.approved_by || '—'}</td>
-                    <td class="col-returned-by">${r.returned_by || '—'}</td>
-                    <td class="col-date-returned">${r.date_returned ? new Date(r.date_returned).toLocaleString() : (r.status === 'Returned' ? 'Returned' : '—')}</td>
-                    <td class="col-condition">${r.return_condition ? `<span class="condition-badge ${conditionClass}">${r.return_condition}</span>` : '—'}</td>
+                    <td class="col-approved ${showApprovedBy ? '' : 'hidden-col'}">${showApprovedBy ? (r.approved_by || '—') : '—'}</td>
+                    <td class="col-returned-by ${showReturnedBy ? '' : 'hidden-col'}">${showReturnedBy ? (r.returned_by || '—') : '—'}</td>
+                    <td class="col-date-returned ${showDateReturned ? '' : 'hidden-col'}">${showDateReturned ? (r.date_returned ? new Date(r.date_returned).toLocaleString() : (r.status === 'Returned' ? 'Returned' : '—')) : '—'}</td>
+                    <td class="col-condition ${showCondition ? '' : 'hidden-col'}">${showCondition ? (r.return_condition ? `<span class="condition-badge ${conditionClass}">${r.return_condition}</span>` : '—') : '—'}</td>
                     <td class="col-actions">
                         ${canAct ? `<span class="action-link text-success" onclick="approveRequest('${r.id}')">Approve</span><span class="action-link text-danger" onclick="rejectRequest('${r.id}')">Reject</span>` : ''}
                         ${canReturn ? `<span class="action-link text-primary" onclick="openReturnModal('${r.id}')">Return</span>` : ''}
@@ -1285,10 +1350,10 @@
                         <div class="field-row"><span class="field-label">Department</span><span class="field-value">${r.department || ''}</span></div>
                         <div class="field-row"><span class="field-label">Booking Date</span><span class="field-value">${r.booking_date || ''}</span></div>
                         <div class="field-row"><span class="field-label">Status</span><span class="field-value"><span class="status-badge ${statusClass}">${statusDisplay}</span></span></div>
-                        <div class="field-row"><span class="field-label">Approved By</span><span class="field-value">${r.approved_by || '—'}</span></div>
-                        <div class="field-row"><span class="field-label">Returned By</span><span class="field-value">${r.returned_by || '—'}</span></div>
-                        <div class="field-row"><span class="field-label">Date Returned</span><span class="field-value">${r.date_returned ? new Date(r.date_returned).toLocaleString() : (r.status === 'Returned' ? 'Returned' : '—')}</span></div>
-                        <div class="field-row"><span class="field-label">Condition</span><span class="field-value">${r.return_condition ? `<span class="condition-badge ${conditionClass}">${r.return_condition}</span>` : '—'}</span></div>
+                        ${showApprovedBy ? `<div class="field-row"><span class="field-label">Approved By</span><span class="field-value">${r.approved_by || '—'}</span></div>` : ''}
+                        ${showReturnedBy ? `<div class="field-row"><span class="field-label">Returned By</span><span class="field-value">${r.returned_by || '—'}</span></div>` : ''}
+                        ${showDateReturned ? `<div class="field-row"><span class="field-label">Date Returned</span><span class="field-value">${r.date_returned ? new Date(r.date_returned).toLocaleString() : (r.status === 'Returned' ? 'Returned' : '—')}</span></div>` : ''}
+                        ${showCondition ? `<div class="field-row"><span class="field-label">Condition</span><span class="field-value">${r.return_condition ? `<span class="condition-badge ${conditionClass}">${r.return_condition}</span>` : '—'}</span></div>` : ''}
                     </div>
                     <div class="card-footer">
                         ${canAct ? `<span class="action-link text-success" onclick="approveRequest('${r.id}')">Approve</span><span class="action-link text-danger" onclick="rejectRequest('${r.id}')">Reject</span>` : ''}
