@@ -6,19 +6,6 @@
     <title>My Assets - Lubaga Hospital</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <!-- EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script>
-        // ============================================================
-        // EMAILJS CONFIG - YOUR KEYS
-        // ============================================================
-        (function() {
-            emailjs.init("CVEY11pwvsGebhprz");
-        })();
-
-        var EMAILJS_SERVICE_ID = "service_jcfjyuk";
-        var EMAILJS_TEMPLATE_ID = "template_2adqfib";   // User → Admin
-    </script>
     <style>
         * { box-sizing: border-box; }
         body { background: #f0f4f8; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; padding-bottom: 40px; }
@@ -85,10 +72,11 @@
         .status-badge.overdue { background: #b71c1c; color: #ffffff; }
         .status-badge.returned { background: #e3f2fd; color: #0d47a1; }
 
-        /* Actions - User can only cancel pending requests */
+        /* Actions */
         .action-link { cursor: pointer; font-weight: 500; font-size: 12px; padding: 0 8px; transition: 0.2s; display: inline-block; }
         .action-link:hover { opacity: 0.6; }
         .action-link.text-danger { color: #c62828; }
+        .action-link.text-success { color: #2e7d32; }
 
         /* Filter Buttons */
         .filter-bar { padding: 10px 20px; background: #fff; border-bottom: 1px solid #e9ecef; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -130,7 +118,7 @@
         @media screen and (max-width: 767px) { .table-wrapper { display: none; } .mobile-cards { display: block; } }
         @media (max-width: 576px) { .booking-form-container { padding: 16px; } .btn-gradient-primary { width: 100%; min-width: unset; } .table { min-width: 500px; } }
 
-        /* Return Modal - REMOVED from user side */
+        /* Return Modal */
         .return-modal-item { background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e9ecef; }
         .return-modal-item .label { font-weight: 600; color: #495057; font-size: 13px; }
         .return-modal-item .value { font-size: 14px; }
@@ -292,7 +280,52 @@
     </div>
 </div>
 
-<!-- Return Modal - REMOVED from user side (users cannot return items) -->
+<!-- Return Modal -->
+<div class="modal fade" id="returnModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-arrow-return-left"></i> Return Asset</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="return-modal-item">
+                    <div class="row">
+                        <div class="col-6"><span class="label">Request ID:</span></div><div class="col-6"><span class="value" id="returnRequestId">-</span></div>
+                        <div class="col-6"><span class="label">Asset:</span></div><div class="col-6"><span class="value" id="returnAsset">-</span></div>
+                        <div class="col-6"><span class="label">Requestor:</span></div><div class="col-6"><span class="value" id="returnRequestor">-</span></div>
+                        <div class="col-6"><span class="label">Booking Date:</span></div><div class="col-6"><span class="value" id="returnBookingDate">-</span></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Returned By <span class="text-danger">*</span></label>
+                    <input type="text" id="returnedBy" class="form-control" placeholder="Your name" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Return Date & Time <span class="text-danger">*</span></label>
+                    <input type="datetime-local" id="returnDateTime" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Condition of Asset</label>
+                    <select id="returnCondition" class="form-select">
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Needs Repair">Needs Repair</option>
+                        <option value="Damaged">Damaged</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Notes (Optional)</label>
+                    <textarea id="returnNotes" class="form-control" rows="2" placeholder="Additional notes..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-gradient-primary btn-sm" onclick="confirmUserReturn()"><i class="bi bi-check2"></i> Confirm Return</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Toast -->
 <div class="toast-container">
@@ -310,12 +343,6 @@
     var SESSION_KEY = 'lubaga_session';
     var REQUESTS_KEY = 'lubaga_requests';
     var ASSETS_KEY = 'lubaga_assets';
-
-    // ============================================================
-    // EMAILJS CONFIG
-    // ============================================================
-    var EMAILJS_SERVICE_ID = "service_jcfjyuk";
-    var EMAILJS_TEMPLATE_ID = "template_2adqfib";
 
     var defaultAssets = {
         'Laptop': ['Dell Latitude 5420', 'HP EliteBook 840', 'Lenovo ThinkPad X1', 'MacBook Pro 14"'],
@@ -337,6 +364,7 @@
     var serviceElementNames = Object.keys(serviceElements);
 
     var userCurrentFilter = 'all';
+    var userReturnRequestId = null;
 
     function getUsers() { try { var raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch(e) { return {}; } }
     function getRequests() { try { var raw = localStorage.getItem(REQUESTS_KEY); return raw ? JSON.parse(raw) : []; } catch(e) { return []; } }
@@ -375,57 +403,6 @@
     function formatUgandanDateTime() {
         var date = getUgandanTime();
         return date.toISOString().slice(0, 16);
-    }
-
-    // ============================================================
-    // SEND EMAIL TO ADMIN
-    // ============================================================
-    function sendEmailToAdmin(request) {
-        var users = getUsers();
-        var adminEmails = [];
-        var adminNames = [];
-        
-        for (var u in users) {
-            if (users[u].role === 'general_admin' || users[u].role === 'admin') {
-                if (users[u].email) {
-                    adminEmails.push(users[u].email);
-                    adminNames.push(u);
-                }
-            }
-        }
-
-        if (adminEmails.length === 0) {
-            showToast('No admin emails found. Please add admin users with email addresses.', 'warning');
-            return;
-        }
-
-        var templateParams = {
-            to_email: adminEmails.join(','),
-            to_name: adminNames.join(', '),
-            from_name: request.requested_by || 'User',
-            from_email: request.email || 'No email provided',
-            request_id: request.id,
-            asset: request.asset_item,
-            specification: request.specification,
-            service_element: request.service_element,
-            department: request.department,
-            booking_date: request.booking_date,
-            contact: request.contact,
-            reason: request.reason || 'No reason provided',
-            message: 'A new asset booking request has been submitted. Please review and approve/reject.'
-        };
-
-        console.log('📧 Sending to admins:', adminEmails.join(','));
-        console.log('📧 Template Params:', templateParams);
-
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-            .then(function(response) {
-                console.log('✅ Email sent successfully!', response.status, response.text);
-                showToast('Email notification sent to admin(s)!', 'success');
-            }, function(error) {
-                console.log('❌ Failed to send email:', error);
-                showToast('Failed to send email notification. Please check EmailJS configuration.', 'danger');
-            });
     }
 
     // ============================================================
@@ -614,10 +591,7 @@
         populateServiceElements();
         populateAssetDropdown();
 
-        // Send email to admin
-        sendEmailToAdmin(request);
-
-        showToast('Request submitted successfully! Email sent to admin(s).', 'success');
+        showToast('Request submitted successfully!', 'success');
         loadMyRequests('all');
 
         // Switch to My Requests tab
@@ -629,7 +603,7 @@
     });
 
     // ============================================================
-    // MY REQUESTS - User can only Cancel pending requests
+    // MY REQUESTS
     // ============================================================
     function filterUserRequests(status) {
         userCurrentFilter = status;
@@ -753,10 +727,8 @@
             else if (isApproved) { statusClass = 'approved'; statusDisplay = 'Approved'; }
 
             var rowClass = overdue ? 'overdue-highlight' : isReturned ? 'returned-highlight' : '';
-            
-            // User can ONLY cancel pending requests
-            // No Return button for users - only admins can return/clear assets
             var canCancel = isPending;
+            var canReturn = isApproved && !r.date_returned;
 
             var accessories = '';
             if (r.asset_item === 'Projector') {
@@ -783,6 +755,8 @@
             html += '<td>';
             if (canCancel) {
                 html += '<span class="action-link text-danger" onclick="cancelRequest(\'' + r.id + '\')">Cancel</span>';
+            } else if (canReturn) {
+                html += '<span class="action-link text-success" onclick="openUserReturnModal(\'' + r.id + '\')">Return</span>';
             } else {
                 html += '—';
             }
@@ -807,6 +781,8 @@
             mobHtml += '<div class="card-footer">';
             if (canCancel) {
                 mobHtml += '<span class="action-link text-danger" onclick="cancelRequest(\'' + r.id + '\')">Cancel</span>';
+            } else if (canReturn) {
+                mobHtml += '<span class="action-link text-success" onclick="openUserReturnModal(\'' + r.id + '\')">Return</span>';
             } else {
                 mobHtml += '—';
             }
@@ -818,7 +794,7 @@
     }
 
     // ============================================================
-    // CANCEL REQUEST - User can only cancel pending requests
+    // CANCEL REQUEST
     // ============================================================
     function cancelRequest(id) {
         if (!confirm('Are you sure you want to cancel this request?')) return;
@@ -838,6 +814,63 @@
         allRequests.splice(idx, 1);
         saveRequests(allRequests);
         showToast('Request cancelled successfully.', 'warning');
+        loadMyRequests(userCurrentFilter);
+    }
+
+    // ============================================================
+    // RETURN MODAL
+    // ============================================================
+    function openUserReturnModal(id) {
+        var all = getRequests();
+        var request = null;
+        for (var i = 0; i < all.length; i++) {
+            if (all[i].id === id) {
+                request = all[i];
+                break;
+            }
+        }
+        if (!request) { showToast('Request not found.', 'danger'); return; }
+
+        userReturnRequestId = id;
+        document.getElementById('returnRequestId').textContent = request.id;
+        document.getElementById('returnAsset').textContent = request.asset_item + ' (' + request.specification + ')';
+        document.getElementById('returnRequestor').textContent = request.requested_by || request.requestor;
+        document.getElementById('returnBookingDate').textContent = request.booking_date || 'N/A';
+        document.getElementById('returnDateTime').value = new Date().toISOString().slice(0, 16);
+        document.getElementById('returnedBy').value = '';
+        document.getElementById('returnNotes').value = '';
+        document.getElementById('returnCondition').value = 'Good';
+        new bootstrap.Modal(document.getElementById('returnModal')).show();
+    }
+
+    function confirmUserReturn() {
+        var returnedBy = document.getElementById('returnedBy').value.trim();
+        var returnDateTime = document.getElementById('returnDateTime').value;
+        var condition = document.getElementById('returnCondition').value;
+        var notes = document.getElementById('returnNotes').value.trim();
+
+        if (!returnedBy) { showToast('Please enter your name.', 'danger'); return; }
+        if (!returnDateTime) { showToast('Please select the return date and time.', 'danger'); return; }
+
+        var allRequests = getRequests();
+        var idx = -1;
+        for (var i = 0; i < allRequests.length; i++) {
+            if (allRequests[i].id === userReturnRequestId) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx === -1) { showToast('Request not found.', 'danger'); return; }
+
+        allRequests[idx].status = 'Returned';
+        allRequests[idx].returned_by = returnedBy;
+        allRequests[idx].date_returned = returnDateTime;
+        allRequests[idx].return_condition = condition;
+        allRequests[idx].return_notes = notes;
+
+        saveRequests(allRequests);
+        bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
+        showToast('Asset returned successfully!', 'success');
         loadMyRequests(userCurrentFilter);
     }
 
@@ -949,10 +982,10 @@
                     status: 'Returned',
                     approved_by: 'admin',
                     date_approved: new Date(now.getTime() - 86400000).toISOString(),
-                    returned_by: 'admin',
+                    returned_by: 'User One',
                     date_returned: new Date(now.getTime() - 3600000).toISOString(),
                     return_condition: 'Good',
-                    return_notes: 'Returned by admin',
+                    return_notes: 'Returned in good condition',
                     submitted_at: fiveDaysAgo.toISOString()
                 }
             ];
