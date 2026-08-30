@@ -484,8 +484,30 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const USERS_KEY = 'lubaga_users';
     const SESSION_KEY = 'lubaga_session';
+    const TOKEN_KEY = 'lubaga_token';
+    const USER_KEY = 'lubaga_user';
+
+    // Backend endpoint base. Empty string = same origin (served by the API
+    // server). Override by setting localStorage['lubaga_api_base'] when the
+    // pages are hosted elsewhere.
+    const API_BASE = (localStorage.getItem('lubaga_api_base') || '').replace(/\/+$/, '');
+
+    function apiPost(url, body) {
+        return fetch(API_BASE + url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body || {})
+        }).then(function(res) {
+            return res.json().catch(function() { return { success: false, message: 'Unexpected server response.' }; });
+        });
+    }
+
+    function storeSession(user, token) {
+        localStorage.setItem(SESSION_KEY, user.username);
+        localStorage.setItem(TOKEN_KEY, token);
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
 
     // ============================================================
     // SERVICE ELEMENTS AND DEPARTMENTS (Same as user dashboard)
@@ -515,12 +537,6 @@
     };
 
     const serviceElementNames = Object.keys(serviceElements);
-
-    function getUsers() {
-        try { const raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
-    }
-
-    function saveUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
 
     function showToast(message, type = 'success') {
         const toast = document.getElementById('liveToast');
@@ -575,11 +591,10 @@
         }
     }
 
+    // The backend owns user data; hide the local-storage first-user banner.
     (function checkFirstUser() {
-        const users = getUsers();
-        const isFirstUser = Object.keys(users).length === 0;
         const notice = document.getElementById('adminNotice');
-        notice.style.display = isFirstUser ? 'flex' : 'none';
+        if (notice) notice.style.display = 'none';
     })();
 
     // ============================================================
@@ -623,8 +638,8 @@
             showToast('Please enter a valid Ugandan phone number (e.g., 0772123456).', 'danger'); 
             return; 
         }
-        if (!password || password.length < 4) { 
-            showToast('Password must be at least 4 characters.', 'danger'); 
+        if (!password || password.length < 6) { 
+            showToast('Password must be at least 6 characters.', 'danger'); 
             return; 
         }
         if (password !== confirmPassword) { 
@@ -640,55 +655,42 @@
             return; 
         }
 
-        const users = getUsers();
-
-        if (users[username]) { 
-            showToast('Username already exists.', 'danger'); 
-            return; 
-        }
-        for (const [u, data] of Object.entries(users)) {
-            if (data.email && data.email.toLowerCase() === email.toLowerCase()) {
-                showToast('Email already registered.', 'danger');
-                return;
-            }
-            if (data.phone && data.phone === phone) {
-                showToast('Phone number already registered.', 'danger');
-                return;
-            }
-        }
-
-        const isFirstUser = Object.keys(users).length === 0;
-        const role = isFirstUser ? 'general_admin' : 'staff';
-
-        users[username] = {
-            password: password,
+        apiPost('/api/auth/register', {
+            username: username,
             email: email,
             phone: phone,
+            password: password,
             serviceElement: serviceElement,
-            department: department,
-            role: role,
-            active: true,
-            createdAt: new Date().toISOString().split('T')[0]
-        };
+            department: department
+        }).then(function(data) {
+            if (data.success && data.data && data.data.token && data.data.user) {
+                storeSession(data.data.user, data.data.token);
+                const role = data.data.user.role;
+                const roleText = role === 'general_admin' ?
+                    'You are the General Admin! Redirecting to dashboard...' :
+                    'Registration successful! Redirecting...';
 
-        saveUsers(users);
+                showToast(roleText, 'success');
 
-        // Auto-login the user
-        localStorage.setItem(SESSION_KEY, username);
-
-        const roleText = role === 'general_admin' ?
-            'You are the General Admin! Redirecting to dashboard...' :
-            'Registration successful! Redirecting...';
-
-        showToast(roleText, 'success');
-
-        setTimeout(function() {
-            if (role === 'general_admin') {
-                window.location.href = 'admin-dashboard.html';
+                setTimeout(function() {
+                    if (role === 'general_admin') {
+                        window.location.href = 'admin-dashboard.html';
+                    } else {
+                        window.location.href = 'user-dashboard.html';
+                    }
+                }, 1000);
+            } else if (data.error === 'USERNAME_TAKEN') {
+                showToast('Username already exists.', 'danger');
+            } else if (data.error === 'EMAIL_TAKEN') {
+                showToast('Email already registered.', 'danger');
+            } else if (data.error === 'PHONE_TAKEN') {
+                showToast('Phone number already registered.', 'danger');
             } else {
-                window.location.href = 'user-dashboard.html';
+                showToast(data.message || 'Registration failed. Please try again.', 'danger');
             }
-        }, 1000);
+        }).catch(function() {
+            showToast('Cannot reach the server. Please try again later.', 'danger');
+        });
     });
 
     // Initialize dropdowns on page load
