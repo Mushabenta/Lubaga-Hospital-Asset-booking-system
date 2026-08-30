@@ -1,0 +1,44 @@
+{
+  "name": "lubaga-asset-booking-backend",
+  "version": "2.0.0",
+  "description": "Hospital Asset Booking System Backend - PostgreSQL",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "init:db": "node src/config/initDb.js",
+    "seed": "node src/config/seed.js",
+    "test": "jest --runInBand --detectOpenHandles --forceExit",
+    "test:watch": "jest --watch"
+  },
+  "jest": {
+    "testTimeout": 30000,
+    "testEnvironment": "node",
+    "verbose": true
+  },
+  "keywords": [
+    "asset",
+    "booking",
+    "hospital",
+    "lubaga"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^7.4.0",
+    "express-validator": "^7.2.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.14",
+    "supertest": "^6.3.3"
+  }
+}
