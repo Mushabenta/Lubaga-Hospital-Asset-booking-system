@@ -6,6 +6,19 @@
     <title>My Assets - Lubaga Hospital</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        // ============================================================
+        // EMAILJS CONFIG - YOUR KEYS
+        // ============================================================
+        (function() {
+            emailjs.init("CVEY11pwvsGebhprz");
+        })();
+
+        var EMAILJS_SERVICE_ID = "service_jcfjyuk";
+        var EMAILJS_TEMPLATE_ID = "template_2adqfib";   // User → Admin
+    </script>
     <style>
         * { box-sizing: border-box; }
         body { background: #f0f4f8; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; padding-bottom: 40px; }
@@ -72,11 +85,10 @@
         .status-badge.overdue { background: #b71c1c; color: #ffffff; }
         .status-badge.returned { background: #e3f2fd; color: #0d47a1; }
 
-        /* Actions */
+        /* Actions - User can only cancel pending requests */
         .action-link { cursor: pointer; font-weight: 500; font-size: 12px; padding: 0 8px; transition: 0.2s; display: inline-block; }
         .action-link:hover { opacity: 0.6; }
         .action-link.text-danger { color: #c62828; }
-        .action-link.text-success { color: #2e7d32; }
 
         /* Filter Buttons */
         .filter-bar { padding: 10px 20px; background: #fff; border-bottom: 1px solid #e9ecef; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -118,7 +130,7 @@
         @media screen and (max-width: 767px) { .table-wrapper { display: none; } .mobile-cards { display: block; } }
         @media (max-width: 576px) { .booking-form-container { padding: 16px; } .btn-gradient-primary { width: 100%; min-width: unset; } .table { min-width: 500px; } }
 
-        /* Return Modal */
+        /* Return Modal - REMOVED from user side */
         .return-modal-item { background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e9ecef; }
         .return-modal-item .label { font-weight: 600; color: #495057; font-size: 13px; }
         .return-modal-item .value { font-size: 14px; }
@@ -280,52 +292,7 @@
     </div>
 </div>
 
-<!-- Return Modal -->
-<div class="modal fade" id="returnModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="bi bi-arrow-return-left"></i> Return Asset</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="return-modal-item">
-                    <div class="row">
-                        <div class="col-6"><span class="label">Request ID:</span></div><div class="col-6"><span class="value" id="returnRequestId">-</span></div>
-                        <div class="col-6"><span class="label">Asset:</span></div><div class="col-6"><span class="value" id="returnAsset">-</span></div>
-                        <div class="col-6"><span class="label">Requestor:</span></div><div class="col-6"><span class="value" id="returnRequestor">-</span></div>
-                        <div class="col-6"><span class="label">Booking Date:</span></div><div class="col-6"><span class="value" id="returnBookingDate">-</span></div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Returned By <span class="text-danger">*</span></label>
-                    <input type="text" id="returnedBy" class="form-control" placeholder="Your name" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Return Date & Time <span class="text-danger">*</span></label>
-                    <input type="datetime-local" id="returnDateTime" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Condition of Asset</label>
-                    <select id="returnCondition" class="form-select">
-                        <option value="Good">Good</option>
-                        <option value="Fair">Fair</option>
-                        <option value="Needs Repair">Needs Repair</option>
-                        <option value="Damaged">Damaged</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Notes (Optional)</label>
-                    <textarea id="returnNotes" class="form-control" rows="2" placeholder="Additional notes..."></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-gradient-primary btn-sm" onclick="confirmUserReturn()"><i class="bi bi-check2"></i> Confirm Return</button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Return Modal - REMOVED from user side (users cannot return items) -->
 
 <!-- Toast -->
 <div class="toast-container">
@@ -339,10 +306,48 @@
     // ============================================================
     // CONFIG & HELPERS
     // ============================================================
-    var USERS_KEY = 'lubaga_users';
     var SESSION_KEY = 'lubaga_session';
-    var REQUESTS_KEY = 'lubaga_requests';
-    var ASSETS_KEY = 'lubaga_assets';
+    var TOKEN_KEY = 'lubaga_token';
+    var USER_KEY = 'lubaga_user';
+
+    // Backend endpoint base. Empty string = same origin (served by the API
+    // server). Override by setting localStorage['lubaga_api_base'] when these
+    // pages are hosted elsewhere.
+    var API_BASE = (localStorage.getItem('lubaga_api_base') || '').replace(/\/+$/, '');
+
+    // The booking form exposes a single date/time. The backend requires an
+    // end time, so a booking covers start_time + this duration.
+    var BOOKING_DURATION_HOURS = 2;
+    var BOOKING_DURATION_MS = BOOKING_DURATION_HOURS * 60 * 60 * 1000;
+
+    function authHeaders() {
+        var headers = { 'Content-Type': 'application/json' };
+        var t = localStorage.getItem(TOKEN_KEY);
+        if (t) headers['Authorization'] = 'Bearer ' + t;
+        return headers;
+    }
+
+    function apiFetch(url, method, body) {
+        var opts = { method: method || 'GET', headers: authHeaders() };
+        if (body !== undefined && body !== null) opts.body = JSON.stringify(body);
+        return fetch(API_BASE + url, opts).then(function(res) {
+            return res.json().catch(function() { return { success: false, message: 'Unexpected server response.' }; });
+        });
+    }
+    function apiGet(url) { return apiFetch(url, 'GET'); }
+    function apiPost(url, body) { return apiFetch(url, 'POST', body || {}); }
+
+    function clearSession() {
+        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+    }
+
+    // ============================================================
+    // EMAILJS CONFIG
+    // ============================================================
+    var EMAILJS_SERVICE_ID = "service_jcfjyuk";
+    var EMAILJS_TEMPLATE_ID = "template_2adqfib";
 
     var defaultAssets = {
         'Laptop': ['Dell Latitude 5420', 'HP EliteBook 840', 'Lenovo ThinkPad X1', 'MacBook Pro 14"'],
@@ -364,18 +369,121 @@
     var serviceElementNames = Object.keys(serviceElements);
 
     var userCurrentFilter = 'all';
-    var userReturnRequestId = null;
 
-    function getUsers() { try { var raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch(e) { return {}; } }
-    function getRequests() { try { var raw = localStorage.getItem(REQUESTS_KEY); return raw ? JSON.parse(raw) : []; } catch(e) { return []; } }
-    function saveRequests(r) { localStorage.setItem(REQUESTS_KEY, JSON.stringify(r)); }
-    function getAssets() { try { var raw = localStorage.getItem(ASSETS_KEY); if (raw) { var parsed = JSON.parse(raw); if (Object.keys(parsed).length > 0) return parsed; } return defaultAssets; } catch(e) { return defaultAssets; } }
+    // Backend-owned data. Loaded once from the API and cached in memory so the
+    // rest of this page keeps its existing synchronous read patterns.
+    var cachedAssets = null; // { categoryName: [assetName, ...] }
+    var cachedRequests = null;
+    var cachedAssetsMeta = []; // full backend asset list: [{id, name, code, category, specifications[]}]
+
+    function loadAssets() {
+        if (cachedAssets) return Promise.resolve(cachedAssets);
+        return apiGet('/api/assets').then(function(res) {
+            var assets = (res && res.data && res.data.assets) || (res && res.data) || (res && res.assets) || [];
+            cachedAssetsMeta = assets;
+            var grouped = {};
+            for (var i = 0; i < assets.length; i++) {
+                var a = assets[i];
+                var cat = a.category || 'Others';
+                if (!grouped[cat]) grouped[cat] = [];
+                if (a.name && grouped[cat].indexOf(a.name) === -1) grouped[cat].push(a.name);
+            }
+            if (Object.keys(grouped).length === 0) grouped = defaultAssets;
+            cachedAssets = grouped;
+            return grouped;
+        }).catch(function() { cachedAssets = defaultAssets; return defaultAssets; });
+    }
+
+    function getAssets() { return cachedAssets || defaultAssets; }
     function getAllAssetNames() { return Object.keys(getAssets()); }
     function getAssetSpecs(name) { var a = getAssets(); return a[name] || []; }
 
+    // Maps a backend booking record into this page's local display shape.
+    function mapBooking(r) {
+        var id = String(r.id);
+        var start = r.start_time ? new Date(r.start_time) : new Date(r.created_at);
+        var status = mapStatus(r.status);
+        var approvedBy = r.approved_by_name || r.approved_by || '';
+        return {
+            id: id,
+            backend_id: id,
+            booking_date: formatSlot(start),
+            requestor: r.requestor || '',
+            contact: r.phone || '',
+            email: r.email || '',
+            service_element: r.service_element || '',
+            department: r.user_department || r.department || '',
+            asset_item: r.category || '',
+            specification: r.asset_name || '',
+            requested_by: r.requestor || '',
+            reason: r.purpose || '',
+            power_code: r.power_code || 'No',
+            power_extension: r.power_extension || 'No',
+            vga_hdmi: r.vga_hdmi || 'N/A',
+            hdmi_adapter: r.hdmi_adapter || 'No',
+            status: status,
+            approved_by: approvedBy || '',
+            date_approved: r.date_approved || '',
+            returned_by: r.returned_by || '',
+            date_returned: r.date_returned || null,
+            return_condition: '',
+            return_notes: r.notes || '',
+            submitted_at: r.created_at || ''
+        };
+    }
+
+    function loadMyRequestsFromServer() {
+        return apiGet('/api/bookings').then(function(res) {
+            var list = (res && res.data && res.data.bookings) || (res && res.data) || (res && res.bookings) || [];
+            var mapped = [];
+            for (var i = 0; i < list.length; i++) mapped.push(mapBooking(list[i]));
+            cachedRequests = userFilterMy(mapped);
+            return cachedRequests;
+        }).catch(function() { cachedRequests = []; return []; });
+    }
+
+    function userFilterMy(list) {
+        var session = localStorage.getItem(SESSION_KEY);
+        var out = [];
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].requestor === session) out.push(list[i]);
+        }
+        return out;
+    }
+
+    function getRequests() {
+        if (cachedRequests === null) return [];
+        return cachedRequests;
+    }
+
+    // Backend status -> frontend display status
+    function mapStatus(s) {
+        if (!s) return 'Pending';
+        s = String(s).toLowerCase();
+        if (s === 'pending') return 'Pending';
+        if (s === 'approved') return 'Approved';
+        if (s === 'rejected') return 'Rejected';
+        if (s === 'cancelled') return 'Cancelled';
+        if (s === 'active') return 'Approved';
+        if (s === 'completed') return 'Returned';
+        return 'Pending';
+    }
+
+    // Keep the leading YYYY-MM of the slot so the admin dashboard's chart
+    // grouping (substring(0,7)) still works, and keep a HH:mm slot for users.
+    function formatSlot(d) {
+        if (!d) return '';
+        var iso = d.toISOString();
+        var mm = String(d.getMonth() + 1).padStart(2, '0');
+        var dd = String(d.getDate()).padStart(2, '0');
+        var hh = String(d.getHours()).padStart(2, '0');
+        var mi = String(d.getMinutes()).padStart(2, '0');
+        return iso.slice(0, 4) + '-' + mm + '-' + dd + 'T' + hh + ':' + mi;
+    }
+
     function isOverdue(r) {
         if (!r || !r.booking_date) return false;
-        if (r.status === 'Returned' || r.status === 'Rejected' || r.status === 'Pending') return false;
+        if (r.status === 'Returned' || r.status === 'Rejected' || r.status === 'Pending' || r.status === 'Cancelled') return false;
         var now = new Date();
         var booked = new Date(r.booking_date);
         var diffDays = (now - booked) / (1000 * 60 * 60 * 24);
@@ -406,29 +514,84 @@
     }
 
     // ============================================================
+    // SEND EMAIL TO ADMIN
+    // ============================================================
+    function sendEmailToAdmin(request) {
+        // The backend now owns the user/admin directory, so this page no longer
+        // has the admin emails locally. Send an EmailJS confirmation to the
+        // requestor as the recipient instead.
+        var toEmail = request.email || '';
+        if (!toEmail) {
+            console.warn('No requestor email available; skipping email notification.');
+            return;
+        }
+
+        var templateParams = {
+            to_email: toEmail,
+            to_name: request.requested_by || 'User',
+            from_name: request.requested_by || 'User',
+            from_email: request.email || 'No email provided',
+            request_id: request.id,
+            asset: request.asset_item,
+            specification: request.specification,
+            service_element: request.service_element,
+            department: request.department,
+            booking_date: request.booking_date,
+            contact: request.contact,
+            reason: request.reason || 'No reason provided',
+            message: 'Your asset booking request has been submitted and is pending review by an administrator.'
+        };
+
+        console.log('📧 Sending notification to:', toEmail);
+        console.log('📧 Template Params:', templateParams);
+
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+            .then(function(response) {
+                console.log('✅ Email sent successfully!', response.status, response.text);
+                showToast('Email notification sent!', 'success');
+            }, function(error) {
+                console.log('❌ Failed to send email:', error);
+                showToast('Failed to send email notification. Please check EmailJS configuration.', 'danger');
+            });
+    }
+
+    // ============================================================
     // SESSION
     // ============================================================
     function checkSession() {
+        var token = localStorage.getItem(TOKEN_KEY);
         var session = localStorage.getItem(SESSION_KEY);
-        var users = getUsers();
-        if (!session || !users[session] || users[session].active === false) {
+        var user = null;
+        try { user = JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) {}
+
+        if (!token || !session) {
+            clearSession();
             window.location.href = 'index.html';
             return false;
         }
-        if (users[session].role === 'general_admin' || users[session].role === 'admin') {
+        if (user && (user.role === 'general_admin' || user.role === 'admin')) {
             window.location.href = 'admin-dashboard.html';
             return false;
         }
         document.getElementById('usernameDisplay').textContent = session;
-        document.getElementById('bookingEmail').value = users[session].email || '';
+        document.getElementById('bookingEmail').value = (user && user.email) || '';
         document.getElementById('bookingRequestedBy').value = session;
         document.getElementById('bookingDateTime').value = formatUgandanDateTime();
         document.getElementById('bookingDateTime').disabled = true;
+
+        // Validate the token against the backend in the background; kick the
+        // user back to login if it is expired or invalid.
+        apiGet('/api/auth/me').then(function(res) {
+            if (!res || !res.data || !res.data.user) {
+                clearSession();
+                window.location.href = 'index.html';
+            }
+        });
         return true;
     }
 
     function handleLogout() {
-        localStorage.removeItem(SESSION_KEY);
+        clearSession();
         window.location.href = 'index.html';
     }
 
@@ -519,8 +682,8 @@
         e.preventDefault();
 
         var session = localStorage.getItem(SESSION_KEY);
-        var users = getUsers();
-        var user = users[session];
+        var user = null;
+        try { user = JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) {}
 
         var bookingDate = document.getElementById('bookingDateTime').value;
         var contact = document.getElementById('bookingContact').value.trim();
@@ -579,31 +742,86 @@
             submitted_at: new Date().toISOString()
         };
 
-        var allRequests = getRequests();
-        allRequests.unshift(request);
-        saveRequests(allRequests);
+        // Resolve the selected category + asset name to a backend asset id,
+        // then submit the booking via the API.
+        var submitBtn = document.getElementById('bookingForm').querySelector('button[type="submit"]');
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting...'; }
 
-        document.getElementById('bookingForm').reset();
-        setBookingMode('now');
-        document.getElementById('bookingEmail').value = user.email || '';
-        document.getElementById('bookingRequestedBy').value = session;
-        document.getElementById('componentSection').style.display = 'none';
-        populateServiceElements();
-        populateAssetDropdown();
+        var payload = buildBookingPayload(assetItem, specification, bookingDate, reason, powerCode, powerExt, cable, adapter);
 
-        showToast('Request submitted successfully!', 'success');
-        loadMyRequests('all');
+        apiPost('/api/bookings', payload).then(function(res) {
+            if (res && res.success && res.data && res.data.booking) {
+                var created = res.data.booking;
+                document.getElementById('bookingForm').reset();
+                setBookingMode('now');
+                document.getElementById('bookingEmail').value = user && user.email ? user.email : '';
+                document.getElementById('bookingRequestedBy').value = session;
+                document.getElementById('componentSection').style.display = 'none';
+                populateServiceElements();
+                populateAssetDropdown();
 
-        // Switch to My Requests tab
-        document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-        document.querySelector('.tab-btn[data-tab="myrequests"]').classList.add('active');
-        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-        document.getElementById('panel-myrequests').classList.add('active');
-        loadMyRequests('all');
+                sendEmailToAdmin(mapBooking(created));
+
+                showToast('Request submitted successfully! Email sent.', 'success');
+                return loadMyRequestsFromServer().then(function() {
+                    loadMyRequests('all');
+                    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+                    document.querySelector('.tab-btn[data-tab="myrequests"]').classList.add('active');
+                    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+                    document.getElementById('panel-myrequests').classList.add('active');
+                    loadMyRequests('all');
+                });
+            } else {
+                showToast((res && res.message) || 'Could not submit the request. Please try again.', 'danger');
+            }
+        }).catch(function() {
+            showToast('Could not reach the server. Please try again.', 'danger');
+        }).finally(function() {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Request'; }
+        });
     });
 
+    // Build the backend booking payload from the form values.
+    function buildBookingPayload(assetItem, specification, bookingDate, reason, powerCode, powerExt, cable, adapter) {
+        var start = bookingDate ? new Date(bookingDate) : new Date();
+        if (isNaN(start.getTime())) start = new Date();
+        var end = new Date(start.getTime() + BOOKING_DURATION_MS);
+
+        var assets = getAssets();
+        var specs = assets[assetItem] || [];
+        var assetId = null;
+        var matching = null;
+
+        // Prefer an exact name match; otherwise match by (category + name).
+        var all = cachedAssetsMeta || [];
+        for (var i = 0; i < all.length; i++) {
+            if (all[i].category === assetItem && all[i].name === specification) {
+                assetId = all[i].id;
+                matching = all[i];
+                break;
+            }
+        }
+        if (assetId === null) {
+            // Fall back to any asset in this category if names don't line up.
+            for (var i = 0; i < all.length; i++) {
+                if (all[i].category === assetItem) { assetId = all[i].id; matching = all[i]; break; }
+            }
+        }
+
+        return {
+            asset_id: assetId,
+            start_time: start.toISOString(),
+            end_time: end.toISOString(),
+            purpose: reason || '',
+            power_code: powerCode,
+            power_extension: powerExt,
+            vga_hdmi: cable,
+            hdmi_adapter: adapter
+        };
+    }
+
     // ============================================================
-    // MY REQUESTS
+    // MY REQUESTS - User can only Cancel pending requests
     // ============================================================
     function filterUserRequests(status) {
         userCurrentFilter = status;
@@ -727,8 +945,10 @@
             else if (isApproved) { statusClass = 'approved'; statusDisplay = 'Approved'; }
 
             var rowClass = overdue ? 'overdue-highlight' : isReturned ? 'returned-highlight' : '';
+            
+            // User can ONLY cancel pending requests
+            // No Return button for users - only admins can return/clear assets
             var canCancel = isPending;
-            var canReturn = isApproved && !r.date_returned;
 
             var accessories = '';
             if (r.asset_item === 'Projector') {
@@ -755,8 +975,6 @@
             html += '<td>';
             if (canCancel) {
                 html += '<span class="action-link text-danger" onclick="cancelRequest(\'' + r.id + '\')">Cancel</span>';
-            } else if (canReturn) {
-                html += '<span class="action-link text-success" onclick="openUserReturnModal(\'' + r.id + '\')">Return</span>';
             } else {
                 html += '—';
             }
@@ -781,8 +999,6 @@
             mobHtml += '<div class="card-footer">';
             if (canCancel) {
                 mobHtml += '<span class="action-link text-danger" onclick="cancelRequest(\'' + r.id + '\')">Cancel</span>';
-            } else if (canReturn) {
-                mobHtml += '<span class="action-link text-success" onclick="openUserReturnModal(\'' + r.id + '\')">Return</span>';
             } else {
                 mobHtml += '—';
             }
@@ -794,7 +1010,7 @@
     }
 
     // ============================================================
-    // CANCEL REQUEST
+    // CANCEL REQUEST - User can only cancel pending requests
     // ============================================================
     function cancelRequest(id) {
         if (!confirm('Are you sure you want to cancel this request?')) return;
@@ -814,63 +1030,6 @@
         allRequests.splice(idx, 1);
         saveRequests(allRequests);
         showToast('Request cancelled successfully.', 'warning');
-        loadMyRequests(userCurrentFilter);
-    }
-
-    // ============================================================
-    // RETURN MODAL
-    // ============================================================
-    function openUserReturnModal(id) {
-        var all = getRequests();
-        var request = null;
-        for (var i = 0; i < all.length; i++) {
-            if (all[i].id === id) {
-                request = all[i];
-                break;
-            }
-        }
-        if (!request) { showToast('Request not found.', 'danger'); return; }
-
-        userReturnRequestId = id;
-        document.getElementById('returnRequestId').textContent = request.id;
-        document.getElementById('returnAsset').textContent = request.asset_item + ' (' + request.specification + ')';
-        document.getElementById('returnRequestor').textContent = request.requested_by || request.requestor;
-        document.getElementById('returnBookingDate').textContent = request.booking_date || 'N/A';
-        document.getElementById('returnDateTime').value = new Date().toISOString().slice(0, 16);
-        document.getElementById('returnedBy').value = '';
-        document.getElementById('returnNotes').value = '';
-        document.getElementById('returnCondition').value = 'Good';
-        new bootstrap.Modal(document.getElementById('returnModal')).show();
-    }
-
-    function confirmUserReturn() {
-        var returnedBy = document.getElementById('returnedBy').value.trim();
-        var returnDateTime = document.getElementById('returnDateTime').value;
-        var condition = document.getElementById('returnCondition').value;
-        var notes = document.getElementById('returnNotes').value.trim();
-
-        if (!returnedBy) { showToast('Please enter your name.', 'danger'); return; }
-        if (!returnDateTime) { showToast('Please select the return date and time.', 'danger'); return; }
-
-        var allRequests = getRequests();
-        var idx = -1;
-        for (var i = 0; i < allRequests.length; i++) {
-            if (allRequests[i].id === userReturnRequestId) {
-                idx = i;
-                break;
-            }
-        }
-        if (idx === -1) { showToast('Request not found.', 'danger'); return; }
-
-        allRequests[idx].status = 'Returned';
-        allRequests[idx].returned_by = returnedBy;
-        allRequests[idx].date_returned = returnDateTime;
-        allRequests[idx].return_condition = condition;
-        allRequests[idx].return_notes = notes;
-
-        saveRequests(allRequests);
-        bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
-        showToast('Asset returned successfully!', 'success');
         loadMyRequests(userCurrentFilter);
     }
 
@@ -982,10 +1141,10 @@
                     status: 'Returned',
                     approved_by: 'admin',
                     date_approved: new Date(now.getTime() - 86400000).toISOString(),
-                    returned_by: 'User One',
+                    returned_by: 'admin',
                     date_returned: new Date(now.getTime() - 3600000).toISOString(),
                     return_condition: 'Good',
-                    return_notes: 'Returned in good condition',
+                    return_notes: 'Returned by admin',
                     submitted_at: fiveDaysAgo.toISOString()
                 }
             ];
