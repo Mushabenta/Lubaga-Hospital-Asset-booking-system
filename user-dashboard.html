@@ -1160,13 +1160,20 @@
         if (!checkSession()) return;
 
         populateServiceElements();
-        populateAssetDropdown();
 
         // Set default active tab
         document.querySelector('.tab-btn[data-tab="booking"]').classList.add('active');
         document.getElementById('panel-booking').classList.add('active');
 
-        loadMyRequests('all');
+        // Load real backend assets, then populate the dropdown once available.
+        loadAssets().then(function() {
+            populateAssetDropdown();
+        });
+
+        // Load the user's bookings from the backend, then render the list.
+        loadMyRequestsFromServer().then(function() {
+            loadMyRequests('all');
+        });
     });
 </script>
 </body>
