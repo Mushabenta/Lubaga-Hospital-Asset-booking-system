@@ -532,18 +532,23 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const USERS_KEY = 'lubaga_users';
     const SESSION_KEY = 'lubaga_session';
+    const TOKEN_KEY = 'lubaga_token';
+    const USER_KEY = 'lubaga_user';
 
-    function getUsers() {
-        try {
-            const raw = localStorage.getItem(USERS_KEY);
-            return raw ? JSON.parse(raw) : {};
-        } catch { return {}; }
-    }
+    // Backend endpoint base. Empty string = same origin (served by the API
+    // server). Override by setting localStorage['lubaga_api_base'] when the
+    // pages are hosted elsewhere.
+    const API_BASE = (localStorage.getItem('lubaga_api_base') || '').replace(/\/+$/, '');
 
-    function saveUsers(users) {
-        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    function apiPost(url, body) {
+        return fetch(API_BASE + url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body || {})
+        }).then(function(res) {
+            return res.json().catch(function() { return { success: false, message: 'Unexpected server response.' }; });
+        });
     }
 
     function showToast(message, type = 'success') {
@@ -558,24 +563,23 @@
         new bootstrap.Toast(toast, { delay: 4000 }).show();
     }
 
-    // Check if any users exist
-    (function checkUsers() {
-        const users = getUsers();
-        const notice = document.getElementById('noUsersNotice');
-        if (Object.keys(users).length === 0) {
-            notice.style.display = 'flex';
-        }
+    function storeSession(user, token) {
+        localStorage.setItem(SESSION_KEY, user.username);
+        localStorage.setItem(TOKEN_KEY, token);
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
+
+    // Confirm the API is reachable; the seeded database always has users.
+    (function checkServer() {
+        fetch(API_BASE + '/api/health')
+            .then(function(res) { if (!res.ok) showToast('Cannot reach the server. Please try again later.', 'danger'); })
+            .catch(function() { showToast('Cannot reach the server. Please try again later.', 'danger'); });
     })();
 
     let resetPhoneUser = '';
 
     document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
         e.preventDefault();
-        const users = getUsers();
-        if (Object.keys(users).length === 0) {
-            showToast('No users registered yet. Please register first.', 'warning');
-            return;
-        }
         document.getElementById('resetPhone').value = '';
         document.getElementById('phoneUserContainer').style.display = 'none';
         document.getElementById('newPassword').value = '';
@@ -584,25 +588,14 @@
         new bootstrap.Modal(document.getElementById('forgotPasswordModal')).show();
     });
 
-    // Check phone number on input
+    // Reveal the password fields once the phone looks valid; the server
+    // verifies the number belongs to an account when the reset is submitted.
     document.getElementById('resetPhone').addEventListener('input', function() {
         const phone = this.value.trim().replace(/[-\s]/g, '');
-        const users = getUsers();
-        let foundUser = null;
-        let foundUsername = '';
-
-        for (const [username, data] of Object.entries(users)) {
-            if (data.phone && data.phone === phone) {
-                foundUser = data;
-                foundUsername = username;
-                break;
-            }
-        }
-
-        if (foundUser && phone.length >= 10) {
-            document.getElementById('phoneUserDisplay').textContent = 'User found: ' + foundUsername;
+        if (/^07[0-9]{8}$/.test(phone)) {
+            document.getElementById('phoneUserDisplay').textContent = 'Account found, set a new password below.';
             document.getElementById('phoneUserContainer').style.display = 'block';
-            resetPhoneUser = foundUsername;
+            resetPhoneUser = phone;
         } else {
             document.getElementById('phoneUserContainer').style.display = 'none';
             resetPhoneUser = '';
@@ -615,34 +608,35 @@
         const confirmPassword = document.getElementById('confirmNewPassword').value;
 
         if (!resetPhoneUser) {
-            showToast('No user found with this phone number.', 'danger');
+            showToast('Enter a valid phone number (e.g. 0772123456).', 'danger');
             return;
         }
-
         if (!newPassword || newPassword.length < 4) {
             showToast('New password must be at least 4 characters.', 'danger');
             return;
         }
-
         if (newPassword !== confirmPassword) {
             showToast('Passwords do not match.', 'danger');
             return;
         }
 
-        const users = getUsers();
-        if (users[resetPhoneUser]) {
-            users[resetPhoneUser].password = newPassword;
-            saveUsers(users);
-            bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).hide();
-            showToast('Password reset successfully! Please login.', 'success');
-            document.getElementById('resetPhone').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmNewPassword').value = '';
-            document.getElementById('phoneUserContainer').style.display = 'none';
-            resetPhoneUser = '';
-        } else {
-            showToast('User not found.', 'danger');
-        }
+        apiPost('/api/auth/forgot-password', { phone: phone, newPassword: newPassword }).then(function(data) {
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).hide();
+                showToast('Password reset successfully! Please login.', 'success');
+                document.getElementById('resetPhone').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
+                document.getElementById('phoneUserContainer').style.display = 'none';
+                resetPhoneUser = '';
+            } else if (data.error === 'USER_NOT_FOUND') {
+                showToast('No user found with this phone number.', 'danger');
+            } else {
+                showToast(data.message || 'Password reset failed. Please try again.', 'danger');
+            }
+        }).catch(function() {
+            showToast('Cannot reach the server. Please try again later.', 'danger');
+        });
     }
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -651,46 +645,54 @@
         const username = document.getElementById('loginUsername').value.trim();
         const password = document.getElementById('loginPassword').value;
 
-        const users = getUsers();
-
-        if (Object.keys(users).length === 0) {
-            showToast('No users registered. Please register first.', 'warning');
+        if (!username || !password) {
+            showToast('Please enter your username and password.', 'warning');
             return;
         }
 
-        if (!users[username]) {
-            showToast('Invalid username or password.', 'danger');
-            return;
-        }
-        if (users[username].password !== password) {
-            showToast('Invalid username or password.', 'danger');
-            return;
-        }
-        if (users[username].active === false) {
-            showToast('Account is disabled. Contact admin.', 'danger');
-            return;
-        }
-
-        localStorage.setItem(SESSION_KEY, username);
-
-        if (users[username].role === 'general_admin' || users[username].role === 'admin') {
-            window.location.href = 'admin-dashboard.html';
-        } else {
-            window.location.href = 'user-dashboard.html';
-        }
+        apiPost('/api/auth/login', { username: username, password: password }).then(function(data) {
+            if (data.success && data.data && data.data.token && data.data.user) {
+                storeSession(data.data.user, data.data.token);
+                if (data.data.user.role === 'general_admin' || data.data.user.role === 'admin') {
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'user-dashboard.html';
+                }
+            } else if (data.error === 'INVALID_CREDENTIALS') {
+                showToast('Invalid username or password.', 'danger');
+            } else if (data.error === 'ACCOUNT_DISABLED') {
+                showToast('Account is disabled. Contact admin.', 'danger');
+            } else {
+                showToast(data.message || 'Login failed. Please try again.', 'danger');
+            }
+        }).catch(function() {
+            showToast('Cannot reach the server. Please try again later.', 'danger');
+        });
     });
 
-    // Check if already logged in
+    // Check if already logged in - verify the stored token against the API.
     (function checkSession() {
         const session = localStorage.getItem(SESSION_KEY);
-        const users = getUsers();
-        if (session && users[session] && users[session].active !== false) {
-            if (users[session].role === 'general_admin' || users[session].role === 'admin') {
-                window.location.href = 'admin-dashboard.html';
-            } else {
-                window.location.href = 'user-dashboard.html';
-            }
-        }
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!session || !token) return;
+        fetch(API_BASE + '/api/auth/me', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        }).then(function(res) { return res.json(); })
+          .then(function(data) {
+              if (data.success && data.data && data.data.user) {
+                  storeSession(data.data.user, token);
+                  if (data.data.user.role === 'general_admin' || data.data.user.role === 'admin') {
+                      window.location.href = 'admin-dashboard.html';
+                  } else {
+                      window.location.href = 'user-dashboard.html';
+                  }
+              } else {
+                  localStorage.removeItem(SESSION_KEY);
+                  localStorage.removeItem(TOKEN_KEY);
+                  localStorage.removeItem(USER_KEY);
+              }
+          })
+          .catch(function() { /* server unreachable; stay on login */ });
     })();
 </script>
 </body>
