@@ -491,7 +491,7 @@
     // Backend endpoint base. Empty string = same origin (served by the API
     // server). Override by setting localStorage['lubaga_api_base'] when the
     // pages are hosted elsewhere.
-    const API_BASE = (localStorage.getItem('lubaga_api_base') || '').replace(/\/+$/, '');
+    const API_BASE = (localStorage.getItem('lubaga_api_base') || 'https://lubaga-hospital-asset-booking-system-production.up.railway.app').replace(/\/+$/, '');
 
     function apiPost(url, body) {
         return fetch(API_BASE + url, {

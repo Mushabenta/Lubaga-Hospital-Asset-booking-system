@@ -313,7 +313,7 @@
     // Backend endpoint base. Empty string = same origin (served by the API
     // server). Override by setting localStorage['lubaga_api_base'] when these
     // pages are hosted elsewhere.
-    var API_BASE = (localStorage.getItem('lubaga_api_base') || '').replace(/\/+$/, '');
+    var API_BASE = (localStorage.getItem('lubaga_api_base') || 'https://lubaga-hospital-asset-booking-system-production.up.railway.app').replace(/\/+$/, '');
 
     // The booking form exposes a single date/time. The backend requires an
     // end time, so a booking covers start_time + this duration.
