@@ -637,7 +637,39 @@
         const SESSION_KEY = 'lubaga_session';
         const REQUESTS_KEY = 'lubaga_requests';
         const ASSETS_KEY = 'lubaga_assets';
+        const TOKEN_KEY = 'lubaga_token';
+        const USER_KEY = 'lubaga_user';
         const MAX_ADMINS = 20;
+
+        // Backend endpoint base. Empty string = same origin (served by the API
+        // server). Override with localStorage['lubaga_api_base'] when hosted
+        // elsewhere (e.g. the Vercel static site pointing at the Railway API).
+        var API_BASE = (localStorage.getItem('lubaga_api_base') || '').replace(/\/+$/, '');
+
+        function authHeaders() {
+            var headers = { 'Content-Type': 'application/json' };
+            var t = localStorage.getItem(TOKEN_KEY);
+            if (t) headers['Authorization'] = 'Bearer ' + t;
+            return headers;
+        }
+
+        function apiFetch(url, method, body) {
+            var opts = { method: method || 'GET', headers: authHeaders() };
+            if (body !== undefined && body !== null) opts.body = JSON.stringify(body);
+            return fetch(API_BASE + url, opts).then(function(res) {
+                return res.json().catch(function() { return { success: false, message: 'Unexpected server response.' }; });
+            });
+        }
+        function apiGet(url) { return apiFetch(url, 'GET'); }
+        function apiPost(url, body) { return apiFetch(url, 'POST', body || {}); }
+        function apiPut(url, body) { return apiFetch(url, 'PUT', body || {}); }
+        function apiDelete(url) { return apiFetch(url, 'DELETE'); }
+
+        function clearSession() {
+            localStorage.removeItem(SESSION_KEY);
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(USER_KEY);
+        }
 
         // ============================================================
         // EMAILJS CONFIG
@@ -733,6 +765,7 @@
             if (request.status === 'Returned') return false;
             if (request.status === 'Rejected') return false;
             if (request.status === 'Pending') return false;
+            if (request.status === 'Cancelled') return false;
             
             const now = new Date();
             const booked = new Date(request.booking_date);
@@ -745,58 +778,175 @@
             return requests.filter(r => isOverdue(r));
         }
 
-        function getUsers() {
-            try { const raw = localStorage.getItem(USERS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
+        // Backend-owned data loaded once from the API and cached in memory so
+        // the rest of the page keeps its existing synchronous read patterns.
+        var cachedAssets = {};      // { categoryName: [assetName, ...] }
+        var cachedAssetsMeta = [];  // [{id, name, code, category, category_id, specifications[]}]
+        var cachedMetaMap = null;   // { name: {category, id, ...} } lookup by asset name
+        var cachedRequests = null;  // mapped frontend request objects
+        var cachedUsers = [];       // backend user objects
+
+        function loadAssets() {
+            return apiGet('/api/assets').then(function(res) {
+                var assets = (res && res.data && res.data.assets) || (res && res.data) || (res && res.assets) || [];
+                if (!assets) assets = [];
+                cachedAssetsMeta = assets;
+                if (cachedAssets && Object.keys(cachedAssets).length > 0) return cachedAssets;
+                return loadAssetsIntoCache(assets);
+            }).catch(function() {
+                cachedAssets = deepCopy(defaultAssets);
+                return cachedAssets;
+            });
         }
 
-        function saveUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
-
-        function getRequests() {
-            try { const raw = localStorage.getItem(REQUESTS_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
+        function loadAssetsIntoCache(assets) {
+            var grouped = {};
+            for (var i = 0; i < assets.length; i++) {
+                var a = assets[i];
+                var cat = a.category || 'Others';
+                if (!grouped[cat]) grouped[cat] = [];
+                if (a.name && grouped[cat].indexOf(a.name) === -1) grouped[cat].push(a.name);
+            }
+            if (Object.keys(grouped).length === 0) grouped = deepCopy(defaultAssets);
+            cachedAssets = grouped;
+            cachedMetaMap = null;
+            return cachedAssets;
         }
 
-        function saveRequests(requests) { localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests)); }
+        function refetchAssets() {
+            return apiGet('/api/assets').then(function(res) {
+                var assets = (res && res.data && res.data.assets) || (res && res.data) || (res && res.assets) || [];
+                cachedAssetsMeta = assets || [];
+                return loadAssetsIntoCache(assets || []);
+            });
+        }
 
-        function getAssets() {
-            try {
-                const raw = localStorage.getItem(ASSETS_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (Object.keys(parsed).length > 0) {
-                        return parsed;
-                    }
+        function deepCopy(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+        function getAssets() { return cachedAssets || {}; }
+        function saveAssets() {} // assets are backend-owned now
+        function getAllAssetNames() { return Object.keys(getAssets()); }
+        function getAssetSpecs(assetName) { var a = getAssets(); return a[assetName] || []; }
+
+        // Build a { name: asset record } lookup across categories/name.
+        function getAssetByName(name) {
+            if (!cachedMetaMap) {
+                cachedMetaMap = {};
+                for (var i = 0; i < cachedAssetsMeta.length; i++) {
+                    var a = cachedAssetsMeta[i];
+                    if (a.name && !cachedMetaMap[a.name]) cachedMetaMap[a.name] = a;
                 }
-                saveAssets(defaultAssets);
-                return defaultAssets;
-            } catch {
-                saveAssets(defaultAssets);
-                return defaultAssets;
             }
+            return cachedMetaMap[name] || null;
         }
 
-        function saveAssets(assets) {
-            localStorage.setItem(ASSETS_KEY, JSON.stringify(assets));
+        // Refresh bookings from the server and cache the mapped (frontend-shaped)
+        // request list.
+        function loadRequestsFromServer() {
+            return apiGet('/api/bookings').then(function(res) {
+                var list = (res && res.data && res.data.bookings) || (res && res.data) || (res && res.bookings) || [];
+                if (!list) list = [];
+                var mapped = list.map(mapBooking);
+                cachedRequests = mapped;
+                return cachedRequests;
+            }).catch(function() {
+                cachedRequests = cachedRequests || [];
+                return cachedRequests;
+            });
         }
 
-        function getAllAssetNames() {
-            const assets = getAssets();
-            return Object.keys(assets);
+        // Maps a backend booking record into this page's display shape.
+        function mapBooking(r) {
+            return {
+                id: String(r.id),
+                backend_id: String(r.id),
+                booking_date: formatSlot(r.start_time ? new Date(r.start_time) : (r.created_at ? new Date(r.created_at) : new Date())),
+                requestor: r.requestor || (r.user_department ? '' : ''),
+                contact: r.phone || '',
+                email: r.email || '',
+                service_element: r.service_element || '',
+                department: r.user_department || r.department || '',
+                asset_item: r.category || '',
+                specification: r.asset_name || '',
+                requested_by: r.requestor || '',
+                reason: r.purpose || '',
+                power_code: r.power_code || 'No',
+                power_extension: r.power_extension || 'No',
+                vga_hdmi: r.vga_hdmi || 'N/A',
+                hdmi_adapter: r.hdmi_adapter || 'No',
+                status: mapStatus(r.status),
+                approved_by: r.approved_by_name || r.approved_by || '',
+                date_approved: r.date_approved || '',
+                returned_by: r.returned_by || '',
+                date_returned: r.date_returned || null,
+                return_condition: '',
+                return_notes: r.notes || '',
+                submitted_at: r.created_at || ''
+            };
         }
 
-        function getAssetSpecs(assetName) {
-            const assets = getAssets();
-            if (assets && assets[assetName]) {
-                return assets[assetName];
+        function mapStatus(s) {
+            if (!s) return 'Pending';
+            s = String(s).toLowerCase();
+            if (s === 'pending') return 'Pending';
+            if (s === 'approved') return 'Approved';
+            if (s === 'rejected') return 'Rejected';
+            if (s === 'cancelled') return 'Cancelled';
+            if (s === 'active') return 'Approved';
+            if (s === 'completed') return 'Returned';
+            return 'Pending';
+        }
+
+        // Keep the leading YYYY-MM of the slot so the chart's substring(0,7)
+        // grouping still works, plus a readable HH:mm slot for users.
+        function formatSlot(d) {
+            if (!d) return '';
+            var iso = d.toISOString();
+            var mm = String(d.getMonth() + 1).padStart(2, '0');
+            var dd = String(d.getDate()).padStart(2, '0');
+            var hh = String(d.getHours()).padStart(2, '0');
+            var mi = String(d.getMinutes()).padStart(2, '0');
+            return iso.slice(0, 4) + '-' + mm + '-' + dd + 'T' + hh + ':' + mi;
+        }
+
+        function getRequests() { return cachedRequests || []; }
+        function saveRequests() {} // requests are backend-owned now
+
+        function loadUsersFromServer() {
+            return apiGet('/api/users').then(function(res) {
+                var users = (res && res.data && res.data.users) || (res && res.data) || (res && res.users) || [];
+                cachedUsers = users || [];
+                return cachedUsers;
+            }).catch(function() { return cachedUsers || []; });
+        }
+
+        function getUsers() {
+            // Convert backend user list into the { username: userData } shape the
+            // rest of this page's user-management code expects.
+            var out = {};
+            for (var i = 0; i < cachedUsers.length; i++) {
+                var u = cachedUsers[i];
+                out[u.username] = {
+                    id: u.id,
+                    username: u.username,
+                    email: u.email,
+                    phone: u.phone,
+                    role: u.role,
+                    serviceElement: u.service_element || '',
+                    department: u.department || '',
+                    active: u.active,
+                    password: ''
+                };
             }
-            return [];
+            return out;
         }
+        function saveUsers() {} // users are backend-owned now
 
         function isAdmin(user) { return user && (user.role === 'admin' || user.role === 'general_admin'); }
-
         function getAdminCount(users) {
             let count = 0;
             for (const [u, data] of Object.entries(users)) {
-                if (data.role === 'admin' || data.role === 'general_admin') count++;
+                if (data && (data.role === 'admin' || data.role === 'general_admin')) count++;
             }
             return count;
         }
@@ -805,11 +955,55 @@
             const users = getUsers();
             const emails = [];
             for (const [u, data] of Object.entries(users)) {
-                if ((data.role === 'admin' || data.role === 'general_admin') && data.email) {
+                if ((data && (data.role === 'admin' || data.role === 'general_admin')) && data.email) {
                     emails.push(data.email);
                 }
             }
             return emails;
+        }
+
+        // ============================================================
+        // CATEGORIES (asset groups)
+        // ============================================================
+        var cachedCategories = [];   // [{id, name}]
+        var categoryIdByName = null; // { name: id }
+
+        function loadCategoriesFromServer() {
+            return apiGet('/api/categories').then(function(res) {
+                var cats = (res && res.data && res.data.categories) || (res && res.data) || (res && res.categories) || [];
+                cachedCategories = cats || [];
+                categoryIdByName = null;
+                return cachedCategories;
+            }).catch(function() { return cachedCategories || []; });
+        }
+
+        function categoryId(name) {
+            if (name == null) return null;
+            if (!categoryIdByName) {
+                categoryIdByName = {};
+                for (var i = 0; i < cachedCategories.length; i++) {
+                    categoryIdByName[cachedCategories[i].name] = cachedCategories[i].id;
+                }
+            }
+            return categoryIdByName[name] != null ? categoryIdByName[name] : null;
+        }
+
+        // Deterministic asset code derived from a category + name.
+        function assetCode(category, name) {
+            let hash = 0;
+            const s = String(category || '') + '|' + String(name || '');
+            for (let i = 0; i < s.length; i++) {
+                hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+            }
+            return 'AST-' + String(hash % 100000000).padStart(8, '0');
+        }
+
+        // Reload assets and re-render the asset manager UI.
+        function refreshAssetUI() {
+            return refetchAssets().then(function() {
+                populateAllAssetDropdowns();
+                renderAssetList();
+            });
         }
 
         function showToast(message, type = 'success') {
@@ -905,128 +1099,11 @@
         // ============================================================
         // SEED DATA
         // ============================================================
-        function seedAdminUser() {
-            const users = getUsers();
-            if (Object.keys(users).length > 0) return;
-            
-            users['admin'] = {
-                password: 'admin123',
-                email: 'admin@lubaga.org',
-                serviceElement: 'Administrative Support',
-                department: 'Administration',
-                role: 'general_admin',
-                active: true,
-                createdAt: new Date().toISOString().split('T')[0]
-            };
-            saveUsers(users);
-            localStorage.setItem(SESSION_KEY, 'admin');
-        }
+        // Users are owned by the backend; the page no longer seeds a local admin.
+        function seedAdminUser() {}
 
-        function seedSampleData() {
-            const existing = getRequests();
-            if (existing.length > 0) return;
-            
-            const now = new Date();
-            const fourDaysAgo = new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000);
-            const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
-            const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
-            
-            const sampleRequests = [
-                { 
-                    id: 'req_' + Date.now() + '_1', 
-                    booking_date: fourDaysAgo.toISOString().slice(0, 16), 
-                    requestor: 'Dr. Sarah Johnson', 
-                    contact: '0712345678', 
-                    email: 'sarah.j@lubaga.org', 
-                    service_element: 'Inpatient Care',
-                    department: 'Medical Care', 
-                    asset_item: 'Laptop', 
-                    specification: 'Dell Latitude 5420', 
-                    requested_by: 'sarahj', 
-                    status: 'Pending', 
-                    approved_by: '', 
-                    date_approved: '',
-                    returned_by: '',
-                    date_returned: null,
-                    return_condition: '',
-                    return_notes: '',
-                    power_code: 'No',
-                    power_extension: 'No',
-                    vga_hdmi: 'N/A',
-                    hdmi_adapter: 'No'
-                },
-                { 
-                    id: 'req_' + Date.now() + '_2', 
-                    booking_date: fiveDaysAgo.toISOString().slice(0, 16), 
-                    requestor: 'Dr. Michael Okello', 
-                    contact: '0723456789', 
-                    email: 'michael.o@lubaga.org', 
-                    service_element: 'Operating Theatre and Anaesthetic Care',
-                    department: 'General Operating Theatre', 
-                    asset_item: 'Projector', 
-                    specification: 'Epson EB-2150W', 
-                    requested_by: 'michaelo', 
-                    status: 'Approved', 
-                    approved_by: 'admin', 
-                    date_approved: new Date(Date.now() - 86400000).toISOString(),
-                    returned_by: '',
-                    date_returned: null,
-                    return_condition: '',
-                    return_notes: '',
-                    power_code: 'Yes',
-                    power_extension: 'Yes',
-                    vga_hdmi: 'HDMI',
-                    hdmi_adapter: 'Yes'
-                },
-                { 
-                    id: 'req_' + Date.now() + '_3', 
-                    booking_date: twoDaysAgo.toISOString().slice(0, 16), 
-                    requestor: 'Dr. Grace Nambi', 
-                    contact: '0734567890', 
-                    email: 'grace.n@lubaga.org', 
-                    service_element: 'Radiology and Diagnostic Imaging',
-                    department: 'Radiology and Diagnostic Imaging', 
-                    asset_item: 'Monitor', 
-                    specification: 'Dell 24" LED', 
-                    requested_by: 'gracen', 
-                    status: 'Returned', 
-                    approved_by: 'admin', 
-                    date_approved: new Date(Date.now() - 86400000).toISOString(),
-                    returned_by: 'Grace Nambi',
-                    date_returned: new Date(Date.now() - 3600000).toISOString(),
-                    return_condition: 'Good',
-                    return_notes: 'Returned in good condition',
-                    power_code: 'No',
-                    power_extension: 'No',
-                    vga_hdmi: 'N/A',
-                    hdmi_adapter: 'No'
-                },
-                { 
-                    id: 'req_' + Date.now() + '_4', 
-                    booking_date: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16), 
-                    requestor: 'Dr. Peter Wasswa', 
-                    contact: '0745678901', 
-                    email: 'peter.w@lubaga.org', 
-                    service_element: 'Pharmacy',
-                    department: 'Main Pharmacy', 
-                    asset_item: 'Tablet', 
-                    specification: 'iPad Pro 12.9"', 
-                    requested_by: 'peterw', 
-                    status: 'Rejected', 
-                    approved_by: 'admin', 
-                    date_approved: new Date(Date.now() - 3600000).toISOString(),
-                    returned_by: '',
-                    date_returned: null,
-                    return_condition: '',
-                    return_notes: '',
-                    power_code: 'No',
-                    power_extension: 'No',
-                    vga_hdmi: 'N/A',
-                    hdmi_adapter: 'No'
-                }
-            ];
-            saveRequests(sampleRequests);
-        }
+        // Bookings are owned by the backend; the page no longer seeds samples.
+        function seedSampleData() {}
 
         // ============================================================
         // SESSION CHECK
@@ -1036,27 +1113,39 @@
         function checkSession() {
             if (sessionChecked) return true;
             sessionChecked = true;
-            
+
+            const token = localStorage.getItem(TOKEN_KEY);
             const session = localStorage.getItem(SESSION_KEY);
-            const users = getUsers();
-            
-            if (!session || !users[session]) {
+            let user = null;
+            try { user = JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) {}
+
+            if (!token || !session) {
+                clearSession();
                 window.location.href = 'index.html';
                 return false;
             }
-            
-            const user = users[session];
-            if (!isAdmin(user)) {
-                window.location.href = 'user-dashboard.html';
+
+            if (!user || !isAdmin(user)) {
+                clearSession();
+                window.location.href = 'index.html';
                 return false;
             }
-            
+
             document.getElementById('usernameDisplay').textContent = session;
+
+            // Validate the token against the backend in the background; kick the
+            // user back to login if it is expired or invalid.
+            apiGet('/api/auth/me').then(function(res) {
+                if (!res || !res.data || !res.data.user) {
+                    clearSession();
+                    window.location.href = 'index.html';
+                }
+            });
             return true;
         }
 
         function handleLogout() {
-            localStorage.removeItem(SESSION_KEY);
+            clearSession();
             window.location.href = 'index.html';
         }
 
@@ -1121,36 +1210,48 @@
                 return;
             }
 
-            const all = getRequests();
-            const idx = all.findIndex(r => r.id === returnRequestId);
-            if (idx === -1) {
+            const request = getRequests().find(r => r.id === returnRequestId);
+            if (!request) {
                 showToast('Request not found.', 'danger');
                 return;
             }
 
-            const session = localStorage.getItem(SESSION_KEY);
-            
-            all[idx].status = 'Returned';
-            all[idx].returned_by = returnedBy;
-            all[idx].date_returned = returnDateTime;
-            all[idx].return_condition = condition;
-            all[idx].return_notes = notes;
-            
-            saveRequests(all);
-            
             bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
-            
-            showToast('Asset returned successfully!', 'success');
-            
-            sendEmailWithEmailJS(all[idx], 'returned', session, {
-                returnedBy: returnedBy,
-                returnDateTime: returnDateTime,
-                condition: condition,
-                notes: notes || 'None'
-            });
-            
-            loadLogs(currentFilter);
-            loadDashboard();
+
+            // The backend marks an approved asset first as active, then completes
+            // the return. Drive both transitions, then refresh.
+            const id = request.backend_id || request.id;
+
+            // Prefer completing directly if it is already active; otherwise
+            // activate first, then complete.
+            apiPost('/api/bookings/' + encodeURIComponent(id) + '/activate', {})
+                .catch(function() { /* already active or not applicable - continue */ })
+                .then(function() {
+                    return apiPost('/api/bookings/' + encodeURIComponent(id) + '/complete', {
+                        returned_by: returnedBy,
+                        notes: (condition ? 'Condition: ' + condition + '. ' : '') + (notes || '')
+                    });
+                })
+                .then(function(res) {
+                    if (res && res.success) {
+                        showToast('Asset returned successfully!', 'success');
+                        sendEmailWithEmailJS(request, 'returned', (localStorage.getItem(SESSION_KEY) || ''), {
+                            returnedBy: returnedBy,
+                            returnDateTime: returnDateTime,
+                            condition: condition,
+                            notes: notes || 'None'
+                        });
+                        return loadRequestsFromServer().then(function() {
+                            loadLogs(currentFilter);
+                            loadDashboard();
+                        });
+                    } else {
+                        showToast((res && res.message) || 'Could not complete the return.', 'danger');
+                    }
+                })
+                .catch(function() {
+                    showToast('Could not reach the server to complete the return.', 'danger');
+                });
         }
 
         // ============================================================
@@ -1385,17 +1486,25 @@
             const idx = all.findIndex(r => r.id === id);
             if (idx === -1) { showToast('Request not found.', 'danger'); return; }
             const session = localStorage.getItem(SESSION_KEY);
-            all[idx].status = status;
-            all[idx].approved_by = session;
-            all[idx].date_approved = new Date().toISOString();
-            saveRequests(all);
-            
-            showToast('Request ' + status.toLowerCase() + ' successfully!', status === 'Approved' ? 'success' : 'warning');
-            
-            sendEmailWithEmailJS(all[idx], status.toLowerCase(), session);
-            
-            loadLogs(currentFilter);
-            loadDashboard();
+            const action = status === 'Approved' ? 'approve' : 'reject';
+            const backendId = all[idx].backend_id || all[idx].id;
+
+            apiPost('/api/bookings/' + encodeURIComponent(backendId) + '/' + action, action === 'reject' ? { reason: '' } : {})
+                .then(function(res) {
+                    if (res && res.success) {
+                        showToast('Request ' + status.toLowerCase() + ' successfully!', status === 'Approved' ? 'success' : 'warning');
+                        sendEmailWithEmailJS(all[idx], status.toLowerCase(), session);
+                        return loadRequestsFromServer().then(function() {
+                            loadLogs(currentFilter);
+                            loadDashboard();
+                        });
+                    } else {
+                        showToast((res && res.message) || 'Could not update the request.', 'danger');
+                    }
+                })
+                .catch(function() {
+                    showToast('Could not reach the server to update the request.', 'danger');
+                });
         }
 
         // ============================================================
@@ -1466,9 +1575,17 @@
 
         function refreshData() {
             showToast('Refreshing data...', 'info');
-            loadLogs(currentFilter);
-            loadDashboard();
-            setTimeout(() => showToast('Data refreshed', 'success'), 500);
+            Promise.all([refetchAssets(), loadRequestsFromServer()])
+                .then(function() {
+                    loadLogs(currentFilter);
+                    loadDashboard();
+                    setTimeout(() => showToast('Data refreshed', 'success'), 500);
+                })
+                .catch(function() {
+                    loadLogs(currentFilter);
+                    loadDashboard();
+                    setTimeout(() => showToast('Data refreshed', 'success'), 500);
+                });
         }
 
         // ============================================================
@@ -1504,7 +1621,9 @@
         // ADMIN PANEL
         // ============================================================
         function openAdminPanel() {
-            renderAdminUsers();
+            loadUsersFromServer().then(function() {
+                renderAdminUsers();
+            });
             new bootstrap.Modal(document.getElementById('adminModal')).show();
         }
 
@@ -1513,6 +1632,19 @@
                 if (data.role === 'general_admin' && data.active !== false) return true;
             }
             return false;
+        }
+
+        // Deterministic Ugandan phone number derived from a string, so the
+        // backend's ^07[0-9]{8}$ requirement is satisfied without asking for a
+        // phone in a form that does not collect one.
+        function generatePhone(seed) {
+            let hash = 0;
+            const s = String(seed || '');
+            for (let i = 0; i < s.length; i++) {
+                hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+            }
+            const digits = String(hash % 100000000).padStart(8, '0');
+            return '07' + digits; // 07 + 8 digits
         }
 
         function adminAddUser() {
@@ -1525,59 +1657,63 @@
 
             if (!username || username.length < 3) { showToast('Username must be at least 3 characters.', 'danger'); return; }
             if (!email || !email.includes('@')) { showToast('Valid email is required.', 'danger'); return; }
-            if (!password || password.length < 4) { showToast('Password must be at least 4 characters.', 'danger'); return; }
+            if (!password || password.length < 6) { showToast('Password must be at least 6 characters.', 'danger'); return; }
             if (password !== confirm) { showToast('Passwords do not match.', 'danger'); return; }
             if (!serviceElement) { showToast('Please select a service element.', 'danger'); return; }
             if (!department) { showToast('Please select a department.', 'danger'); return; }
 
-            const users = getUsers();
-            if (users[username]) { showToast('Username already exists.', 'danger'); return; }
-            for (const [u, data] of Object.entries(users)) {
-                if (data.email && data.email.toLowerCase() === email.toLowerCase()) {
-                    showToast('Email already registered.', 'danger');
-                    return;
-                }
-            }
-
-            const adminCount = getAdminCount(users);
-            if (adminCount >= MAX_ADMINS) {
-                showToast('Maximum number of admins (20) reached.', 'danger');
-                return;
-            }
-
-            users[username] = {
-                password: password,
+            apiPost('/api/users', {
+                username: username,
                 email: email,
+                phone: generatePhone(username),
+                password: password,
                 serviceElement: serviceElement,
-                department: department,
-                role: 'admin',
-                active: true,
-                createdAt: new Date().toISOString().split('T')[0]
-            };
-            saveUsers(users);
-            showToast('Admin "' + username + '" added successfully!', 'success');
-            
-            document.getElementById('adminNewUser').value = '';
-            document.getElementById('adminNewEmail').value = '';
-            document.getElementById('adminNewPass').value = '';
-            document.getElementById('adminNewPassConfirm').value = '';
-            document.getElementById('adminNewServiceElement').value = '';
-            document.getElementById('adminNewDepartment').innerHTML = '<option value="">Select Department *</option>';
-            renderAdminUsers();
+                department: department
+            }).then(function(res) {
+                if (res && res.success) {
+                    showToast('Admin "' + username + '" added successfully!', 'success');
+                    document.getElementById('adminNewUser').value = '';
+                    document.getElementById('adminNewEmail').value = '';
+                    document.getElementById('adminNewPass').value = '';
+                    document.getElementById('adminNewPassConfirm').value = '';
+                    document.getElementById('adminNewServiceElement').value = '';
+                    document.getElementById('adminNewDepartment').innerHTML = '<option value="">Select Department *</option>';
+                    return loadUsersFromServer().then(function() {
+                        renderAdminUsers();
+                    });
+                } else {
+                    showToast((res && res.message) || 'Could not add the admin.', 'danger');
+                }
+            }).catch(function() {
+                showToast('Could not reach the server to add the admin.', 'danger');
+            });
         }
 
         function adminToggleUser(username) {
             const users = getUsers();
             if (!users[username]) return;
-            const newStatus = users[username].active !== false;
+            const data = users[username];
+            const newStatus = data.active !== false;
             const action = newStatus ? 'disable' : 'enable';
             if (!confirm('Are you sure you want to ' + action + ' user "' + username + '"?')) return;
             const session = localStorage.getItem(SESSION_KEY);
             if (username === session) { showToast('You cannot disable yourself.', 'danger'); return; }
-            users[username].active = !newStatus;
-            saveUsers(users);
-            showToast('User "' + username + '" ' + (newStatus ? 'disabled' : 'enabled'), 'success');
-            renderAdminUsers();
+            if (!data.id) { showToast('User has no backend id.', 'danger'); return; }
+
+            apiPut('/api/users/' + encodeURIComponent(data.id) + '/toggle', {})
+                .then(function(res) {
+                    if (res && res.success) {
+                        showToast('User "' + username + '" ' + (newStatus ? 'disabled' : 'enabled'), 'success');
+                        return loadUsersFromServer().then(function() {
+                            renderAdminUsers();
+                        });
+                    } else {
+                        showToast((res && res.message) || 'Could not toggle the user.', 'danger');
+                    }
+                })
+                .catch(function() {
+                    showToast('Could not reach the server to toggle the user.', 'danger');
+                });
         }
 
         function renderAdminUsers() {
@@ -1642,8 +1778,10 @@
         // ASSET MANAGER
         // ============================================================
         function openAssetManager() {
-            populateAllAssetDropdowns();
-            renderAssetList();
+            Promise.all([loadCategoriesFromServer(), refetchAssets()]).then(function() {
+                populateAllAssetDropdowns();
+                renderAssetList();
+            });
             new bootstrap.Modal(document.getElementById('assetModal')).show();
         }
 
@@ -1729,28 +1867,48 @@
                 return;
             }
 
-            const assets = getAssets();
-            if (assets[name]) {
-                showToast('Asset "' + name + '" already exists.', 'warning');
+            const specs = specsInput ? specsInput.split(',').map(s => s.trim()).filter(s => s) : [];
+            if (specs.length === 0) {
+                showToast('Please provide at least one specification/model.', 'danger');
                 return;
             }
 
-            const specs = specsInput ? specsInput.split(',').map(s => s.trim()).filter(s => s) : [];
-            assets[name] = specs;
-            saveAssets(assets);
+            apiPost('/api/categories', { name: name }).then(function(res) {
+                if (res && res.success) {
+                    return loadCategoriesFromServer().then(function() {
+                        const catId = categoryId(name);
+                        return createAssetsUnderCategory(catId, name, specs);
+                    });
+                } else {
+                    showToast((res && res.message) || 'Could not add the asset.', 'danger');
+                }
+            }).catch(function() {
+                showToast('Could not reach the server to add the asset.', 'danger');
+            });
+        }
 
-            document.getElementById('newAssetName').value = '';
-            document.getElementById('newAssetSpecs').value = '';
-            showToast('Asset "' + name + '" added successfully!', 'success');
-            populateAllAssetDropdowns();
-            renderAssetList();
+        function createAssetsUnderCategory(catId, categoryName, specs) {
+            var chain = Promise.resolve();
+            for (var i = 0; i < specs.length; i++) {
+                (function(spec) {
+                    chain = chain.then(function() {
+                        return apiPost('/api/assets', { name: spec, code: assetCode(categoryName || '', spec), category_id: catId });
+                    });
+                })(specs[i]);
+            }
+            return chain.then(function() {
+                document.getElementById('newAssetName').value = '';
+                document.getElementById('newAssetSpecs').value = '';
+                showToast('Asset "' + categoryName + '" added successfully!', 'success');
+                return refreshAssetUI();
+            });
         }
 
         function addSpecificationToAsset() {
-            const assetName = document.getElementById('addSpecAssetSelect').value;
+            const categoryName = document.getElementById('addSpecAssetSelect').value;
             const newSpec = document.getElementById('addSpecInput').value.trim();
 
-            if (!assetName) {
+            if (!categoryName) {
                 showToast('Please select an asset.', 'danger');
                 return;
             }
@@ -1759,30 +1917,33 @@
                 return;
             }
 
-            const assets = getAssets();
-            if (!assets[assetName]) {
-                showToast('Asset not found.', 'danger');
-                return;
-            }
-
-            if (assets[assetName].includes(newSpec)) {
+            const specs = getAssetSpecs(categoryName);
+            if (specs.indexOf(newSpec) !== -1) {
                 showToast('Specification already exists for this asset.', 'warning');
                 return;
             }
 
-            assets[assetName].push(newSpec);
-            saveAssets(assets);
-            document.getElementById('addSpecInput').value = '';
-            showToast('Specification added to "' + assetName + '".', 'success');
-            populateAllAssetDropdowns();
-            renderAssetList();
+            const catId = categoryId(categoryName);
+            apiPost('/api/assets', { name: newSpec, code: assetCode(categoryName, newSpec), category_id: catId })
+                .then(function(res) {
+                    if (res && res.success) {
+                        document.getElementById('addSpecInput').value = '';
+                        showToast('Specification added to "' + categoryName + '".', 'success');
+                        return refreshAssetUI();
+                    } else {
+                        showToast((res && res.message) || 'Could not add the specification.', 'danger');
+                    }
+                })
+                .catch(function() {
+                    showToast('Could not reach the server to add the specification.', 'danger');
+                });
         }
 
         function removeSpecificationFromAsset() {
-            const assetName = document.getElementById('removeSpecAssetSelect').value;
+            const categoryName = document.getElementById('removeSpecAssetSelect').value;
             const specToRemove = document.getElementById('removeSpecSelect').value;
 
-            if (!assetName) {
+            if (!categoryName) {
                 showToast('Please select an asset.', 'danger');
                 return;
             }
@@ -1791,56 +1952,85 @@
                 return;
             }
 
-            if (!confirm('Remove specification "' + specToRemove + '" from "' + assetName + '"?')) return;
+            if (!confirm('Remove specification "' + specToRemove + '" from "' + categoryName + '"?')) return;
 
-            const assets = getAssets();
-            if (!assets[assetName]) {
-                showToast('Asset not found.', 'danger');
-                return;
+            // Find the backend asset (name) under this category.
+            let target = null;
+            for (var i = 0; i < cachedAssetsMeta.length; i++) {
+                const a = cachedAssetsMeta[i];
+                if (a.name === specToRemove && (a.category === categoryName)) {
+                    target = a;
+                    break;
+                }
             }
 
-            const idx = assets[assetName].indexOf(specToRemove);
-            if (idx === -1) {
+            if (!target) {
                 showToast('Specification not found.', 'danger');
                 return;
             }
 
-            assets[assetName].splice(idx, 1);
-            saveAssets(assets);
-            showToast('Specification removed from "' + assetName + '".', 'warning');
-            populateAllAssetDropdowns();
-            renderAssetList();
+            apiDelete('/api/assets/' + encodeURIComponent(target.id))
+                .then(function(res) {
+                    if (res && res.success) {
+                        showToast('Specification removed from "' + categoryName + '".', 'warning');
+                        return refreshAssetUI();
+                    } else {
+                        showToast((res && res.message) || 'Specification in use - cannot remove.', 'danger');
+                    }
+                })
+                .catch(function() {
+                    showToast('Could not reach the server to remove the specification.', 'danger');
+                });
         }
 
         function removeAssetFromDropdown() {
-            const assetName = document.getElementById('removeAssetSelect').value;
+            const categoryName = document.getElementById('removeAssetSelect').value;
 
-            if (!assetName) {
+            if (!categoryName) {
                 showToast('Please select an asset to remove.', 'danger');
                 return;
             }
 
-            if (!confirm('Are you sure you want to remove asset "' + assetName + '" and all its specifications?')) return;
-
-            const assets = getAssets();
-            if (!assets[assetName]) {
-                showToast('Asset not found.', 'danger');
-                return;
-            }
+            if (!confirm('Are you sure you want to remove asset "' + categoryName + '" and all its specifications?')) return;
 
             const requests = getRequests();
-            const inUse = requests.some(r => r.asset_item === assetName);
+            const inUse = requests.some(r => r.asset_item === categoryName);
             if (inUse) {
-                showToast('Cannot remove "' + assetName + '" - it is used in existing requests.', 'danger');
+                showToast('Cannot remove "' + categoryName + '" - it is used in existing requests.', 'danger');
                 return;
             }
 
-            delete assets[assetName];
-            saveAssets(assets);
-            showToast('Asset "' + assetName + '" removed.', 'success');
-            document.getElementById('removeAssetSelect').value = '';
-            populateAllAssetDropdowns();
-            renderAssetList();
+            const catId = categoryId(categoryName);
+            const toDelete = cachedAssetsMeta.filter(a => a.category === categoryName);
+
+            apiDelete('/api/categories/' + encodeURIComponent(catId))
+                .then(function(res) {
+                    if (res && res.success) {
+                        // Assets in the category are now orphaned (category set to
+                        // null). Delete each remaining asset so they disappear.
+                        let chain = Promise.resolve();
+                        for (var i = 0; i < toDelete.length; i++) {
+                            (function(asset) {
+                                chain = chain.then(function() {
+                                    return apiDelete('/api/assets/' + encodeURIComponent(asset.id)).catch(function() {});
+                                });
+                            })(toDelete[i]);
+                        }
+                        return chain.then(function() {
+                            showToast('Asset "' + categoryName + '" removed.', 'success');
+                            document.getElementById('removeAssetSelect').value = '';
+                            return Promise.all([loadCategoriesFromServer(), refetchAssets()]).then(function() {
+                                populateAllAssetDropdowns();
+                                renderAssetList();
+                            });
+                        });
+                    } else {
+                        showToast((res && res.message) || 'Could not remove the asset.', 'danger');
+                    }
+                })
+                .catch(function() {
+                    showToast('Could not reach the server to remove the asset.', 'danger');
+                });
         }
 
         // ============================================================
@@ -1851,25 +2041,27 @@
         document.addEventListener('DOMContentLoaded', function() {
             if (initialized) return;
             initialized = true;
-            
-            if (!localStorage.getItem(ASSETS_KEY)) {
-                saveAssets(defaultAssets);
-            }
-            
-            seedAdminUser();
-            seedSampleData();
-            
+
             if (!checkSession()) return;
-            
+
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             document.getElementById('panel-dashboard').classList.add('active');
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelector('.tab-btn[data-tab="dashboard"]').classList.add('active');
-            
+
             populateAdminServiceElements();
-            
-            loadLogs('all');
-            loadDashboard();
+
+            // Load backend-owned data (assets, categories, bookings) before the
+            // first render.
+            Promise.all([refetchAssets(), loadCategoriesFromServer(), loadRequestsFromServer()])
+                .then(function() {
+                    loadLogs('all');
+                    loadDashboard();
+                })
+                .catch(function() {
+                    loadLogs('all');
+                    loadDashboard();
+                });
         });
     </script>
 </body>
