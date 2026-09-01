@@ -1,7 +1,10 @@
 const { pool, connectDB } = require('./db');
 
-async function initDb() {
-  await connectDB();
+async function initDb(dbPool) {
+  // Allow callers (e.g. tests) to supply their own pool so schema
+  // initialisation targets a different database.
+  const p = dbPool || pool;
+  if (!dbPool) await connectDB();
 
   const statements = [
     `-- Categories
@@ -107,7 +110,7 @@ async function initDb() {
     `CREATE INDEX IF NOT EXISTS idx_audit_entity ON audit_logs(entity, entity_id);`
   ];
 
-  const client = await pool.connect();
+  const client = await p.connect();
   try {
     await client.query('BEGIN');
     for (const sql of statements) {
@@ -126,8 +129,8 @@ async function initDb() {
   // CREATE EXTENSION, so this is intentionally non-fatal: application-level
   // advisory locking + transactions already prevent double booking.
   try {
-    await pool.query("CREATE EXTENSION IF NOT EXISTS btree_gist;");
-    await pool.query(`
+    await p.query("CREATE EXTENSION IF NOT EXISTS btree_gist;");
+    await p.query(`
       DO $$
       BEGIN
         IF NOT EXISTS (

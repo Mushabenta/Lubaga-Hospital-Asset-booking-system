@@ -1,12 +1,37 @@
 const request = require('supertest');
-const app = require('../src/app');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+// ---------------------------------------------------------------------------
+// TEST DATABASE ISOLATION
+//
+// Tests MUST NOT run against the production database. Set TEST_DATABASE_URL to
+// a dedicated test database (any PostgreSQL instance works — free Neon/Supabase
+// tiers are fine). If TEST_DATABASE_URL is missing, every test run would
+// TRUNCATE the production data (departments, assets, users…).
+//
+// We override DATABASE_URL *before* any app module is imported so the app's
+// internal pool connects to the test database for the entire test run.
+// ---------------------------------------------------------------------------
+const testDbUrl = process.env.TEST_DATABASE_URL;
+if (!testDbUrl) {
+  console.error(
+    '\n  ⚠  TEST_DATABASE_URL is not set.\n' +
+    '     Tests will NOT run to protect production data.\n' +
+    '     Add TEST_DATABASE_URL to backend/.env (see .env.example).\n'
+  );
+  process.exit(1);
+}
+
+// Point the app's pool at the test database.
+process.env.DATABASE_URL = testDbUrl;
+
+// Now safe to import app modules — they read DATABASE_URL from process.env
+// at require-time and will connect to the test database.
+const env = require('../src/config/env');
 const { pool, connectDB } = require('../src/config/db');
 const { initDb } = require('../src/config/initDb');
-const bcrypt = require('bcryptjs');
-
-// JWT secret/expiry must match the app config.
-const env = require('../src/config/env');
-const jwt = require('jsonwebtoken');
+const app = require('../src/app');
 
 // Ensure a clean database for every test run.
 async function setupDatabase() {
@@ -15,7 +40,6 @@ async function setupDatabase() {
 }
 
 async function cleanAll() {
-  // Disable FK checks via TRUNCATE ... CASCADE ordering.
   const tables = ['audit_logs', 'bookings', 'asset_specifications', 'assets', 'categories', 'departments', 'users'];
   for (const t of tables) {
     await pool.query(`TRUNCATE ${t} RESTART IDENTITY CASCADE`);
@@ -94,7 +118,7 @@ function agent(token) {
     post: (url) => api.post(url).set('Authorization', `Bearer ${token}`),
     put: (url) => api.put(url).set('Authorization', `Bearer ${token}`),
     patch: (url) => api.patch(url).set('Authorization', `Bearer ${token}`),
-    del: (url) => api.delete(url).set('Authorization', `Bearer ${token}`)
+    del: (url) => api.del(url).set('Authorization', `Bearer ${token}`)
   };
 }
 

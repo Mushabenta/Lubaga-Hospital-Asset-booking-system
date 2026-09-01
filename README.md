@@ -121,6 +121,9 @@ CORS_ORIGIN=http://localhost:5500,http://127.0.0.1:5500,https://lubaga-hospital-
   With the Netlify proxy, requests are server-to-server (no browser `Origin`), so CORS is
   **not** applied — but keep the origins here anyway as a fallback for direct access.
 - `SSL_DB=true` — set when your host requires TLS (Railway/Neon/Supabase do).
+- `TEST_DATABASE_URL` — **required to run `npm test`**. Tests refuse to start without
+  it to protect production data. Set this to any dedicated Postgres database (free Neon
+  or Supabase tiers work). Tests truncate all tables on every run.
 
 Non-browser callers (curl, Postman, server scripts) work regardless of `CORS_ORIGIN`
 because requests without an `Origin` header are allowed.
