@@ -9,7 +9,29 @@ const { success, notFound, errorConverter, errorHandler } = require('./middlewar
 
 const app = express();
 
-app.use(helmet());
+// Helmet with a Content Security Policy that allows the CDNs the static
+// frontend relies on (Bootstrap, Bootstrap Icons, Chart.js, EmailJS) and the
+// same-origin API. Without this, the browser blocks those external resources.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net'],
+        imgSrc: ["'self'", 'data:', 'https://cdn.jsdelivr.net'],
+        fontSrc: ["'self'", 'data:', 'https://cdn.jsdelivr.net'],
+        connectSrc: [
+          "'self'",
+          'https://api.emailjs.com',
+          'https://cdn.jsdelivr.net'
+        ],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"]
+      }
+    }
+  })
+);
 
 // CORS - restrict to configured origins.
 const allowedOrigins = env.corsOrigin;

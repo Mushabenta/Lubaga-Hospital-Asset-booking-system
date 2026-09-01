@@ -76,6 +76,7 @@ async function initDb() {
       hdmi_adapter BOOLEAN NOT NULL DEFAULT FALSE,
       approved_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
       date_approved TIMESTAMPTZ,
+      date_given_out TIMESTAMPTZ,
       returned_by VARCHAR(160) NOT NULL DEFAULT '',
       date_returned TIMESTAMPTZ,
       notes TEXT NOT NULL DEFAULT '',
@@ -83,6 +84,8 @@ async function initDb() {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       CHECK (end_time > start_time)
     );`,
+
+    `ALTER TABLE bookings ADD COLUMN IF NOT EXISTS date_given_out TIMESTAMPTZ;`,
 
     `-- Audit logs
     CREATE TABLE IF NOT EXISTS audit_logs (

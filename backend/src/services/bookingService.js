@@ -194,10 +194,13 @@ const BookingService = {
     const booking = await Booking.findRawById(id);
     if (!booking) throw new ApiError(404, 'Booking not found', 'BOOKING_NOT_FOUND');
     validateTransition(booking.status, 'active');
-    await Booking.updateStatus(id, 'active', {});
+    // The item is physically handed to the user at this moment; the return
+    // countdown starts from when it was given out, not from when it was
+    // approved (the user may never collect an approved booking).
+    await Booking.updateStatus(id, 'active', { date_given_out: booking.date_given_out || new Date() });
     await AuditLog.create({
       userId: actor.id,
-      action: 'BOOKING_ACTIVE',
+      action: 'BOOKING_GIVEN_OUT',
       entity: 'booking',
       entityId: id
     });

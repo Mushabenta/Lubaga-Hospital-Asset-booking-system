@@ -122,6 +122,7 @@
         .table .col-dept { width: 120px; }
         .table .col-status { width: 85px; }
         .table .col-approved { width: 90px; }
+        .table .col-date-given-out { width: 130px; }
         .table .col-returned-by { width: 90px; }
         .table .col-date-returned { width: 130px; }
         .table .col-condition { width: 85px; }
@@ -140,6 +141,7 @@
             .table .col-dept { width: 130px; }
             .table .col-status { width: 80px; }
             .table .col-approved { width: 100px; }
+            .table .col-date-given-out { width: 130px; }
             .table .col-returned-by { width: 100px; }
             .table .col-date-returned { width: 130px; }
             .table .col-condition { width: 80px; }
@@ -159,6 +161,7 @@
             .table .col-dept { width: 80px; }
             .table .col-status { width: 60px; }
             .table .col-approved { width: 70px; }
+            .table .col-date-given-out { width: 90px; }
             .table .col-returned-by { width: 70px; }
             .table .col-date-returned { width: 90px; }
             .table .col-condition { width: 60px; }
@@ -398,6 +401,7 @@
                                     <th class="col-dept" id="colDept">Department</th>
                                     <th class="col-status" id="colStatus">Status</th>
                                     <th class="col-approved" id="colApproved">Approved By</th>
+                                    <th class="col-date-given-out" id="colDateGivenOut">Given Out</th>
                                     <th class="col-returned-by" id="colReturnedBy">Returned By</th>
                                     <th class="col-date-returned" id="colDateReturned">Date Returned</th>
                                     <th class="col-condition" id="colCondition">Condition</th>
@@ -644,7 +648,7 @@
         // Backend endpoint base. Empty string = same origin (served by the API
         // server). Override with localStorage['lubaga_api_base'] when hosted
         // elsewhere (e.g. the Vercel static site pointing at the Railway API).
-        var API_BASE = (localStorage.getItem('lubaga_api_base') || 'https://lubaga-hospital-asset-booking-system-production.up.railway.app').replace(/\/+$/, '');
+        var API_BASE = (localStorage.getItem('lubaga_api_base') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? window.location.origin : 'https://lubaga-hospital-asset-booking-system-production.up.railway.app')).replace(/\/+$/, '');
 
         function authHeaders() {
             var headers = { 'Content-Type': 'application/json' };
@@ -761,17 +765,21 @@
         // OVERDUE CHECK
         // ============================================================
         function isOverdue(request) {
-            if (!request || !request.booking_date) return false;
+            if (!request) return false;
             if (request.status === 'Returned') return false;
             if (request.status === 'Rejected') return false;
             if (request.status === 'Pending') return false;
             if (request.status === 'Cancelled') return false;
-            
+            if (request.status !== 'Approved') return false;
+            // The return clock starts when the item is physically given out,
+            // not when it was approved (the user may never collect it).
+            if (!request.date_given_out) return false;
+
             const now = new Date();
-            const booked = new Date(request.booking_date);
-            const diffMs = now - booked;
+            const givenOut = new Date(request.date_given_out);
+            const diffMs = now - givenOut;
             const diffDays = diffMs / (1000 * 60 * 60 * 24);
-            return diffDays > 3 && request.status === 'Approved';
+            return diffDays > 3;
         }
 
         function getOverdueRequests(requests) {
@@ -877,6 +885,7 @@
                 status: mapStatus(r.status),
                 approved_by: r.approved_by_name || r.approved_by || '',
                 date_approved: r.date_approved || '',
+                date_given_out: r.date_given_out || null,
                 returned_by: r.returned_by || '',
                 date_returned: r.date_returned || null,
                 return_condition: '',
@@ -1030,6 +1039,8 @@
             var messageText = '';
             if (status === 'approved') {
                 messageText = 'Your asset booking request has been approved. You may now collect the asset.';
+            } else if (status === 'given_out') {
+                messageText = 'The asset has been given out to you. Please return it within 3 days.';
             } else if (status === 'returned') {
                 messageText = 'Your asset has been marked as returned. Thank you for using our service.\n\n' +
                               'Returned By: ' + (returnDetails?.returnedBy || 'Admin') + '\n' +
@@ -1131,6 +1142,11 @@
                 return false;
             }
 
+            // Only a general admin can manage/add users.
+            const isGeneralAdmin = user.role === 'general_admin';
+            const usersBtn = document.querySelector('.btn-users');
+            if (usersBtn) usersBtn.style.display = isGeneralAdmin ? '' : 'none';
+
             document.getElementById('usernameDisplay').textContent = session;
 
             // Validate the token against the backend in the background; kick the
@@ -1218,20 +1234,14 @@
 
             bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
 
-            // The backend marks an approved asset first as active, then completes
-            // the return. Drive both transitions, then refresh.
+            // The item has already been given out (status = active); completing
+            // the return records the physical hand-back.
             const id = request.backend_id || request.id;
 
-            // Prefer completing directly if it is already active; otherwise
-            // activate first, then complete.
-            apiPost('/api/bookings/' + encodeURIComponent(id) + '/activate', {})
-                .catch(function() { /* already active or not applicable - continue */ })
-                .then(function() {
-                    return apiPost('/api/bookings/' + encodeURIComponent(id) + '/complete', {
-                        returned_by: returnedBy,
-                        notes: (condition ? 'Condition: ' + condition + '. ' : '') + (notes || '')
-                    });
-                })
+            apiPost('/api/bookings/' + encodeURIComponent(id) + '/complete', {
+                returned_by: returnedBy,
+                notes: (condition ? 'Condition: ' + condition + '. ' : '') + (notes || '')
+            })
                 .then(function(res) {
                     if (res && res.success) {
                         showToast('Asset returned successfully!', 'success');
@@ -1251,6 +1261,34 @@
                 })
                 .catch(function() {
                     showToast('Could not reach the server to complete the return.', 'danger');
+                });
+        }
+
+        // ============================================================
+        // GIVE OUT - record the physical pickup of an approved asset
+        // ============================================================
+        function giveOutRequest(id) {
+            if (!confirm('Mark this asset as given out to the requestor? The return countdown will start from now.')) return;
+            const all = getRequests();
+            const idx = all.findIndex(r => r.id === id);
+            if (idx === -1) { showToast('Request not found.', 'danger'); return; }
+            const backendId = all[idx].backend_id || all[idx].id;
+
+            apiPost('/api/bookings/' + encodeURIComponent(backendId) + '/activate', {})
+                .then(function(res) {
+                    if (res && res.success) {
+                        showToast('Asset given out. Return clock started.', 'success');
+                        sendEmailWithEmailJS(all[idx], 'given_out', (localStorage.getItem(SESSION_KEY) || ''));
+                        return loadRequestsFromServer().then(function() {
+                            loadLogs(currentFilter);
+                            loadDashboard();
+                        });
+                    } else {
+                        showToast((res && res.message) || 'Could not mark the asset as given out.', 'danger');
+                    }
+                })
+                .catch(function() {
+                    showToast('Could not reach the server to mark the asset as given out.', 'danger');
                 });
         }
 
@@ -1306,13 +1344,14 @@
             document.getElementById('countOverdue').textContent = countOverdue;
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="13" class="text-center py-4 text-muted">No transactions found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="14" class="text-center py-4 text-muted">No transactions found.</td></tr>';
                 mobileContainer.innerHTML = '<div class="text-center py-4 text-muted">No transactions found.</div>';
                 return;
             }
 
             // Determine which columns to show based on filter
             var showApprovedBy = false;
+            var showDateGivenOut = false;
             var showReturnedBy = false;
             var showDateReturned = false;
             var showCondition = false;
@@ -1324,6 +1363,9 @@
             if (filter === 'all' || filter === 'Approved' || filter === 'Returned' || filter === 'Rejected' || filter === 'Overdue') {
                 showApprovedBy = true;
             }
+            if (filter === 'all' || filter === 'Approved' || filter === 'Returned' || filter === 'Overdue') {
+                showDateGivenOut = true;
+            }
             if (filter === 'all' || filter === 'Returned' || filter === 'Overdue') {
                 showReturnedBy = true;
                 showDateReturned = true;
@@ -1334,6 +1376,7 @@
             }
             if (filter === 'Pending') {
                 showApprovedBy = false;
+                showDateGivenOut = false;
                 showReturnedBy = false;
                 showDateReturned = false;
                 showCondition = false;
@@ -1341,6 +1384,7 @@
             }
             if (filter === 'Approved') {
                 showApprovedBy = true;
+                showDateGivenOut = true;
                 showReturnedBy = false;
                 showDateReturned = false;
                 showCondition = false;
@@ -1348,6 +1392,7 @@
             }
             if (filter === 'Rejected') {
                 showApprovedBy = true;
+                showDateGivenOut = false;
                 showReturnedBy = false;
                 showDateReturned = false;
                 showCondition = false;
@@ -1355,6 +1400,7 @@
             }
             if (filter === 'Returned') {
                 showApprovedBy = true;
+                showDateGivenOut = true;
                 showReturnedBy = true;
                 showDateReturned = true;
                 showCondition = true;
@@ -1362,14 +1408,16 @@
             }
             if (filter === 'Overdue') {
                 showApprovedBy = true;
-                showReturnedBy = false;
-                showDateReturned = false;
-                showCondition = false;
+                showDateGivenOut = true;
+                showReturnedBy = true;
+                showDateReturned = true;
+                showCondition = true;
                 showActions = true;
             }
 
             // Hide/show header columns
             document.getElementById('colApproved').style.display = showApprovedBy ? '' : 'none';
+            document.getElementById('colDateGivenOut').style.display = showDateGivenOut ? '' : 'none';
             document.getElementById('colReturnedBy').style.display = showReturnedBy ? '' : 'none';
             document.getElementById('colDateReturned').style.display = showDateReturned ? '' : 'none';
             document.getElementById('colCondition').style.display = showCondition ? '' : 'none';
@@ -1401,7 +1449,8 @@
                 
                 const rowClass = overdue ? 'overdue-highlight' : isReturned ? 'returned-highlight' : '';
                 const canAct = isPending;
-                const canReturn = isApproved;
+                const canGiveOut = isApproved && !r.date_given_out;
+                const canReturn = isApproved && !!r.date_given_out;
 
                 let conditionClass = '';
                 let conditionDisplay = r.return_condition || '—';
@@ -1431,13 +1480,15 @@
                     <td class="col-dept">${r.department || ''}</td>
                     <td class="col-status"><span class="status-badge ${statusClass}">${statusDisplay}</span></td>
                     <td class="col-approved ${showApprovedBy ? '' : 'hidden-col'}">${showApprovedBy ? (r.approved_by || '—') : '—'}</td>
+                    <td class="col-date-given-out ${showDateGivenOut ? '' : 'hidden-col'}">${showDateGivenOut ? (r.date_given_out ? new Date(r.date_given_out).toLocaleString() : '—') : '—'}</td>
                     <td class="col-returned-by ${showReturnedBy ? '' : 'hidden-col'}">${showReturnedBy ? (r.returned_by || '—') : '—'}</td>
                     <td class="col-date-returned ${showDateReturned ? '' : 'hidden-col'}">${showDateReturned ? (r.date_returned ? new Date(r.date_returned).toLocaleString() : (r.status === 'Returned' ? 'Returned' : '—')) : '—'}</td>
                     <td class="col-condition ${showCondition ? '' : 'hidden-col'}">${showCondition ? (r.return_condition ? `<span class="condition-badge ${conditionClass}">${r.return_condition}</span>` : '—') : '—'}</td>
                     <td class="col-actions">
                         ${canAct ? `<span class="action-link text-success" onclick="approveRequest('${r.id}')">Approve</span><span class="action-link text-danger" onclick="rejectRequest('${r.id}')">Reject</span>` : ''}
+                        ${canGiveOut ? `<span class="action-link text-info" onclick="giveOutRequest('${r.id}')">Give Out</span>` : ''}
                         ${canReturn ? `<span class="action-link text-primary" onclick="openReturnModal('${r.id}')">Return</span>` : ''}
-                        ${(!canAct && !canReturn) ? '<span class="text-muted">—</span>' : ''}
+                        ${(!canAct && !canGiveOut && !canReturn) ? '<span class="text-muted">—</span>' : ''}
                     </td>
                 </tr>`;
 
@@ -1452,14 +1503,16 @@
                         <div class="field-row"><span class="field-label">Booking Date</span><span class="field-value">${r.booking_date || ''}</span></div>
                         <div class="field-row"><span class="field-label">Status</span><span class="field-value"><span class="status-badge ${statusClass}">${statusDisplay}</span></span></div>
                         ${showApprovedBy ? `<div class="field-row"><span class="field-label">Approved By</span><span class="field-value">${r.approved_by || '—'}</span></div>` : ''}
+                        ${showDateGivenOut ? `<div class="field-row"><span class="field-label">Given Out</span><span class="field-value">${r.date_given_out ? new Date(r.date_given_out).toLocaleString() : '—'}</span></div>` : ''}
                         ${showReturnedBy ? `<div class="field-row"><span class="field-label">Returned By</span><span class="field-value">${r.returned_by || '—'}</span></div>` : ''}
                         ${showDateReturned ? `<div class="field-row"><span class="field-label">Date Returned</span><span class="field-value">${r.date_returned ? new Date(r.date_returned).toLocaleString() : (r.status === 'Returned' ? 'Returned' : '—')}</span></div>` : ''}
                         ${showCondition ? `<div class="field-row"><span class="field-label">Condition</span><span class="field-value">${r.return_condition ? `<span class="condition-badge ${conditionClass}">${r.return_condition}</span>` : '—'}</span></div>` : ''}
                     </div>
                     <div class="card-footer">
                         ${canAct ? `<span class="action-link text-success" onclick="approveRequest('${r.id}')">Approve</span><span class="action-link text-danger" onclick="rejectRequest('${r.id}')">Reject</span>` : ''}
+                        ${canGiveOut ? `<span class="action-link text-info" onclick="giveOutRequest('${r.id}')">Give Out</span>` : ''}
                         ${canReturn ? `<span class="action-link text-primary" onclick="openReturnModal('${r.id}')">Return</span>` : ''}
-                        ${(!canAct && !canReturn) ? '<span class="text-muted">—</span>' : ''}
+                        ${(!canAct && !canGiveOut && !canReturn) ? '<span class="text-muted">—</span>' : ''}
                     </div>
                 </div>`;
             });
@@ -1594,7 +1647,7 @@
         function exportCSV() {
             const all = getRequests();
             if (all.length === 0) { showToast('No data to export.', 'warning'); return; }
-            const headers = ['Booking Date','Requestor','Contact','Email','Service Element','Department','Asset Item','Specification','Requested By','Status','Approved By','Returned By','Date Returned','Return Condition','Return Notes'];
+            const headers = ['Booking Date','Requestor','Contact','Email','Service Element','Department','Asset Item','Specification','Requested By','Status','Approved By','Given Out','Returned By','Date Returned','Return Condition','Return Notes'];
             let csv = '\uFEFF' + headers.join(',') + '\n';
             all.forEach(r => {
                 const row = [
@@ -1602,7 +1655,7 @@
                     r.service_element || '', r.department || '',
                     r.asset_item || '', r.specification || '',
                     r.requested_by || '', r.status || 'Pending', r.approved_by || '',
-                    r.returned_by || '', r.date_returned || '', r.return_condition || '', r.return_notes || ''
+                    r.date_given_out || '', r.returned_by || '', r.date_returned || '', r.return_condition || '', r.return_notes || ''
                 ];
                 csv += row.map(f => `"${(f || '').replace(/"/g, '""')}"`).join(',') + '\n';
             });
@@ -1624,6 +1677,13 @@
             loadUsersFromServer().then(function() {
                 renderAdminUsers();
             });
+            // Only general admins can add new users/admins.
+            let currentUser = null;
+            try { currentUser = JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) {}
+            const addAdminCard = document.querySelector('#adminModal .card.mb-3');
+            if (addAdminCard) {
+                addAdminCard.style.display = (currentUser && currentUser.role === 'general_admin') ? '' : 'none';
+            }
             new bootstrap.Modal(document.getElementById('adminModal')).show();
         }
 
