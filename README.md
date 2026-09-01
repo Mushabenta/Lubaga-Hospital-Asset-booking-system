@@ -2,7 +2,7 @@
 
 A hospital asset booking platform consisting of:
 
-- **Frontend** — static HTML/CSS/JS pages (no build step), hosted on **Vercel**.
+- **Frontend** — static HTML/CSS/JS pages (no build step), hosted on **Netlify**.
 - **Backend** — Node.js + Express + PostgreSQL REST API, hosted on **Railway**.
 
 Originally the frontend was a fully client-side `localStorage` app with no server. This
@@ -16,7 +16,7 @@ talk to the live API.
 
 | Component | URL |
 |-----------|-----|
-| Frontend (Vercel) | `https://lubaga-hospital-asset-booking-syste.vercel.app/` |
+| Frontend (Netlify) | `https://lubaga-asset-booking-system.netlify.app/` |
 | Backend API (Railway) | `https://lubaga-hospital-asset-booking-system-production.up.railway.app/` |
 | API base path | `https://lubaga-hospital-asset-booking-system-production.up.railway.app/api` |
 | GitHub | `https://github.com/Mushabenta/Lubaga-Hospital-Asset-booking-system` |
@@ -59,24 +59,30 @@ return bookings, manage users and assets.
 
 ## Frontend → Backend wiring
 
+On **Netlify** the frontend talks to the backend through a **same-origin proxy**, so the
+browser never makes a cross-origin request and **no CORS is involved**. Requests to
+`/api/*` on the Netlify domain are forwarded server-to-server by Netlify to the Railway
+API (see `netlify.toml`):
+
+- Frontend page → `GET/POST /api/...` (same origin, e.g. `https://<site>.netlify.app/api/...`)
+- Netlify proxy → forwards to `https://lubaga-hospital-asset-booking-system-production.up.railway.app/api/...`
+- Railway responds → Netlify streams the response back — same-origin to the browser.
+
 Each frontend page resolves its API endpoint from:
 
 ```js
-const API_BASE =
-  (localStorage.getItem('lubaga_api_base') ||
-   'https://lubaga-hospital-asset-booking-system-production.up.railway.app')
-  .replace(/\/+$/, '');
+const API_BASE = (localStorage.getItem('lubaga_api_base') || '').replace(/\/+$/, '');
 ```
 
-- **Default** — points at the deployed Railway backend (already baked into the pages).
-- **Override** — set `lubaga_api_base` in the browser dev-tools console to send requests
-  elsewhere (e.g. a local server), useful for development:
+`API_BASE` is empty by default = same origin. For local development where the backend is
+served by the Node server on the same origin this also works directly. To point the
+frontend at a different backend (e.g. bypassing the proxy), set an override in the
+browser console:
 
-  ```js
-  localStorage.setItem('lubaga_api_base', 'http://localhost:5000'); // local backend
-  localStorage.setItem('lubaga_api_base', 'https://lubaga-hospital-asset-booking-system-production.up.railway.app'); // production
-  localStorage.removeItem('lubaga_api_base'); // back to default
-  ```
+```js
+localStorage.setItem('lubaga_api_base', 'https://lubaga-hospital-asset-booking-system-production.up.railway.app'); // production
+localStorage.setItem('lubaga_api_base', 'http://localhost:5000'); // local Node server
+```
 
 What the rewired pages now do (UI untouched):
 
@@ -105,18 +111,44 @@ JWT_SECRET=<512-bit hex secret — see backend/.env.example>
 JWT_EXPIRY=24h
 SSL_DB=true
 NODE_ENV=production
-CORS_ORIGIN=https://lubaga-hospital-asset-booking-syste.vercel.app
+CORS_ORIGIN=http://localhost:5500,http://127.0.0.1:5500,https://lubaga-hospital-asset-booking-syste.vercel.app,https://lubaga-asset-booking-system.netlify.app
 ```
 
 - `DATABASE_URL` — required; the app refuses to start without it.
 - `JWT_SECRET` — token-signing secret (64-byte hex generated; documented in
   `backend/.env.example`).
-- `CORS_ORIGIN` — comma-separated frontend origin(s) allowed to call the API. Must
-  include the Vercel URL or the browser will block requests.
+- `CORS_ORIGIN` — comma-separated frontend origin(s) allowed to call the API directly.
+  With the Netlify proxy, requests are server-to-server (no browser `Origin`), so CORS is
+  **not** applied — but keep the origins here anyway as a fallback for direct access.
 - `SSL_DB=true` — set when your host requires TLS (Railway/Neon/Supabase do).
 
 Non-browser callers (curl, Postman, server scripts) work regardless of `CORS_ORIGIN`
 because requests without an `Origin` header are allowed.
+
+---
+
+## Hosting the frontend on Netlify
+
+The frontend is served as static files from the repo root. Netlify publishes those files
+and proxies the API to Railway, so the browser sees a single origin (no CORS).
+
+1. **Push the repo to GitHub** (the `main` branch is the deployment branch).
+2. In Netlify, choose **Add new site → Import an existing project → GitHub** and pick the
+   repo.
+3. Netlify auto-detects `netlify.toml`:
+   - **Build command:** none (static site)
+   - **Publish directory:** `/` (repo root)
+   - `netlify.toml` also defines **proxy redirects** for `/api/*` and `/health` to the
+     Railway API, so cross-origin requests are never made by the browser.
+4. Deploy. The site is now live at `https://<your-site>.netlify.app/`.
+   The default Netlify subdomain is what must be present in the backend `CORS_ORIGIN`
+   (currently `https://lubaga-asset-booking-system.netlify.app`).
+5. If you connect a **custom domain**, add that origin to `CORS_ORIGIN` on Railway too.
+
+> **Why no CORS errors?** The browser calls `https://<site>.netlify.app/api/...` (same
+> origin). Netlify forwards that to the Railway API server-to-server. Railway sees no
+> browser `Origin` header, so it treats it as a non-browser caller and always allows it.
+> The response comes back through Netlify to the browser as a normal same-origin response.
 
 ---
 
@@ -133,7 +165,14 @@ npm run seed
 npm run dev
 ```
 
-The API runs on `http://localhost:5000` and the API base defaults there in development.
+The API runs on `http://localhost:5000`. Since `API_BASE` now defaults to same-origin,
+the locally served Node server (which serves both the pages and `/api`) works without
+extra configuration. If you open the pages via a static server on another port (e.g.
+Live Server on `:5500`), point them at the backend:
+
+```js
+localStorage.setItem('lubaga_api_base', 'http://localhost:5000');
+```
 
 ---
 
@@ -148,6 +187,6 @@ engine rules, status transitions, and security notes.
 
 - ✅ Backend rebuilt, tested (75/75), and seeded (admin, departments, categories, assets).
 - ✅ All four frontend pages wired to the live API (UI markup unchanged).
-- ✅ Deployed: backend on **Railway**, frontend on **Vercel**.
-- ⚠️ Confirm the Railway service has all required variables set + deployed, and Vercel
-  redeployed, before going live.
+- ✅ Deployed: backend on **Railway**, frontend on **Netlify** (with API proxy).
+- ⚠️ Confirm the Railway service has all required variables set + deployed, and Netlify
+  deployed from the `main` branch, before going live.

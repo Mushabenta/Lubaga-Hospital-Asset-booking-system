@@ -1,0 +1,35 @@
+# Netlify hosting for the Lubaga Hospital Asset Booking frontend.
+# The static HTML/JS/CSS are published from the repo root. The backend lives on
+# Railway and is reached through proxies below, so the browser never does a
+# cross-origin request (no CORS needed).
+
+[build]
+publish = "/"
+command = ""
+
+# Proxy the API and health-check to the Railway backend (server-to-server).
+# status 200 = proxy (keeps the path); no browser CORS involved.
+[[redirects]]
+from = "/api/*"
+to = "https://lubaga-hospital-asset-booking-system-production.up.railway.app/api/:splat"
+status = 200
+force = true
+
+[[redirects]]
+from = "/health"
+to = "https://lubaga-hospital-asset-booking-system-production.up.railway.app/health"
+status = 200
+force = true
+
+# SPA-style fallback: any unmatched path serves index.html.
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+[[headers]]
+for = "/*"
+[headers.values]
+X-Frame-Options = "SAMEORIGIN"
+Referrer-Policy = "strict-origin-when-cross-origin"
+X-Content-Type-Options = "nosniff"

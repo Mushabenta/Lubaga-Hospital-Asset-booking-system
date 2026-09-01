@@ -536,10 +536,12 @@
     const TOKEN_KEY = 'lubaga_token';
     const USER_KEY = 'lubaga_user';
 
-    // Backend endpoint base. Empty string = same origin (served by the API
-    // server). Override by setting localStorage['lubaga_api_base'] when the
-    // pages are hosted elsewhere.
-    const API_BASE = (localStorage.getItem('lubaga_api_base') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? window.location.origin : 'https://lubaga-hospital-asset-booking-system-production.up.railway.app')).replace(/\/+$/, '');
+    // Backend endpoint base. Empty string = same origin (request goes to the
+    // same host, which proxies /api/* to the API). On Netlify the proxy in
+    // netlify.toml forwards /api/* to the Railway backend, so no CORS is
+    // needed. Override by setting localStorage['lubaga_api_base'] if you host
+    // the frontend without a proxy.
+    const API_BASE = (localStorage.getItem('lubaga_api_base') || '').replace(/\/+$/, '');
 
     function apiPost(url, body) {
         return fetch(API_BASE + url, {
