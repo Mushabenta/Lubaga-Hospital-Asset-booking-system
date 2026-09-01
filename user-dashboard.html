@@ -367,7 +367,30 @@
         'Radiology and Diagnostic Imaging': ['Radiology and Diagnostic Imaging'],
         'Pharmacy': ['Main Pharmacy', 'IPD Pharmacy', 'OPD Pharmacy']
     };
-    var serviceElementNames = Object.keys(serviceElements);
+
+    // Backend-driven service element -> departments map. Populated from
+    // /api/departments when available so users see the same full list as admins,
+    // falling back to the hardcoded subset above only if the API is unreachable.
+    var serviceElementsAPI = null; // { serviceElement: [department, ...] }
+
+    function loadServiceElementsFromServer() {
+        if (serviceElementsAPI) return Promise.resolve(serviceElementsAPI);
+        return apiGet('/api/departments').then(function(res) {
+            var depts = (res && res.data && res.data.departments) || (res && res.data) || (res && res.departments) || [];
+            var grouped = {};
+            for (var i = 0; i < depts.length; i++) {
+                var se = depts[i].service_element || 'Others';
+                var name = depts[i].name;
+                if (!grouped[se]) grouped[se] = [];
+                if (name && grouped[se].indexOf(name) === -1) grouped[se].push(name);
+            }
+            if (Object.keys(grouped).length === 0) grouped = serviceElements;
+            serviceElementsAPI = grouped;
+            return grouped;
+        }).catch(function() { serviceElementsAPI = serviceElements; return serviceElements; });
+    }
+
+    function getServiceElements() { return serviceElementsAPI || serviceElements; }
 
     var userCurrentFilter = 'all';
 
@@ -633,22 +656,25 @@
     }
 
     function populateServiceElements() {
+        var se = getServiceElements();
+        var names = Object.keys(se);
         var select = document.getElementById('bookingServiceElement');
         select.innerHTML = '<option value="">-- Select Service Element --</option>';
-        for (var i = 0; i < serviceElementNames.length; i++) {
+        for (var i = 0; i < names.length; i++) {
             var opt = document.createElement('option');
-            opt.value = serviceElementNames[i];
-            opt.textContent = serviceElementNames[i];
+            opt.value = names[i];
+            opt.textContent = names[i];
             select.appendChild(opt);
         }
+        updateDepartments();
     }
 
     function updateDepartments() {
         var se = document.getElementById('bookingServiceElement').value;
         var deptSelect = document.getElementById('bookingDepartment');
         deptSelect.innerHTML = '<option value="">-- Select Department --</option>';
-        if (se && serviceElements[se]) {
-            var depts = serviceElements[se];
+        if (se && getServiceElements()[se]) {
+            var depts = getServiceElements()[se];
             for (var i = 0; i < depts.length; i++) {
                 var opt = document.createElement('option');
                 opt.value = depts[i];
@@ -1198,13 +1224,16 @@
         seedData();
         if (!checkSession()) return;
 
-        populateServiceElements();
-
         // Set default active tab
         document.querySelector('.tab-btn[data-tab="booking"]').classList.add('active');
         document.getElementById('panel-booking').classList.add('active');
 
-        // Load real backend assets, then populate the dropdown once available.
+        // Load service elements + departments and real assets from the backend,
+        // then populate the dropdowns once available.
+        loadServiceElementsFromServer().then(function() {
+            populateServiceElements();
+        });
+
         loadAssets().then(function() {
             populateAssetDropdown();
         });
