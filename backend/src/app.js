@@ -99,6 +99,11 @@ app.get('/health', (req, res) => {
   res.status(200).json({ success: true, status: 'ok' });
 });
 
+// Alias used by the frontend health-check (pages call API_BASE + '/api/health').
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ success: true, status: 'ok' });
+});
+
 app.use('/api/auth', authLimiter);
 
 app.get('/api', (req, res) => {
