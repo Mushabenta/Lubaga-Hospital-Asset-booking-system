@@ -663,7 +663,21 @@
             var opts = { method: method || 'GET', headers: authHeaders() };
             if (body !== undefined && body !== null) opts.body = JSON.stringify(body);
             return fetch(API_BASE + url, opts).then(function(res) {
-                return res.json().catch(function() { return { success: false, message: 'Unexpected server response.' }; });
+                console.log('[api]', method || 'GET', url, '->', res.status, res.statusText);
+                return res.text().then(function(text) {
+                    var data;
+                    try { data = JSON.parse(text); }
+                    catch (e) {
+                        console.error('[api]', url, 'returned non-JSON response:', res.status, res.statusText, text.slice(0, 300));
+                        return { success: false, message: 'Unexpected server response (status ' + res.status + ').', _httpStatus: res.status, _body: text.slice(0, 500) };
+                    }
+                    if (!res.ok) console.error('[api]', url, 'HTTP', res.status, JSON.stringify(data));
+                    data._httpStatus = res.status;
+                    return data;
+                });
+            }).catch(function(err) {
+                console.error('[api]', method || 'GET', url, 'network error:', err.message || err);
+                throw err;
             });
         }
         function apiGet(url) { return apiFetch(url, 'GET'); }

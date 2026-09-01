@@ -310,6 +310,8 @@
     var SESSION_KEY = 'lubaga_session';
     var TOKEN_KEY = 'lubaga_token';
     var USER_KEY = 'lubaga_user';
+    var USERS_KEY = 'lubaga_users';
+    var ASSETS_KEY = 'lubaga_assets';
 
     // Backend endpoint base. Empty string = same origin (request goes to the
     // same host, which proxies /api/* to the API). On Netlify the proxy in
@@ -334,7 +336,24 @@
         var opts = { method: method || 'GET', headers: authHeaders() };
         if (body !== undefined && body !== null) opts.body = JSON.stringify(body);
         return fetch(API_BASE + url, opts).then(function(res) {
-            return res.json().catch(function() { return { success: false, message: 'Unexpected server response.' }; });
+            console.log('[api]', method || 'GET', url, '->', res.status, res.statusText);
+            // Non-2xx responses still get parsed; the caller decides what to do
+            // based on { success }. This returns an object on any response so
+            // callers always receive a JSON-shaped result.
+            return res.text().then(function(text) {
+                var data;
+                try { data = JSON.parse(text); }
+                catch (e) {
+                    console.error('[api]', url, 'returned non-JSON response:', res.status, res.statusText, text.slice(0, 300));
+                    return { success: false, message: 'Unexpected server response (status ' + res.status + ').', _httpStatus: res.status, _body: text.slice(0, 500) };
+                }
+                if (!res.ok) console.error('[api]', url, 'HTTP', res.status, JSON.stringify(data));
+                data._httpStatus = res.status;
+                return data;
+            });
+        }).catch(function(err) {
+            console.error('[api]', method || 'GET', url, 'network error:', err.message || err);
+            throw err;
         });
     }
     function apiGet(url) { return apiFetch(url, 'GET'); }
@@ -482,6 +501,7 @@
         if (cachedRequests === null) return [];
         return cachedRequests;
     }
+    function saveRequests() {} // requests are backend-owned now
 
     // Backend status -> frontend display status
     function mapStatus(s) {
@@ -668,6 +688,7 @@
             opt.textContent = names[i];
             select.appendChild(opt);
         }
+        console.log('[diagnostic] populateServiceElements() ran; ' + names.length + ' service elements loaded');
         updateDepartments();
     }
 
@@ -696,6 +717,7 @@
             opt.textContent = assetNames[i];
             select.appendChild(opt);
         }
+        console.log('[diagnostic] populateAssetDropdown() ran; ' + assetNames.length + ' asset categories loaded');
     }
 
     function updateAssetItems() {
@@ -1223,8 +1245,16 @@
     // INIT
     // ============================================================
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('[diagnostic] DOMContentLoaded fired');
+        console.log('[diagnostic] session/token present:', !!localStorage.getItem(SESSION_KEY), !!localStorage.getItem(TOKEN_KEY));
         seedData();
-        if (!checkSession()) return;
+
+        try {
+            if (!checkSession()) { console.log('[diagnostic] checkSession() returned false'); return; }
+        } catch (e) {
+            console.error('[diagnostic] checkSession() threw:', e);
+            throw e;
+        }
 
         // Set default active tab
         document.querySelector('.tab-btn[data-tab="booking"]').classList.add('active');
@@ -1232,11 +1262,13 @@
 
         // Load service elements + departments and real assets from the backend,
         // then populate the dropdowns once available.
-        loadServiceElementsFromServer().then(function() {
+        loadServiceElementsFromServer().then(function(se) {
+            console.log('[diagnostic] service elements resolved:', Object.keys(se).length);
             populateServiceElements();
         });
 
-        loadAssets().then(function() {
+        loadAssets().then(function(a) {
+            console.log('[diagnostic] assets resolved:', Object.keys(a).length);
             populateAssetDropdown();
         });
 
