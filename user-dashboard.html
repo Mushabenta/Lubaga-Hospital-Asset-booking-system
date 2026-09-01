@@ -277,12 +277,13 @@
                                 <th>Status</th>
                                 <th id="colApprovedBy">Approved By</th>
                                 <th id="colDateApproved">Date Approved</th>
+                                <th id="colGivenOut">Given Out</th>
                                 <th id="colReturnedOn">Returned On</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="myRequestsBody">
-                            <tr><td colspan="9" class="text-center py-4 text-muted">Loading...</td></tr>
+                            <tr><td colspan="10" class="text-center py-4 text-muted">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -313,7 +314,7 @@
     // Backend endpoint base. Empty string = same origin (served by the API
     // server). Override by setting localStorage['lubaga_api_base'] when these
     // pages are hosted elsewhere.
-    var API_BASE = (localStorage.getItem('lubaga_api_base') || 'https://lubaga-hospital-asset-booking-system-production.up.railway.app').replace(/\/+$/, '');
+    var API_BASE = (localStorage.getItem('lubaga_api_base') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? window.location.origin : 'https://lubaga-hospital-asset-booking-system-production.up.railway.app')).replace(/\/+$/, '');
 
     // The booking form exposes a single date/time. The backend requires an
     // end time, so a booking covers start_time + this duration.
@@ -424,6 +425,7 @@
             status: status,
             approved_by: approvedBy || '',
             date_approved: r.date_approved || '',
+            date_given_out: r.date_given_out || null,
             returned_by: r.returned_by || '',
             date_returned: r.date_returned || null,
             return_condition: '',
@@ -482,12 +484,16 @@
     }
 
     function isOverdue(r) {
-        if (!r || !r.booking_date) return false;
+        if (!r) return false;
         if (r.status === 'Returned' || r.status === 'Rejected' || r.status === 'Pending' || r.status === 'Cancelled') return false;
+        if (r.status !== 'Approved') return false;
+        // The return clock starts when the item is physically given out, not
+        // when it was approved (the user may never collect an approved item).
+        if (!r.date_given_out) return false;
         var now = new Date();
-        var booked = new Date(r.booking_date);
-        var diffDays = (now - booked) / (1000 * 60 * 60 * 24);
-        return diffDays > 3 && r.status === 'Approved';
+        var givenOut = new Date(r.date_given_out);
+        var diffDays = (now - givenOut) / (1000 * 60 * 60 * 24);
+        return diffDays > 3;
     }
 
     function showToast(msg, type) {
@@ -511,6 +517,14 @@
     function formatUgandanDateTime() {
         var date = getUgandanTime();
         return date.toISOString().slice(0, 16);
+    }
+
+    // Earliest selectable time for an advance (future) booking: tomorrow at
+    // 00:00, so today's date and the current time are never allowed.
+    function minAdvanceDateTime() {
+        var now = getUgandanTime();
+        var tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        return tomorrow.toISOString().slice(0, 10) + 'T00:00';
     }
 
     // ============================================================
@@ -577,6 +591,7 @@
         document.getElementById('bookingEmail').value = (user && user.email) || '';
         document.getElementById('bookingRequestedBy').value = session;
         document.getElementById('bookingDateTime').value = formatUgandanDateTime();
+        document.getElementById('bookingDateTime').min = minAdvanceDateTime();
         document.getElementById('bookingDateTime').disabled = true;
 
         // Validate the token against the backend in the background; kick the
@@ -612,7 +627,8 @@
         } else {
             dt.disabled = false;
             dt.style.opacity = '1';
-            if (!dt.value) dt.value = formatUgandanDateTime();
+            dt.min = minAdvanceDateTime();
+            if (!dt.value) dt.value = minAdvanceDateTime();
         }
     }
 
@@ -706,6 +722,18 @@
         if (!bookingDate || !contact || !email || !serviceElement || !department || !assetItem || !specification || !requestedBy) {
             showToast('Please fill in all required fields.', 'danger');
             return;
+        }
+
+        // For advance bookings, today's date / current time is not allowed.
+        if (bookingMode === 'advance') {
+            var selected = new Date(bookingDate);
+            var tomorrowStart = new Date(minAdvanceDateTime());
+            if (isNaN(selected.getTime()) || selected < tomorrowStart) {
+                document.getElementById('bookingDateTime').classList.add('is-invalid');
+                showToast('Advance bookings must be for a future date (from tomorrow onward), not today or the current time.', 'danger');
+                return;
+            }
+            document.getElementById('bookingDateTime').classList.remove('is-invalid');
         }
 
         var powerCode = 'No', powerExt = 'No', cable = 'N/A', adapter = 'No';
@@ -902,11 +930,15 @@
         // Determine which columns to show based on filter
         var showApprovedBy = false;
         var showDateApproved = false;
+        var showGivenOut = false;
         var showReturnedOn = false;
         
         if (filter === 'all' || filter === 'Approved' || filter === 'Returned' || filter === 'Rejected' || filter === 'Overdue') {
             showApprovedBy = true;
             showDateApproved = true;
+        }
+        if (filter === 'all' || filter === 'Approved' || filter === 'Returned' || filter === 'Overdue') {
+            showGivenOut = true;
         }
         if (filter === 'all' || filter === 'Returned') {
             showReturnedOn = true;
@@ -915,16 +947,18 @@
         if (filter === 'Pending') {
             showApprovedBy = false;
             showDateApproved = false;
+            showGivenOut = false;
             showReturnedOn = false;
         }
 
         // Update table headers
         document.getElementById('colApprovedBy').style.display = showApprovedBy ? '' : 'none';
         document.getElementById('colDateApproved').style.display = showDateApproved ? '' : 'none';
+        document.getElementById('colGivenOut').style.display = showGivenOut ? '' : 'none';
         document.getElementById('colReturnedOn').style.display = showReturnedOn ? '' : 'none';
 
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No requests found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-muted">No requests found.</td></tr>';
             mobile.innerHTML = '<div class="text-center py-4 text-muted">No requests found.</div>';
             return;
         }
@@ -961,6 +995,7 @@
             }
             var assetDisplay = r.asset_item + accessories;
             var dateApproved = r.date_approved ? new Date(r.date_approved).toLocaleString() : '—';
+            var dateGivenOut = r.date_given_out ? new Date(r.date_given_out).toLocaleString() : '—';
             var dateReturned = r.date_returned ? new Date(r.date_returned).toLocaleString() : (isReturned ? 'Returned' : '—');
 
             html += '<tr class="' + rowClass + '">';
@@ -971,6 +1006,7 @@
             html += '<td><span class="status-badge ' + statusClass + '">' + statusDisplay + '</span></td>';
             html += '<td class="' + (showApprovedBy ? '' : 'hidden-col') + '">' + (showApprovedBy ? (r.approved_by || '—') : '—') + '</td>';
             html += '<td class="' + (showDateApproved ? '' : 'hidden-col') + '">' + (showDateApproved ? dateApproved : '—') + '</td>';
+            html += '<td class="' + (showGivenOut ? '' : 'hidden-col') + '">' + (showGivenOut ? dateGivenOut : '—') + '</td>';
             html += '<td class="' + (showReturnedOn ? '' : 'hidden-col') + '">' + (showReturnedOn ? dateReturned : '—') + '</td>';
             html += '<td>';
             if (canCancel) {
@@ -991,6 +1027,9 @@
             }
             if (showDateApproved) {
                 mobHtml += '<div class="field-row"><span class="field-label">Date Approved</span><span class="field-value">' + dateApproved + '</span></div>';
+            }
+            if (showGivenOut) {
+                mobHtml += '<div class="field-row"><span class="field-label">Given Out</span><span class="field-value">' + dateGivenOut + '</span></div>';
             }
             if (showReturnedOn) {
                 mobHtml += '<div class="field-row"><span class="field-label">Returned On</span><span class="field-value">' + dateReturned + '</span></div>';

@@ -6,7 +6,7 @@ const { userValidators } = require('../validators');
 const router = express.Router();
 
 router.get('/', protect, adminOnly, UserController.list);
-router.post('/', protect, adminOnly, userValidators.createAdmin, UserController.createAdmin);
+router.post('/', protect, generalAdminOnly, userValidators.createAdmin, UserController.createAdmin);
 router.put('/:id/toggle', protect, adminOnly, userValidators.toggle, UserController.toggleActive);
 router.delete('/:id', protect, generalAdminOnly, userValidators.delete, UserController.remove);
 

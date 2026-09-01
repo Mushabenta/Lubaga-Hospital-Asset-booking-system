@@ -10,6 +10,7 @@ const BOOKING_SELECT = `
          b.start_time, b.end_time, b.purpose, b.status,
          b.power_code, b.power_extension, b.vga_hdmi, b.hdmi_adapter,
          b.approved_by, au.username AS approved_by_name, b.date_approved,
+         b.date_given_out,
          b.returned_by, b.date_returned, b.notes, b.created_at, b.updated_at
   FROM bookings b
   JOIN assets a ON a.id = b.asset_id
