@@ -6,19 +6,7 @@
     <title>My Assets - Lubaga Hospital</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <!-- EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script>
-        // ============================================================
-        // EMAILJS CONFIG - YOUR KEYS
-        // ============================================================
-        (function() {
-            emailjs.init("CVEY11pwvsGebhprz");
-        })();
-
-        var EMAILJS_SERVICE_ID = "service_jcfjyuk";
-        var EMAILJS_TEMPLATE_ID = "template_2adqfib";   // User → Admin
-    </script>
+    <!-- Email handled by backend -->
     <style>
         * { box-sizing: border-box; }
         body { background: #f0f4f8; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; padding-bottom: 40px; }
@@ -366,10 +354,8 @@
     }
 
     // ============================================================
-    // EMAILJS CONFIG
+    // EMAIL – handled server-side by backend emailService.js
     // ============================================================
-    var EMAILJS_SERVICE_ID = "service_jcfjyuk";
-    var EMAILJS_TEMPLATE_ID = "template_2adqfib";
 
     var defaultAssets = {
         'Laptop': ['Dell Latitude 5420', 'HP EliteBook 840', 'Lenovo ThinkPad X1', 'MacBook Pro 14"'],
@@ -573,45 +559,10 @@
     }
 
     // ============================================================
-    // SEND EMAIL TO ADMIN
+    // SEND EMAIL – handled server-side by backend emailService.js
     // ============================================================
-    function sendEmailToAdmin(request) {
-        // The backend now owns the user/admin directory, so this page no longer
-        // has the admin emails locally. Send an EmailJS confirmation to the
-        // requestor as the recipient instead.
-        var toEmail = request.email || '';
-        if (!toEmail) {
-            console.warn('No requestor email available; skipping email notification.');
-            return;
-        }
-
-        var templateParams = {
-            to_email: toEmail,
-            to_name: request.requested_by || 'User',
-            from_name: request.requested_by || 'User',
-            from_email: request.email || 'No email provided',
-            request_id: request.id,
-            asset: request.asset_item,
-            specification: request.specification,
-            service_element: request.service_element,
-            department: request.department,
-            booking_date: request.booking_date,
-            contact: request.contact,
-            reason: request.reason || 'No reason provided',
-            message: 'Your asset booking request has been submitted and is pending review by an administrator.'
-        };
-
-        console.log('📧 Sending notification to:', toEmail);
-        console.log('📧 Template Params:', templateParams);
-
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-            .then(function(response) {
-                console.log('✅ Email sent successfully!', response.status, response.text);
-                showToast('Email notification sent!', 'success');
-            }, function(error) {
-                console.log('❌ Failed to send email:', error);
-                showToast('Failed to send email notification. Please check EmailJS configuration.', 'danger');
-            });
+    function sendEmailToAdmin() {
+        // No-op: emails are now sent by the backend when a booking is created.
     }
 
     // ============================================================
@@ -838,9 +789,9 @@
                 populateServiceElements();
                 populateAssetDropdown();
 
-                sendEmailToAdmin(mapBooking(created));
+                sendEmailToAdmin();
 
-                showToast('Request submitted successfully! Email sent.', 'success');
+                showToast('Request submitted successfully! Admins have been notified.', 'success');
                 return loadMyRequestsFromServer().then(function() {
                     loadMyRequests('all');
                     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });

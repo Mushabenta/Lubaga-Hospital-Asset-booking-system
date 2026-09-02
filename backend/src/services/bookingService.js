@@ -2,6 +2,7 @@ const { pool } = require('../config/db');
 const Booking = require('../models/Booking');
 const Asset = require('../models/Asset');
 const AuditLog = require('../models/AuditLog');
+const EmailService = require('./emailService');
 const ApiError = require('../utils/ApiError');
 const bookingRules = require('../utils/bookingRules');
 
@@ -109,7 +110,9 @@ const BookingService = {
         details: { assetId, start: startTime.toISOString(), end: endTime.toISOString() }
       });
 
-      return Booking.findById(bookingId);
+      const fullBooking = await Booking.findById(bookingId);
+      EmailService.notifyAdminsNewBooking(fullBooking).catch(() => {});
+      return fullBooking;
     } catch (error) {
       try { await client.query('ROLLBACK'); } catch (_) { /* ignore */ }
       throw error;
@@ -152,7 +155,9 @@ const BookingService = {
       entity: 'booking',
       entityId: id
     });
-    return Booking.findById(id);
+    const full = await Booking.findById(id);
+    EmailService.notifyUserBookingStatus(full, 'approved', actor.username).catch(() => {});
+    return full;
   },
 
   async reject(id, actor, reason) {
@@ -167,7 +172,9 @@ const BookingService = {
       entity: 'booking',
       entityId: id
     });
-    return Booking.findById(id);
+    const full = await Booking.findById(id);
+    EmailService.notifyUserBookingStatus(full, 'rejected', actor.username).catch(() => {});
+    return full;
   },
 
   async cancel(id, actor) {
@@ -194,9 +201,6 @@ const BookingService = {
     const booking = await Booking.findRawById(id);
     if (!booking) throw new ApiError(404, 'Booking not found', 'BOOKING_NOT_FOUND');
     validateTransition(booking.status, 'active');
-    // The item is physically handed to the user at this moment; the return
-    // countdown starts from when it was given out, not from when it was
-    // approved (the user may never collect an approved booking).
     await Booking.updateStatus(id, 'active', { date_given_out: booking.date_given_out || new Date() });
     await AuditLog.create({
       userId: actor.id,
@@ -204,7 +208,9 @@ const BookingService = {
       entity: 'booking',
       entityId: id
     });
-    return Booking.findById(id);
+    const full = await Booking.findById(id);
+    EmailService.notifyUserBookingStatus(full, 'given_out', actor.username).catch(() => {});
+    return full;
   },
 
   async complete(id, actor, { returnedBy, notes }) {
@@ -222,7 +228,9 @@ const BookingService = {
       entity: 'booking',
       entityId: id
     });
-    return Booking.findById(id);
+    const full = await Booking.findById(id);
+    EmailService.notifyUserBookingStatus(full, 'returned', actor.username).catch(() => {});
+    return full;
   },
 
   async stats(actor) {

@@ -23,7 +23,6 @@ app.use(
         fontSrc: ["'self'", 'data:', 'https://cdn.jsdelivr.net'],
         connectSrc: [
           "'self'",
-          'https://api.emailjs.com',
           'https://cdn.jsdelivr.net'
         ],
         objectSrc: ["'none'"],

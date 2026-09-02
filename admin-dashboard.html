@@ -7,16 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script>
-        (function() {
-            emailjs.init("CVEY11pwvsGebhprz");
-        })();
-
-        var EMAILJS_SERVICE_ID = "service_jcfjyuk";
-        var EMAILJS_TEMPLATE_ID = "template_e3t0zea";
-    </script>
+    <!-- Email handled by backend -->
     <style>
         * { box-sizing: border-box; }
         body { background: #f0f4f8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-bottom: 40px; }
@@ -692,10 +683,8 @@
         }
 
         // ============================================================
-        // EMAILJS CONFIG
+        // EMAIL – handled server-side by backend emailService.js
         // ============================================================
-        var EMAILJS_SERVICE_ID = "service_jcfjyuk";
-        var EMAILJS_TEMPLATE_ID = "template_e3t0zea";
 
         // ============================================================
         // DEFAULT ASSETS
@@ -976,17 +965,6 @@
             return count;
         }
 
-        function getAllAdminEmails() {
-            const users = getUsers();
-            const emails = [];
-            for (const [u, data] of Object.entries(users)) {
-                if ((data && (data.role === 'admin' || data.role === 'general_admin')) && data.email) {
-                    emails.push(data.email);
-                }
-            }
-            return emails;
-        }
-
         // ============================================================
         // CATEGORIES (asset groups)
         // ============================================================
@@ -1044,53 +1022,11 @@
         }
 
         // ============================================================
-        // SEND EMAIL
+        // SEND EMAIL – handled server-side by backend emailService.js
         // ============================================================
-        function sendEmailWithEmailJS(request, status, adminName, returnDetails) {
-            if (!request.email) {
-                showToast('User has no email address.', 'warning');
-                return;
-            }
-
-            var messageText = '';
-            if (status === 'approved') {
-                messageText = 'Your asset booking request has been approved. You may now collect the asset.';
-            } else if (status === 'given_out') {
-                messageText = 'The asset has been given out to you. Please return it within 3 days.';
-            } else if (status === 'returned') {
-                messageText = 'Your asset has been marked as returned. Thank you for using our service.\n\n' +
-                              'Returned By: ' + (returnDetails?.returnedBy || 'Admin') + '\n' +
-                              'Returned On: ' + (returnDetails?.returnDateTime || new Date().toLocaleString()) + '\n' +
-                              'Condition: ' + (returnDetails?.condition || 'Good') + '\n' +
-                              'Notes: ' + (returnDetails?.notes || 'None');
-            } else if (status === 'rejected') {
-                messageText = 'We regret to inform you that your request has been rejected.';
-            }
-
-            var templateParams = {
-                to_email: request.email,
-                to_name: request.requested_by || 'User',
-                from_name: 'Lubaga Hospital Admin',
-                from_email: 'admin@lubaga.org',
-                request_id: request.id,
-                asset: request.asset_item,
-                specification: request.specification,
-                service_element: request.service_element,
-                department: request.department,
-                booking_date: request.booking_date,
-                contact: request.contact,
-                reason: request.reason || 'No reason provided',
-                status: status,
-                message: messageText,
-                approved_by: adminName || 'Admin'
-            };
-
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                .then(function(response) {
-                    showToast('Email notification sent to user!', 'success');
-                }, function(error) {
-                    showToast('Failed to send email: ' + (error.text || 'Please try again.'), 'danger');
-                });
+        function sendEmailWithEmailJS() {
+            // No-op: emails are now sent by the backend when the booking
+            // status changes (approve, reject, give out, return).
         }
 
         // ============================================================
@@ -1260,13 +1196,7 @@
             })
                 .then(function(res) {
                     if (res && res.success) {
-                        showToast('Asset returned successfully!', 'success');
-                        sendEmailWithEmailJS(request, 'returned', (localStorage.getItem(SESSION_KEY) || ''), {
-                            returnedBy: returnedBy,
-                            returnDateTime: returnDateTime,
-                            condition: condition,
-                            notes: notes || 'None'
-                        });
+                        showToast('Asset returned successfully! Email sent to user.', 'success');
                         return loadRequestsFromServer().then(function() {
                             loadLogs(currentFilter);
                             loadDashboard();
@@ -1293,8 +1223,7 @@
             apiPost('/api/bookings/' + encodeURIComponent(backendId) + '/activate', {})
                 .then(function(res) {
                     if (res && res.success) {
-                        showToast('Asset given out. Return clock started.', 'success');
-                        sendEmailWithEmailJS(all[idx], 'given_out', (localStorage.getItem(SESSION_KEY) || ''));
+                        showToast('Asset given out. Return clock started. Email sent to user.', 'success');
                         return loadRequestsFromServer().then(function() {
                             loadLogs(currentFilter);
                             loadDashboard();
@@ -1561,8 +1490,7 @@
             apiPost('/api/bookings/' + encodeURIComponent(backendId) + '/' + action, action === 'reject' ? { reason: '' } : {})
                 .then(function(res) {
                     if (res && res.success) {
-                        showToast('Request ' + status.toLowerCase() + ' successfully!', status === 'Approved' ? 'success' : 'warning');
-                        sendEmailWithEmailJS(all[idx], status.toLowerCase(), session);
+                        showToast('Request ' + status.toLowerCase() + ' successfully! Email sent to user.', status === 'Approved' ? 'success' : 'warning');
                         return loadRequestsFromServer().then(function() {
                             loadLogs(currentFilter);
                             loadDashboard();

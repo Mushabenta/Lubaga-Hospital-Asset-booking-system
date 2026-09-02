@@ -120,6 +120,14 @@ const User = {
     return rows[0] || null;
   },
 
+  async findAdmins() {
+    const { rows } = await pool.query(
+      `SELECT id, username, email FROM users
+       WHERE role IN ('admin', 'general_admin') AND active = true AND email IS NOT NULL AND email <> ''`
+    );
+    return rows;
+  },
+
   async countByRole(roles) {
     const { rows } = await pool.query(
       `SELECT COUNT(*)::int AS count FROM users WHERE role = ANY($1)`,

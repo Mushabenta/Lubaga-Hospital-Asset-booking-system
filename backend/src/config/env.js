@@ -21,6 +21,14 @@ const env = {
     email: process.env.ADMIN_EMAIL || 'admin@lubaga.org',
     phone: process.env.ADMIN_PHONE || '0772123456',
     password: process.env.ADMIN_PASSWORD || 'admin123'
+  },
+  email: {
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT, 10) || 587,
+    secure: process.env.EMAIL_SECURE === 'true',
+    user: process.env.EMAIL_USER || '',
+    pass: process.env.EMAIL_PASS || '',
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'admin@lubaga.org'
   }
 };
 
