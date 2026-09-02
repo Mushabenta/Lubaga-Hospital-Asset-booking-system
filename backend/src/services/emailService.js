@@ -18,7 +18,7 @@ function getTransporter() {
 async function send(to, subject, html) {
   const transport = getTransporter();
   if (!transport) {
-    console.warn('[email] Skipping – no email transport configured');
+    console.warn('[email] Skipping email to', to, '– EMAIL_USER/EMAIL_PASS not configured');
     return false;
   }
   try {
@@ -56,6 +56,8 @@ function bookingDetailsTable(booking) {
 const EmailService = {
   async notifyAdminsNewBooking(booking) {
     const admins = await User.findAdmins();
+    console.log('[email] notifyAdminsNewBooking: admins found =', admins.length,
+      admins.map(a => a.email).join(', ') || '(none)');
     if (!admins.length) {
       console.warn('[email] No admin users found – skipping new booking notification');
       return;
@@ -91,6 +93,7 @@ const EmailService = {
   },
 
   async notifyUserBookingStatus(booking, status, adminName) {
+    console.log(`[email] notifyUserBookingStatus: status=${status}, to=${booking.email}, from_admin=${adminName}`);
     if (!booking.email) {
       console.warn('[email] No user email – skipping status notification');
       return false;
