@@ -213,7 +213,9 @@ const BookingService = {
     return full;
   },
 
-  async complete(id, actor, { returnedBy, notes }) {
+  async complete(id, actor, body = {}) {
+    const returnedBy = body.returnedBy || body.returned_by;
+    const notes = body.notes;
     const booking = await Booking.findRawById(id);
     if (!booking) throw new ApiError(404, 'Booking not found', 'BOOKING_NOT_FOUND');
     validateTransition(booking.status, 'completed');

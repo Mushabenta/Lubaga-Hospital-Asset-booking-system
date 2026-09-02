@@ -365,14 +365,13 @@
                                         <thead>
                                             <tr>
                                                 <th>Asset</th>
-                                                <th>Category</th>
                                                 <th>Last Taken By</th>
                                                 <th>When Taken</th>
                                                 <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody id="damagedAssetsBody">
-                                            <tr><td colspan="5" class="text-center text-muted py-3">No damaged assets</td></tr>
+                                            <tr><td colspan="4" class="text-center text-muted py-3">No damaged assets</td></tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -1636,7 +1635,7 @@
             });
 
             if (!damagedAssets.length) {
-                body.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No damaged assets</td></tr>';
+                body.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No damaged assets</td></tr>';
                 return;
             }
 
@@ -1659,7 +1658,6 @@
 
                 rows += `<tr>
                     <td><strong>${a.name}</strong> <span class="text-muted" style="font-size:11px;">(${a.code || ''})</span></td>
-                    <td>${a.category || '—'}</td>
                     <td>${requestor}</td>
                     <td>${when}</td>
                     <td>${statusBadge}</td>
