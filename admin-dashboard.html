@@ -358,7 +358,7 @@
                 <div class="row g-3 mt-1">
                     <div class="col-12">
                         <div class="card chart-card">
-                            <div class="card-header bg-danger text-white"><i class="bi bi-exclamation-octagon"></i> Damaged Assets & Who Took Them</div>
+                            <div class="card-header bg-secondary text-white"><i class="bi bi-exclamation-octagon"></i> Damaged Assets</div>
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table admin-table mb-0">
@@ -1654,8 +1654,8 @@
                 const requestor = last ? (last.requestor || '—') : '—';
                 const when = last && last.booking_date ? new Date(last.booking_date).toLocaleString() : '—';
                 const statusBadge = (a.status || '').toLowerCase() === 'damaged' || a._booking
-                    ? '<span class="status-badge rejected">Damaged</span>'
-                    : '<span class="status-badge rejected">Bad</span>';
+                    ? '<span class="condition-badge good" style="background:#e0e0e0; color:#555;">Damaged</span>'
+                    : '<span class="condition-badge good" style="background:#e0e0e0; color:#555;">Bad</span>';
 
                 rows += `<tr>
                     <td><strong>${a.name}</strong> <span class="text-muted" style="font-size:11px;">(${a.code || ''})</span></td>
