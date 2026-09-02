@@ -36,6 +36,12 @@ function validStartTime(startTime) {
 }
 
 // Validate the requested period before any DB call.
+// A short grace period (10 min) is allowed for "Book Now" so that the booking
+// is not rejected because a few seconds/minutes elapsed between the form
+// being populated with the current Ugandan time and the server receiving it
+// (network latency / clock skew). Genuinely past bookings are still blocked.
+const PAST_GRACE_MS = 10 * 60 * 1000;
+
 function validatePeriod(startTime, endTime) {
   const start = new Date(startTime);
   const end = new Date(endTime);
@@ -46,7 +52,7 @@ function validatePeriod(startTime, endTime) {
   if (end <= start) {
     return { ok: false, code: 'END_BEFORE_START', message: 'End time must be after start time' };
   }
-  if (start < new Date()) {
+  if (start.getTime() < new Date().getTime() - PAST_GRACE_MS) {
     return { ok: false, code: 'PAST_BOOKING', message: 'Booking start time cannot be in the past' };
   }
   return { ok: true };

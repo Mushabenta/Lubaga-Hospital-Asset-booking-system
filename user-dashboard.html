@@ -442,7 +442,7 @@
             requestor: r.requestor || '',
             contact: r.phone || '',
             email: r.email || '',
-            service_element: r.service_element || '',
+            service_element: r.user_service_element || r.service_element || '',
             department: r.user_department || r.department || '',
             asset_item: r.category || '',
             specification: r.asset_name || '',
@@ -540,22 +540,28 @@
         new bootstrap.Toast(toast, { delay: 4000 }).show();
     }
 
-    function getUgandanTime() {
-        var now = new Date();
-        return new Date(now.getTime() + (3 * 60 * 60 * 1000));
+    // Local (browser) time helpers, matching the user's own clock. The backend
+    // stores timestamps in UTC and applies a short grace period for "Book Now",
+    // so using the browser's local time here is correct for the datetime-local
+    // input and results in a booking that starts immediately.
+    function localDateTimeString(d) {
+        var mm = String(d.getMonth() + 1).padStart(2, '0');
+        var dd = String(d.getDate()).padStart(2, '0');
+        var hh = String(d.getHours()).padStart(2, '0');
+        var mi = String(d.getMinutes()).padStart(2, '0');
+        return d.getFullYear() + '-' + mm + '-' + dd + 'T' + hh + ':' + mi;
     }
 
     function formatUgandanDateTime() {
-        var date = getUgandanTime();
-        return date.toISOString().slice(0, 16);
+        return localDateTimeString(new Date());
     }
 
     // Earliest selectable time for an advance (future) booking: tomorrow at
     // 00:00, so today's date and the current time are never allowed.
     function minAdvanceDateTime() {
-        var now = getUgandanTime();
-        var tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-        return tomorrow.toISOString().slice(0, 10) + 'T00:00';
+        var now = new Date();
+        var tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+        return localDateTimeString(tomorrow);
     }
 
     // ============================================================
@@ -701,6 +707,13 @@
         var session = localStorage.getItem(SESSION_KEY);
         var user = null;
         try { user = JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) {}
+
+        // For "Book Now", re-sync the start time to the current moment so the
+        // booking is never rejected as being in the past after the user spent
+        // time filling the form.
+        if (bookingMode === 'now') {
+            document.getElementById('bookingDateTime').value = formatUgandanDateTime();
+        }
 
         var bookingDate = document.getElementById('bookingDateTime').value;
         var contact = document.getElementById('bookingContact').value.trim();

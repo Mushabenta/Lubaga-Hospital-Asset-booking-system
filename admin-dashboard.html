@@ -333,6 +333,53 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Most / Least Booked Assets -->
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <div class="card chart-card">
+                            <div class="card-header"><i class="bi bi-trophy text-success"></i> Most Booked Assets</div>
+                            <div class="card-body" style="max-height:280px; overflow-y:auto;">
+                                <div id="mostBookedList"><p class="text-muted text-center py-3">No data</p></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card chart-card">
+                            <div class="card-header"><i class="bi bi-arrow-down-circle text-danger"></i> Least Booked Assets</div>
+                            <div class="card-body" style="max-height:280px; overflow-y:auto;">
+                                <div id="leastBookedList"><p class="text-muted text-center py-3">No data</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Damaged Assets -->
+                <div class="row g-3 mt-1">
+                    <div class="col-12">
+                        <div class="card chart-card">
+                            <div class="card-header bg-danger text-white"><i class="bi bi-exclamation-octagon"></i> Damaged Assets & Who Took Them</div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table admin-table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Asset</th>
+                                                <th>Category</th>
+                                                <th>Last Taken By</th>
+                                                <th>When Taken</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="damagedAssetsBody">
+                                            <tr><td colspan="5" class="text-center text-muted py-3">No damaged assets</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="tab-panel" id="panel-logs">
@@ -877,7 +924,7 @@
                 requestor: r.requestor || (r.user_department ? '' : ''),
                 contact: r.phone || '',
                 email: r.email || '',
-                service_element: r.service_element || '',
+                service_element: r.user_service_element || r.service_element || '',
                 department: r.user_department || r.department || '',
                 asset_item: r.category || '',
                 specification: r.asset_name || '',
@@ -893,7 +940,7 @@
                 date_given_out: r.date_given_out || null,
                 returned_by: r.returned_by || '',
                 date_returned: r.date_returned || null,
-                return_condition: '',
+                return_condition: (r.notes && r.notes.match(/Condition:\s*([^.]+)/)) ? r.notes.match(/Condition:\s*([^.]+)/)[1].trim() : '',
                 return_notes: r.notes || '',
                 submitted_at: r.created_at || ''
             };
@@ -1509,6 +1556,118 @@
         // ============================================================
         let pieChartInstance = null, barChartInstance = null;
 
+        // Count bookings per asset and show the most / least booked assets.
+        function renderAssetUsage(all) {
+            const countMap = {};   // asset name (spec) -> count, with requestor refs
+            all.forEach(r => {
+                const key = (r.specification || r.asset_item || 'Unknown');
+                if (!countMap[key]) countMap[key] = { name: key, count: 0, requestor: r.requestor || '' };
+                countMap[key].count++;
+            });
+            const entries = Object.values(countMap).sort((a, b) => b.count - a.count);
+
+            const mostList = document.getElementById('mostBookedList');
+            const leastList = document.getElementById('leastBookedList');
+            if (!mostList || !leastList) return;
+
+            if (!entries.length) {
+                mostList.innerHTML = '<p class="text-muted text-center py-3">No data</p>';
+                leastList.innerHTML = '<p class="text-muted text-center py-3">No data</p>';
+                return;
+            }
+
+            const top = entries.slice(0, 5);
+            const bottom = entries.slice(-5).reverse();
+
+            function renderList(arr, iconColor) {
+                if (!arr.length) return '<p class="text-muted text-center py-3">No data</p>';
+                const max = arr[0].count;
+                return arr.map((e, i) => `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div style="width:48%;">
+                            <span class="fw-semibold" style="font-size:13px;">${i + 1}. ${e.name}</span>
+                        </div>
+                        <div style="width:38%;">
+                            <div class="progress" style="height:16px; background:#e9ecef;">
+                                <div class="progress-bar" style="width:${max ? Math.round((e.count / max) * 100) : 0}%; background:${iconColor};"></div>
+                            </div>
+                        </div>
+                        <div style="width:14%; text-align:right;">
+                            <span class="badge bg-secondary">${e.count}</span>
+                        </div>
+                    </div>`).join('');
+            }
+
+            mostList.innerHTML = renderList(top, '#28a745');
+            leastList.innerHTML = renderList(bottom, '#dc3545');
+        }
+
+        // Show assets marked damaged, with whoever last took them from bookings.
+        function renderDamagedAssets(all) {
+            const body = document.getElementById('damagedAssetsBody');
+            if (!body) return;
+
+            const damagedAssets = (cachedAssetsMeta || []).filter(a =>
+                (a.condition_name || '').toLowerCase() === 'damaged' ||
+                (a.status || '').toLowerCase() === 'damaged'
+            );
+
+            // Also consider returned bookings whose notes flagged a damaged condition.
+            const damagedBookingLookup = {};
+            (all || []).forEach(r => {
+                const notes = String(r.return_notes || '').toLowerCase();
+                if ((r.status === 'Returned') && notes.indexOf('damaged') !== -1) {
+                    damagedBookingLookup[r.specification] = r;
+                }
+            });
+
+            const assetNames = new Set(damagedAssets.map(a => (a.name || '').toLowerCase()));
+            Object.keys(damagedBookingLookup).forEach(spec => {
+                if (!assetNames.has((spec || '').toLowerCase())) {
+                    damagedAssets.push({
+                        name: spec,
+                        code: '',
+                        category: '',
+                        status: 'damaged',
+                        specification: spec,
+                        _booking: damagedBookingLookup[spec]
+                    });
+                }
+            });
+
+            if (!damagedAssets.length) {
+                body.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">No damaged assets</td></tr>';
+                return;
+            }
+
+            let rows = '';
+            damagedAssets.forEach(a => {
+                // Prefer the damaged return booking; else latest booking for the asset.
+                let last = a._booking || null;
+                if (!last) {
+                    const assetBookings = all.filter(r =>
+                        (r.specification && r.specification === a.name) ||
+                        (r.asset_item === a.category && a.specifications && a.specifications.indexOf(r.specification) !== -1)
+                    );
+                    last = assetBookings.length ? assetBookings[assetBookings.length - 1] : null;
+                }
+                const requestor = last ? (last.requestor || '—') : '—';
+                const when = last && last.booking_date ? new Date(last.booking_date).toLocaleString() : '—';
+                const statusBadge = (a.status || '').toLowerCase() === 'damaged' || a._booking
+                    ? '<span class="status-badge rejected">Damaged</span>'
+                    : '<span class="status-badge rejected">Bad</span>';
+
+                rows += `<tr>
+                    <td><strong>${a.name}</strong> <span class="text-muted" style="font-size:11px;">(${a.code || ''})</span></td>
+                    <td>${a.category || '—'}</td>
+                    <td>${requestor}</td>
+                    <td>${when}</td>
+                    <td>${statusBadge}</td>
+                </tr>`;
+            });
+            body.innerHTML = rows;
+        }
+
         function loadDashboard() {
             const all = getRequests();
             const total = all.length;
@@ -1524,6 +1683,9 @@
             document.getElementById('dOverdue').textContent = overdue;
             document.getElementById('dReturned').textContent = returned;
             document.getElementById('dRejected').textContent = rejected;
+
+            renderAssetUsage(all);
+            renderDamagedAssets(all);
 
             if (typeof Chart === 'undefined') return;
 

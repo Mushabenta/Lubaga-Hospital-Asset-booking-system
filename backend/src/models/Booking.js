@@ -6,7 +6,8 @@ const BOOKING_SELECT = `
          COALESCE((SELECT array_agg(s.specification ORDER BY s.id)
                    FROM asset_specifications s WHERE s.asset_id = a.id), '{}')
            AS asset_specifications,
-         b.user_id, u.username AS requestor, u.email, u.phone, u.department AS user_department,
+         b.user_id, u.username AS requestor, u.email, u.phone,
+         u.service_element AS user_service_element, u.department AS user_department,
          b.start_time, b.end_time, b.purpose, b.status,
          b.power_code, b.power_extension, b.vga_hdmi, b.hdmi_adapter,
          b.approved_by, au.username AS approved_by_name, b.date_approved,
