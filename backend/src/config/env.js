@@ -1,6 +1,7 @@
+const path = require('path');
 const dotenv = require('dotenv');
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -31,6 +32,9 @@ const env = {
     from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'admin@lubaga.org'
   }
 };
+
+console.log('[env] EMAIL_USER loaded:', env.email.user ? env.email.user.slice(0, 3) + '***' : '(empty)');
+console.log('[env] EMAIL_PASS loaded:', env.email.pass ? '***' + env.email.pass.slice(-3) : '(empty)');
 
 if (!env.databaseUrl) {
   throw new Error('DATABASE_URL environment variable is required');
