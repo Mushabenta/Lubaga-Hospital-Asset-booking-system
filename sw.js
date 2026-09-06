@@ -1,4 +1,4 @@
-const CACHE = 'lubaga-assets-v1';
+const CACHE = 'lubaga-assets-v2';
 const APP_SHELL = [
   '/',
   '/index.html',
