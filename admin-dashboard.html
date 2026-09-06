@@ -529,7 +529,8 @@
                             <div class="row g-2">
                                 <div class="col-md-4"><input type="text" id="adminNewUser" class="form-control form-control-sm" placeholder="Username *" required></div>
                                 <div class="col-md-4"><input type="email" id="adminNewEmail" class="form-control form-control-sm" placeholder="Email *" required></div>
-                                <div class="col-md-4"><input type="password" id="adminNewPass" class="form-control form-control-sm" placeholder="Password (min 4) *" required></div>
+                                <div class="col-md-4"><input type="tel" id="adminNewPhone" class="form-control form-control-sm" placeholder="Phone (e.g. 0772123456) *" required></div>
+                                <div class="col-md-4"><input type="password" id="adminNewPass" class="form-control form-control-sm" placeholder="Password (min 6) *" required></div>
                                 <div class="col-md-4"><input type="password" id="adminNewPassConfirm" class="form-control form-control-sm" placeholder="Confirm Password *" required></div>
                                 <div class="col-md-6">
                                     <select class="form-select form-select-sm" id="adminNewServiceElement" onchange="updateAdminDepartments()" required>
@@ -1555,50 +1556,53 @@
         // ============================================================
         let pieChartInstance = null, barChartInstance = null;
 
-        // Count bookings per asset and show the most / least booked assets.
-        function renderAssetUsage(all) {
-            const countMap = {};   // asset name (spec) -> count, with requestor refs
-            all.forEach(r => {
-                const key = (r.specification || r.asset_item || 'Unknown');
-                if (!countMap[key]) countMap[key] = { name: key, count: 0, requestor: r.requestor || '' };
-                countMap[key].count++;
-            });
-            const entries = Object.values(countMap).sort((a, b) => b.count - a.count);
-
+        // Most / least booked from the backend (GET /api/bookings/stats).
+        // Most booked = item given out most times; least = given out fewest.
+        function renderAssetUsage(stats) {
             const mostList = document.getElementById('mostBookedList');
             const leastList = document.getElementById('leastBookedList');
             if (!mostList || !leastList) return;
 
-            if (!entries.length) {
+            const top = (stats && stats.mostBooked) || [];
+            const bottom = (stats && stats.leastBooked) || [];
+
+            if (!top.length) {
                 mostList.innerHTML = '<p class="text-muted text-center py-3">No data</p>';
                 leastList.innerHTML = '<p class="text-muted text-center py-3">No data</p>';
                 return;
             }
 
-            const top = entries.slice(0, 5);
-            const bottom = entries.slice(-5).reverse();
+            const max = top[0].booking_count;
 
             function renderList(arr, iconColor) {
                 if (!arr.length) return '<p class="text-muted text-center py-3">No data</p>';
-                const max = arr[0].count;
                 return arr.map((e, i) => `
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <div style="width:48%;">
-                            <span class="fw-semibold" style="font-size:13px;">${i + 1}. ${e.name}</span>
+                            <span class="fw-semibold" style="font-size:13px;">${i + 1}. ${e.asset_name}${e.asset_code ? ` <small class="text-muted">(${e.asset_code})</small>` : ''}</span>
                         </div>
                         <div style="width:38%;">
                             <div class="progress" style="height:16px; background:#e9ecef;">
-                                <div class="progress-bar" style="width:${max ? Math.round((e.count / max) * 100) : 0}%; background:${iconColor};"></div>
+                                <div class="progress-bar" style="width:${max ? Math.round((e.booking_count / max) * 100) : 0}%; background:${iconColor};"></div>
                             </div>
                         </div>
                         <div style="width:14%; text-align:right;">
-                            <span class="badge bg-secondary">${e.count}</span>
+                            <span class="badge bg-secondary">${e.booking_count}</span>
                         </div>
                     </div>`).join('');
             }
 
             mostList.innerHTML = renderList(top, '#28a745');
             leastList.innerHTML = renderList(bottom, '#dc3545');
+        }
+
+        function loadAssetUsage() {
+            apiGet('/api/bookings/stats').then(function(res) {
+                const stats = (res && res.success && res.data && res.data.stats) || (res && res.stats) || null;
+                renderAssetUsage(stats);
+            }).catch(function() {
+                renderAssetUsage(null);
+            });
         }
 
         // Show assets marked damaged, with whoever last took them from bookings.
@@ -1656,8 +1660,9 @@
                     ? '<span class="condition-badge good" style="background:#e0e0e0; color:#555;">Damaged</span>'
                     : '<span class="condition-badge good" style="background:#e0e0e0; color:#555;">Bad</span>';
 
+                const codeSuffix = a.code ? ` <span class="text-muted" style="font-size:11px;">(${a.code})</span>` : '';
                 rows += `<tr>
-                    <td><strong>${a.name}</strong> <span class="text-muted" style="font-size:11px;">(${a.code || ''})</span></td>
+                    <td><strong>${a.name}</strong>${codeSuffix}</td>
                     <td>${requestor}</td>
                     <td>${when}</td>
                     <td>${statusBadge}</td>
@@ -1682,7 +1687,7 @@
             document.getElementById('dReturned').textContent = returned;
             document.getElementById('dRejected').textContent = rejected;
 
-            renderAssetUsage(all);
+            loadAssetUsage();
             renderDamagedAssets(all);
 
             if (typeof Chart === 'undefined') return;
@@ -1798,22 +1803,10 @@
             return false;
         }
 
-        // Deterministic Ugandan phone number derived from a string, so the
-        // backend's ^07[0-9]{8}$ requirement is satisfied without asking for a
-        // phone in a form that does not collect one.
-        function generatePhone(seed) {
-            let hash = 0;
-            const s = String(seed || '');
-            for (let i = 0; i < s.length; i++) {
-                hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
-            }
-            const digits = String(hash % 100000000).padStart(8, '0');
-            return '07' + digits; // 07 + 8 digits
-        }
-
         function adminAddUser() {
             const username = document.getElementById('adminNewUser').value.trim();
             const email = document.getElementById('adminNewEmail').value.trim();
+            const phone = document.getElementById('adminNewPhone').value.trim();
             const password = document.getElementById('adminNewPass').value;
             const confirm = document.getElementById('adminNewPassConfirm').value;
             const serviceElement = document.getElementById('adminNewServiceElement').value;
@@ -1821,6 +1814,7 @@
 
             if (!username || username.length < 3) { showToast('Username must be at least 3 characters.', 'danger'); return; }
             if (!email || !email.includes('@')) { showToast('Valid email is required.', 'danger'); return; }
+            if (!phone || !/^07[0-9]{8}$/.test(phone)) { showToast('Enter a valid Ugandan phone number (e.g. 0772123456).', 'danger'); return; }
             if (!password || password.length < 6) { showToast('Password must be at least 6 characters.', 'danger'); return; }
             if (password !== confirm) { showToast('Passwords do not match.', 'danger'); return; }
             if (!serviceElement) { showToast('Please select a service element.', 'danger'); return; }
@@ -1829,7 +1823,7 @@
             apiPost('/api/users', {
                 username: username,
                 email: email,
-                phone: generatePhone(username),
+                phone: phone,
                 password: password,
                 serviceElement: serviceElement,
                 department: department
@@ -1838,6 +1832,7 @@
                     showToast('Admin "' + username + '" added successfully!', 'success');
                     document.getElementById('adminNewUser').value = '';
                     document.getElementById('adminNewEmail').value = '';
+                    document.getElementById('adminNewPhone').value = '';
                     document.getElementById('adminNewPass').value = '';
                     document.getElementById('adminNewPassConfirm').value = '';
                     document.getElementById('adminNewServiceElement').value = '';

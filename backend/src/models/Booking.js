@@ -145,19 +145,42 @@ const Booking = {
       conditions.push(`u.department = $${params.length}`);
     }
 
-    const { rows } = await pool.query(
-      `SELECT
-         COUNT(*)::int AS total,
-         COUNT(*) FILTER (WHERE b.status = 'pending')::int AS pending,
-         COUNT(*) FILTER (WHERE b.status = 'approved')::int AS approved,
-         COUNT(*) FILTER (WHERE b.status = 'active')::int AS active,
-         COUNT(*) FILTER (WHERE b.status = 'completed')::int AS completed,
-         COUNT(*) FILTER (WHERE b.status = 'rejected')::int AS rejected,
-         COUNT(*) FILTER (WHERE b.status = 'cancelled')::int AS cancelled
-       FROM bookings b JOIN users u ON u.id = b.user_id ${where()}`,
-      params
-    );
-    return rows[0];
+    const [statusRow, usageRows] = await Promise.all([
+      pool.query(
+        `SELECT
+           COUNT(*)::int AS total,
+           COUNT(*) FILTER (WHERE b.status = 'pending')::int AS pending,
+           COUNT(*) FILTER (WHERE b.status = 'approved')::int AS approved,
+           COUNT(*) FILTER (WHERE b.status = 'active')::int AS active,
+           COUNT(*) FILTER (WHERE b.status = 'completed')::int AS completed,
+           COUNT(*) FILTER (WHERE b.status = 'rejected')::int AS rejected,
+           COUNT(*) FILTER (WHERE b.status = 'cancelled')::int AS cancelled
+         FROM bookings b JOIN users u ON u.id = b.user_id ${where()}`,
+        params
+      ),
+      // Items actually given out (approved/active/completed) per asset.
+      // Most booked = given out most; least booked = given out fewest.
+      pool.query(
+        `SELECT a.id, a.name AS asset_name, a.code AS asset_code,
+                COUNT(b.id)::int AS booking_count
+         FROM assets a
+         LEFT JOIN bookings b ON b.asset_id = a.id
+            AND b.status IN ('approved','active','completed')
+         LEFT JOIN users u ON u.id = b.user_id
+         ${where()}
+         GROUP BY a.id, a.name, a.code
+         HAVING COUNT(b.id) > 0
+         ORDER BY booking_count DESC, a.name ASC`,
+        params
+      )
+    ]);
+
+    const usage = usageRows.rows;
+    return {
+      ...statusRow.rows[0],
+      mostBooked: usage.slice(0, 5),
+      leastBooked: usage.slice(-5).reverse()
+    };
   }
 };
 
