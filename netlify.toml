@@ -33,3 +33,16 @@ for = "/*"
 X-Frame-Options = "SAMEORIGIN"
 Referrer-Policy = "strict-origin-when-cross-origin"
 X-Content-Type-Options = "nosniff"
+
+# Service worker must never be cached by the browser, so updates roll out.
+[[headers]]
+for = "/sw.js"
+[headers.values]
+Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Ensure the web app manifest is delivered with the correct content type.
+[[headers]]
+for = "/manifest.webmanifest"
+[headers.values]
+Content-Type = "application/manifest+json"
+Cache-Control = "no-cache"
