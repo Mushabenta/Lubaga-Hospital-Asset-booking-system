@@ -1,6 +1,6 @@
 {
   "name": "Lubaga Hospital Asset Booking System",
-  "short_name": "Lubaga Assets",
+  "short_name": "Lubaga",
   "description": "Book hospital assets such as laptops, projectors and printers at Lubaga Hospital.",
   "start_url": "/",
   "scope": "/",
