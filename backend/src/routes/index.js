@@ -5,6 +5,7 @@ const assetRoutes = require('./asset.routes');
 const bookingRoutes = require('./booking.routes');
 const referenceRoutes = require('./reference.routes');
 const auditRoutes = require('./audit.routes');
+const emailRoutes = require('./email.routes');
 
 const router = express.Router();
 
@@ -14,5 +15,6 @@ router.use('/assets', assetRoutes);
 router.use('/bookings', bookingRoutes);
 router.use(referenceRoutes); // defines /categories and /departments at /api root
 router.use('/audit-logs', auditRoutes);
+router.use('/email', emailRoutes);
 
 module.exports = router;

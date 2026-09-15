@@ -185,6 +185,57 @@ const EmailService = {
       </div>`;
 
     return send(booking.email, subject, html);
+  },
+
+  getConfigStatus() {
+    const { host, port, secure, user, pass } = env.email;
+    return {
+      configured: Boolean(user && pass),
+      host,
+      port,
+      secure,
+      user: user ? `${user.slice(0, 3)}***` : null,
+      passSet: Boolean(pass)
+    };
+  },
+
+  async runDiagnostic(to) {
+    const report = {
+      ...this.getConfigStatus(),
+      verify: 'skipped',
+      send: 'failed',
+      to: to || null,
+      messageId: null,
+      error: null
+    };
+
+    if (!report.configured) {
+      report.error = 'EMAIL_USER/EMAIL_PASS not configured on this instance';
+      return report;
+    }
+
+    try {
+      const transport = getTransporter();
+      await transport.verify();
+      report.verify = 'ok';
+    } catch (err) {
+      report.verify = 'failed';
+      report.error = err.message;
+    }
+
+    const recipient = to || env.email.user;
+    report.to = recipient;
+    const sent = await send(
+      recipient,
+      'Lubaga Booking System - Email Diagnostic Test',
+      '<h2>Email diagnostic test</h2><p>If you received this, the email pipeline is working.</p>'
+    );
+    if (sent) {
+      report.send = 'ok';
+    } else if (!report.error) {
+      report.error = 'SMTP send rejected the message';
+    }
+    return report;
   }
 };
 
