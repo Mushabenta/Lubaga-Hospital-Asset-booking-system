@@ -18,7 +18,7 @@ const EmailController = {
 
     const report = await EmailService.runDiagnostic(to || undefined);
     if (report.send !== 'ok') {
-      throw new ApiError(502, 'Email test failed', 'EMAIL_TEST_FAILED', report);
+      return success(res, report, `Email test failed: ${report.error || 'unknown SMTP error'}`, 502);
     }
     success(res, report, 'Test email sent successfully');
   })
