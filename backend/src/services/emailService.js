@@ -11,8 +11,34 @@ function getTransporter() {
     console.warn('[email] EMAIL_USER/EMAIL_PASS not set – emails will be skipped');
     return null;
   }
-  transporter = nodemailer.createTransport({ host, port, secure, auth: { user, pass } });
+  // pool:true + maxConnections reuse SMTP connections instead of opening a new
+  // connection per sendMail. Gmail throttles rapid connection bursts with
+  // "421 Server busy" errors, which is what broke emails before.
+  transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+    pool: true,
+    maxConnections: 3,
+    maxMessages: 50
+  });
   return transporter;
+}
+
+const TRANSIENT_RESPONSE_CODES = new Set([421, 422, 450, 451, 452]);
+const TRANSIENT_ERROR_CODES = new Set([
+  'ECONNECTION',
+  'ETIMEDOUT',
+  'ESOCKET',
+  'EENVELOPE',
+  'EPIPE',
+  'EMFILE',
+  'ETLS'
+]);
+
+function isTransientError(err) {
+  return TRANSIENT_RESPONSE_CODES.has(err.responseCode) || TRANSIENT_ERROR_CODES.has(err.code);
 }
 
 async function send(to, subject, html) {
@@ -21,19 +47,37 @@ async function send(to, subject, html) {
     console.warn('[email] Skipping email to', to, '– EMAIL_USER/EMAIL_PASS not configured');
     return false;
   }
-  try {
-    await transport.sendMail({
-      from: env.email.from,
-      to,
-      subject,
-      html
-    });
-    console.log('[email] Sent to', to);
-    return true;
-  } catch (err) {
-    console.error('[email] Failed to send to', to, err.message);
-    return false;
+
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await transport.sendMail({
+        from: env.email.from,
+        to,
+        subject,
+        html
+      });
+      if (attempt > 1) {
+        console.warn(`[email] Retry succeeded for ${to} (attempt ${attempt})`);
+      }
+      console.log('[email] Sent to', to);
+      return true;
+    } catch (err) {
+      const transient = isTransientError(err);
+      console.error(
+        `[email] Failed to send to ${to} (attempt ${attempt}/${maxAttempts})${transient ? ' [transient]' : ''}:`,
+        err.message
+      );
+      if (transient && attempt < maxAttempts) {
+        const delay = Math.min(1000 * Math.pow(2, attempt), 8000);
+        console.warn(`[email] Retrying ${to} in ${delay}ms...`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      return false;
+    }
   }
+  return false;
 }
 
 function bookingDetailsTable(booking) {

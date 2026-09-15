@@ -111,7 +111,7 @@ const BookingService = {
       });
 
       const fullBooking = await Booking.findById(bookingId);
-      EmailService.notifyAdminsNewBooking(fullBooking).catch(() => {});
+      EmailService.notifyAdminsNewBooking(fullBooking).catch((err) => console.error('[email] Notification failed:', err.message));
       return fullBooking;
     } catch (error) {
       try { await client.query('ROLLBACK'); } catch (_) { /* ignore */ }
@@ -156,7 +156,7 @@ const BookingService = {
       entityId: id
     });
     const full = await Booking.findById(id);
-    EmailService.notifyUserBookingStatus(full, 'approved', actor.username).catch(() => {});
+    EmailService.notifyUserBookingStatus(full, 'approved', actor.username).catch((err) => console.error('[email] Notification failed:', err.message));
     return full;
   },
 
@@ -173,7 +173,7 @@ const BookingService = {
       entityId: id
     });
     const full = await Booking.findById(id);
-    EmailService.notifyUserBookingStatus(full, 'rejected', actor.username).catch(() => {});
+    EmailService.notifyUserBookingStatus(full, 'rejected', actor.username).catch((err) => console.error('[email] Notification failed:', err.message));
     return full;
   },
 
@@ -209,7 +209,7 @@ const BookingService = {
       entityId: id
     });
     const full = await Booking.findById(id);
-    EmailService.notifyUserBookingStatus(full, 'given_out', actor.username).catch(() => {});
+    EmailService.notifyUserBookingStatus(full, 'given_out', actor.username).catch((err) => console.error('[email] Notification failed:', err.message));
     return full;
   },
 
@@ -231,7 +231,7 @@ const BookingService = {
       entityId: id
     });
     const full = await Booking.findById(id);
-    EmailService.notifyUserBookingStatus(full, 'returned', actor.username).catch(() => {});
+    EmailService.notifyUserBookingStatus(full, 'returned', actor.username).catch((err) => console.error('[email] Notification failed:', err.message));
     return full;
   },
 
